@@ -11,13 +11,13 @@ class Account implements Account
     Int addBalance(Int bal)
     {
         balance = balance + bal;
-        cost(1);
+        cost(10);
         return 0;
     }
     Int deductBalance(Int bal)
     {
         balance = balance - bal;
-        cost(1);
+        cost(10);
         return 0;
     }
     Int getBalance()
@@ -41,9 +41,9 @@ class Bankers implements Bankers
         {
             Fut<Int> f2;
             Fut<Int> f3;
-            f2 = !addBalance(t,1) after dl 5;
-            f3 = !deductBalance(fr,1) after dl 5;
-            await f2?&f3?;
+            f2 = !addBalance(t,10) after dl 5;
+            f3 = !deductBalance(fr,10) after f2 dl 5;
+            await f3?;
         }
         else
         {
@@ -58,16 +58,26 @@ class Bankers implements Bankers
     Account a3 = new Account();
     Account a4 = new Account();
     Account a5 = new Account();
+    Bankers b1 = new Bankers();
+    Bankers b2 = new Bankers();
+    Bankers b3 = new Bankers();
     Fut<Int> f1;
     Fut<Int> f2;
     Fut<Int> f3;
     Fut<Int> f4;
     Fut<Int> f5;
+    Fut<Int> f6;
+    Fut<Int> f7;
+    Fut<Int> f8;
     f1 = !addBalance(a1,10) after dl 5;
     f2 = !addBalance(a2,10) after dl 5;
     f3 = !addBalance(a3,10) after dl 5;
     f4 = !addBalance(a4,10) after dl 5;
     f5 = !addBalance(a5,10) after dl 5;
     await f1?&f2?&f3?&f4?&f5?;
+    f6 = !distribute(b1,a1,a2) after dl 10;
+    f7 = !distribute(b2,a3,a4) after dl 10;
+    f8 = !distribute(b3,a5,a1) after dl 10;
+    await f6?&f7?&f8?;
     println(":)");
 }
