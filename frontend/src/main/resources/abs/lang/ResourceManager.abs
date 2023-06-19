@@ -7,7 +7,6 @@ data Availability = Free | Busy;
 interface ResourceManager {
     List<Int> addRes(List<Set<Quality>> newResources);
     List<Int> holdRes(List<Set<Quality>> wantedResources);
-    List<Int> findRes(Set<Quality> wantedResource);
     Unit releaseRes(List<Int> ids);
     Unit print();
 }
@@ -68,45 +67,6 @@ class ResourceManager implements ResourceManager {
         //println(toString(this.resources));
         return result;
     }
-    List<Int> findRes(Set<Quality> wantedResource);
-            List<Int> result = list[];
-            Map<Int, Pair<Availability, Set<Quality>>> lr = this.resources;
-            while (result == Nil) {
-                //foreach (q in wantedResources) {
-                    Bool found = False;
-                    foreach (entry in entries(lr)) {
-                        if (!found
-                            && fst(snd(entry)) == Free
-                            && isSubset(q, snd(snd(entry))))
-                        {
-                            found = True;
-                            result = Cons(fst(entry), result);
-                            lr = put(lr, fst(entry), Pair(Busy, snd(snd(entry))));
-                        }
-                    }
-                //}
-                if (length(result) != 1 {
-                    // we did not find the required resource
-                    println(`hold retrying: Resources = $this.resources$ We want $wantedResource$`);
-                    result = Nil;
-                    lr = this.resources;
-                    await this.resources != lr;
-                    lr = this.resources;
-                } else {
-                    // we're happy
-                    /*
-                    println("***********************************************");
-                    println("We have acquired the requested resource :)");
-                    println("***********************************************");
-                    */
-                    this.resources = lr;
-                }
-            }
-
-            //println(toString(this.resources));
-            return result;
-        }
-
     Unit releaseRes(List<Int> ids) {
         Set<Int> all_ids = keys(resources);
         foreach (id in ids) {

@@ -34,6 +34,8 @@ aspect doABSTranslator {
             }
             else {
                 s.doABSTranslation(stream, formatter);
+                stream.println();
+                formatter.afterStmt();
             }
             //getChild(0).doABSTranslation(stream, formatter);
             for (int i = 1; i < getNumChild(); i++) {
@@ -43,6 +45,8 @@ aspect doABSTranslator {
                 }
                 else {
                     s1.doABSTranslation(stream, formatter);
+                    stream.println();
+                    formatter.afterStmt();
                 }
                 //getChild(i).doABSTranslation(stream, formatter);
             }
@@ -395,6 +399,8 @@ aspect doABSTranslator {
         stream.println("{");
         formatter.afterOpenBrace();
         formatter.afterStmt();
+        stream.println("Int fake = 0;");
+        formatter.afterStmt();
         getStmtList().doABSTranslation(stream, m, formatter);
         stream.println();
         formatter.beforeCloseBrace();
@@ -688,11 +694,11 @@ aspect doABSTranslator {
         }
         stream.println();
         formatter.afterStmt();
-        stream.print("wait(");
+        stream.print("[wait(");
         getMin().doABSTranslation(stream, formatter);
         //stream.print(", ");
         //getMin().doABSTranslation(stream, formatter);
-        stream.print(")");
+        stream.print(")] fake = 0");
         stream.print(";");
     }
 
@@ -747,6 +753,8 @@ aspect doABSTranslator {
         stream.println();
         formatter.afterStmt();
         */
+        stream.println("Int method_end = 0;");
+        formatter.afterStmt();
         getAnnotationList().doABSTranslation(stream, formatter, "");
         stream.print("return ");
         getRetExp().doABSTranslation(stream, formatter);
