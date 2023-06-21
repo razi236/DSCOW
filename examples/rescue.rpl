@@ -1,0 +1,197 @@
+module Rescue;
+interface Police
+{
+    Int alarm(ECC ecc, EOD eod, FB fb, Hospital h);
+    Int repEmgInfo(ECC ecc, EOD eod, FB fb, Hospital h);
+    Int rushToSite();
+    Int dealSituation();
+    Int evacuation();
+    Int rescue();
+}
+class Police implements Police
+{
+    Int alarm(ECC ecc, EOD eod, FB fb, Hospital h)
+    {
+        Int x = 0;
+        x = repEmgInfo(this,ecc,eod,fb,h) after dl 55;
+        return 0;
+    }
+    Int repEmgInfo(ECC ecc, EOD eod, FB fb, Hospital h)
+    {
+        Police p1 = new Police();
+        Police p2 = new Police();
+        Fut<Int> f1;
+        Fut<Int> f2;
+        Fut<Int> f3;
+        Fut<Int> f4;
+        Int x = 0;
+        f1 = !estEmgCtr(ecc) after dl 55;
+        x = rushToSite(this) after dl 25;
+        f2 = !dealSituation(p1) after dl 25;
+        f3 = !evacuation(p2) after dl 25;
+        x = rescue(this) after dl 25;
+        await f1?&f2?&f3?;
+        f4 = !makeEmgPlan(ecc,eod,fb,h) after dl 55;
+        await f4?;
+        return 0;
+    }
+    Int rushToSite()
+    {
+        cost(20); // Time to rush to the site.
+        return 0;
+    }
+    Int dealSituation()
+    {
+        cost(20); // Time to deal with situation.
+        return 0;
+    }
+    Int evacuation()
+    {
+        cost(20); // Time to evacuate.
+        return 0;
+    }
+    Int rescue()
+    {
+        cost(20); // Time to rescue.
+        return 0;
+    }
+}
+interface ECC
+{
+    Int estEmgCtr();
+    Int makeEmgPlan(EOD eod, FB fb, Hospital h);
+}
+class ECC implements ECC
+{
+    Int estEmgCtr()
+    {
+        cost(50); // Time to establish temporary emergency center
+        return 0;
+    }
+    Int makeEmgPlan(EOD eod, FB fb, Hospital h)
+    {
+        Fut<Int> f1;
+        Fut<Int> f2;
+        Fut<Int> f3;
+        f1 = !start(eod) after dl 50;
+        f2 = !start(fb) after dl 50;
+        f3 = !start(h) after dl 50;
+        await f1?&f2?&f3?;
+        println("Plan Done");
+        return 0;
+    }
+}
+interface EOD
+{
+    Int start();
+    Int rushToSite();
+    Int searchEOD();
+    Int reportEOD();
+}
+class EOD implements EOD
+{
+    Int start()
+    {
+        Int x = 0;
+        x = rushToSite(this) after dl 25;
+        x = searchEOD(this) after dl 15;
+        x = reportEOD(this) after dl 10;
+        return 0;
+    }
+    Int rushToSite()
+    {
+        cost(20); // Time to rush to the site.
+        return 0;
+    }
+    Int searchEOD()
+    {
+        cost(10); // Time to search EOD.
+        return 0;
+    }
+    Int reportEOD()
+    {
+        cost(5); //Time to report EOD.
+        return 0;
+    }
+}
+interface FB
+{
+    Int start();
+    Int rushToSite();
+    Int fightFire();
+    Int mitigate();
+    Int recoverSite();
+    Int reportFireRescue();
+}
+class FB implements FB
+{
+    Int start()
+    {
+        Int x = 0;
+        FB fb1 = new FB();
+        Fut<Int> f1;
+        x = rushToSite(this) after dl 25;
+        x = fightFire(this) after dl 35;
+        f1 = !mitigate(fb1) after dl 15;
+        x = recoverSite(this) after dl 15;
+        await f1?;
+        x = reportFireRescue(this) after dl 10;
+        return 0;
+    }
+    Int rushToSite()
+    {
+        cost(20); // Time to rush to the site.
+        return 0;
+    }
+    Int fightFire()
+    {
+        cost(30); // Time to fight the fire.
+        return 0;
+    }
+    Int mitigate()
+    {
+        cost(10); // Time to mitigate.
+        return 0;
+    }
+    Int recoverSite()
+    {
+        cost(10); // Time to recover site.
+        return 0;
+    }
+    Int reportFireRescue()
+    {
+        cost(5); // Time to report fire rescue.
+        return 0;
+    }
+}
+interface Hospital
+{
+    Int start();
+    Int rushToSite();
+}
+class Hospital implements Hospital
+{
+    Int start()
+    {
+        Int x = 0;
+        x = rushToSite(this) after dl 25;
+        return 0;
+    }
+    Int rushToSite()
+    {
+        cost(20); // Time to rush to the site.
+        return 0;
+    }
+}
+{
+    Police p = new Police();
+    ECC ecc = new ECC();
+    EOD eod = new EOD();
+    FB fb = new FB();
+    Hospital h = new Hospital();
+    Fut<Int> f;
+    f = !alarm(p,ecc,eod,fb,h) after dl 70;
+    await f?;
+    println("Cool");
+    println(`Time: $now()$`);
+}
