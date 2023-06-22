@@ -148,7 +148,7 @@ class Police implements Police {
     return 0;
   }
   Int repEmgInfo(ResourceManager rm,ECC ecc, EOD eod, FB fb, Hospital h){
-    Police p1 = new Police();Police p2 = new Police();Fut<Int> f1;Fut<Int> f2;Fut<Int> f3;Fut<Int> f4;Int x = 0;[Deadline: Duration(55)]    f1 = ecc!estEmgCtr(rm);[Deadline: Duration(25)]    x = this.rushToSite(rm);[Deadline: Duration(25)]    f2 = p1!dealSituation(rm);[Deadline: Duration(25)]    f3 = p2!evacuation(rm);[Deadline: Duration(25)]    x = this.rescue(rm);await f1? & f2? & f3?;[Deadline: Duration(55)]    f4 = ecc!makeEmgPlan(rm,eod, fb, h);await f4?;try {
+    Police p1 = new Police();Police p2 = new Police();Fut<Int> f1;Fut<Int> f2;Fut<Int> f3;Fut<Int> f4;Int x = 0;duration(5, 5);[Deadline: Duration(55)]    f1 = ecc!estEmgCtr(rm);[Deadline: Duration(25)]    x = this.rushToSite(rm);[Deadline: Duration(25)]    f2 = p1!dealSituation(rm);[Deadline: Duration(25)]    f3 = p2!evacuation(rm);[Deadline: Duration(25)]    x = this.rescue(rm);await f1? & f2? & f3?;[Deadline: Duration(55)]    f4 = ecc!makeEmgPlan(rm,eod, fb, h);await f4?;try {
     Duration d = deadline();
     Rat r = durationValue(d);
     assert r > 0;
@@ -201,7 +201,8 @@ class Police implements Police {
 
 interface ECC {
   Int estEmgCtr(ResourceManager rm);
-  Int makeEmgPlan(ResourceManager rm,EOD eod, FB fb, Hospital h);}
+  Int makeEmgPlan(ResourceManager rm,EOD eod, FB fb, Hospital h);
+  Int doMediaCoverage(ResourceManager rm);}
 
 class ECC implements ECC {
   
@@ -216,12 +217,22 @@ class ECC implements ECC {
     return 0;
   }
   Int makeEmgPlan(ResourceManager rm,EOD eod, FB fb, Hospital h){
-    Fut<Int> f1;Fut<Int> f2;Fut<Int> f3;[Deadline: Duration(50)]    f1 = eod!start(rm);[Deadline: Duration(50)]    f2 = fb!start(rm);[Deadline: Duration(50)]    f3 = h!start(rm);await f1? & f2? & f3?;println("Plan Done");try {
+    Int x = 0;Fut<Int> f1;Fut<Int> f2;Fut<Int> f3;[Deadline: Duration(50)]    f1 = eod!start(rm);[Deadline: Duration(50)]    f2 = fb!start(rm);[Deadline: Duration(50)]    f3 = h!start(rm);await f1? & f2? & f3?;[Deadline: Duration(20)]    x = this.doMediaCoverage(rm);println("Plan Done");try {
     Duration d = deadline();
     Rat r = durationValue(d);
     assert r > 0;
     } catch {
     AssertionFailException => println(`The method "makeEmgPlan" have missed the deadline.`);
+    }
+    return 0;
+  }
+  Int doMediaCoverage(ResourceManager rm){
+    duration(15, 15);try {
+    Duration d = deadline();
+    Rat r = durationValue(d);
+    assert r > 0;
+    } catch {
+    AssertionFailException => println(`The method "doMediaCoverage" have missed the deadline.`);
     }
     return 0;
   }
@@ -351,12 +362,16 @@ class FB implements FB {
 
 interface Hospital {
   Int start(ResourceManager rm);
-  Int rushToSite(ResourceManager rm);}
+  Int rushToSite(ResourceManager rm);
+  Int shuntWounded(ResourceManager rm);
+  Int treatSliInj(ResourceManager rm);
+  Int treatSevInj(ResourceManager rm);
+  Int reportMedRescue(ResourceManager rm);}
 
 class Hospital implements Hospital {
   
   Int start(ResourceManager rm){
-    Int x = 0;[Deadline: Duration(25)]    x = this.rushToSite(rm);try {
+    Int x = 0;Hospital h1 = new Hospital();Fut<Int> f1;[Deadline: Duration(25)]    x = this.rushToSite(rm);[Deadline: Duration(25)]    x = this.shuntWounded(rm);[Deadline: Duration(25)]    f1 = h1!treatSliInj(rm);[Deadline: Duration(25)]    x = this.treatSevInj(rm);await f1?;[Deadline: Duration(10)]    x = this.reportMedRescue(rm);try {
     Duration d = deadline();
     Rat r = durationValue(d);
     assert r > 0;
@@ -375,6 +390,46 @@ class Hospital implements Hospital {
     }
     return 0;
   }
+  Int shuntWounded(ResourceManager rm){
+    duration(10, 10);try {
+    Duration d = deadline();
+    Rat r = durationValue(d);
+    assert r > 0;
+    } catch {
+    AssertionFailException => println(`The method "shuntWounded" have missed the deadline.`);
+    }
+    return 0;
+  }
+  Int treatSliInj(ResourceManager rm){
+    duration(10, 10);try {
+    Duration d = deadline();
+    Rat r = durationValue(d);
+    assert r > 0;
+    } catch {
+    AssertionFailException => println(`The method "treatSliInj" have missed the deadline.`);
+    }
+    return 0;
+  }
+  Int treatSevInj(ResourceManager rm){
+    duration(20, 20);try {
+    Duration d = deadline();
+    Rat r = durationValue(d);
+    assert r > 0;
+    } catch {
+    AssertionFailException => println(`The method "treatSevInj" have missed the deadline.`);
+    }
+    return 0;
+  }
+  Int reportMedRescue(ResourceManager rm){
+    duration(5, 5);try {
+    Duration d = deadline();
+    Rat r = durationValue(d);
+    assert r > 0;
+    } catch {
+    AssertionFailException => println(`The method "reportMedRescue" have missed the deadline.`);
+    }
+    return 0;
+  }
   }
 
 
@@ -387,7 +442,7 @@ class Hospital implements Hospital {
   FB fb = new FB();
   Hospital h = new Hospital();
   Fut<Int> f;
-  [Deadline: Duration(70)]  f = p!alarm(rm,ecc, eod, fb, h);
+  [Deadline: Duration(150)]  f = p!alarm(rm,ecc, eod, fb, h);
   await f?;
   println("Cool");
   println(( ( "Time: " + toString(now()) ) + "" ));

@@ -25,6 +25,7 @@ class Police implements Police
         Fut<Int> f3;
         Fut<Int> f4;
         Int x = 0;
+        cost(5);// Time to report emergency info.
         f1 = !estEmgCtr(ecc) after dl 55;
         x = rushToSite(this) after dl 25;
         f2 = !dealSituation(p1) after dl 25;
@@ -60,6 +61,7 @@ interface ECC
 {
     Int estEmgCtr();
     Int makeEmgPlan(EOD eod, FB fb, Hospital h);
+    Int doMediaCoverage();
 }
 class ECC implements ECC
 {
@@ -70,6 +72,7 @@ class ECC implements ECC
     }
     Int makeEmgPlan(EOD eod, FB fb, Hospital h)
     {
+        Int x = 0;
         Fut<Int> f1;
         Fut<Int> f2;
         Fut<Int> f3;
@@ -77,7 +80,13 @@ class ECC implements ECC
         f2 = !start(fb) after dl 50;
         f3 = !start(h) after dl 50;
         await f1?&f2?&f3?;
+        x = doMediaCoverage(this) after dl 20;
         println("Plan Done");
+        return 0;
+    }
+    Int doMediaCoverage()
+    {
+        cost(15); // Time for media coverage.
         return 0;
     }
 }
@@ -168,18 +177,49 @@ interface Hospital
 {
     Int start();
     Int rushToSite();
+    Int shuntWounded();
+    Int treatSliInj();
+    Int treatSevInj();
+    Int reportMedRescue();
 }
 class Hospital implements Hospital
 {
     Int start()
     {
         Int x = 0;
+        Hospital h1 = new Hospital();
+        Fut<Int> f1;
         x = rushToSite(this) after dl 25;
+        x = shuntWounded(this) after dl 25;
+        f1 = !treatSliInj(h1) after dl 25;
+        x = treatSevInj(this) after dl 25;
+        await f1?;
+        x = reportMedRescue(this) after dl 10;
         return 0;
     }
     Int rushToSite()
     {
         cost(20); // Time to rush to the site.
+        return 0;
+    }
+    Int shuntWounded()
+    {
+        cost(10); // Time to shunt the wounded.
+        return 0;
+    }
+    Int treatSliInj()
+    {
+        cost(10); // Time to treat slightly injured.
+        return 0;
+    }
+    Int treatSevInj()
+    {
+        cost(20); // Time to treat severely injured.
+        return 0;
+    }
+    Int reportMedRescue()
+    {
+        cost(5); // Time to report medical rescue.
         return 0;
     }
 }
@@ -190,7 +230,7 @@ class Hospital implements Hospital
     FB fb = new FB();
     Hospital h = new Hospital();
     Fut<Int> f;
-    f = !alarm(p,ecc,eod,fb,h) after dl 70;
+    f = !alarm(p,ecc,eod,fb,h) after dl 150;
     await f?;
     println("Cool");
     println(`Time: $now()$`);
