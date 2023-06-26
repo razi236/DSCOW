@@ -122,311 +122,81 @@ class AwaitFut implements AwaitFut
         return resolved;
     }
 }
-module Rescue;
+module CrazyBankers;
 import * from ABS.ResourceManager;
 
 import * from ABS.StdLib;
 
-interface Police {
-  Int alarm(ResourceManager rm,ECC ecc, EOD eod, FB fb, Hospital h);
-  Int repEmgInfo(ResourceManager rm,ECC ecc, EOD eod, FB fb, Hospital h);
-  Int rushToSite(ResourceManager rm);
-  Int dealSituation(ResourceManager rm);
-  Int evacuation(ResourceManager rm);
-  Int rescue(ResourceManager rm);}
+interface Account {
+  Int addBalance(ResourceManager rm,Int bal);
+  Int deductBalance(ResourceManager rm,Int bal);
+  Int getBalance(ResourceManager rm);}
 
-class Police implements Police {
+class Account implements Account {
+  Int balance = 0;
+  Int addBalance(ResourceManager rm,Int bal){
+    this.balance = ( this.balance + bal );duration(10, 10);try {
+    Duration d = deadline();
+    Rat r = durationValue(d);
+    assert r > 0;
+    } catch {
+    AssertionFailException => println(`The method "addBalance" have missed the deadline.`);
+    }
+    return 0;
+  }
+  Int deductBalance(ResourceManager rm,Int bal){
+    this.balance = ( this.balance - bal );duration(10, 10);try {
+    Duration d = deadline();
+    Rat r = durationValue(d);
+    assert r > 0;
+    } catch {
+    AssertionFailException => println(`The method "deductBalance" have missed the deadline.`);
+    }
+    return 0;
+  }
+  Int getBalance(ResourceManager rm){
+    try {
+    Duration d = deadline();
+    Rat r = durationValue(d);
+    assert r > 0;
+    } catch {
+    AssertionFailException => println(`The method "getBalance" have missed the deadline.`);
+    }
+    return this.balance;
+  }
+  }
+
+interface Bankers {
+  Int distribute(ResourceManager rm,Account t, Account f);}
+
+class Bankers implements Bankers {
   
-  Int alarm(ResourceManager rm,ECC ecc, EOD eod, FB fb, Hospital h){
-    Int x = 0;[Deadline: Duration(55)]    x = this.repEmgInfo(rm,ecc, eod, fb, h);try {
+  Int distribute(ResourceManager rm,Account t, Account fr){
+    Fut<Int> f1;Int bal = 0;[Deadline: Duration(5)]    f1 = fr!getBalance(rm);bal = f1.get;if ( ( bal > 0 ) ){
+      Fut<Int> f2;
+      Fut<Int> f3;
+      [Deadline: Duration(5)]      f2 = t!addBalance(rm,10);
+      
+      {
+      Bool b1 = False;
+      AwaitFut a1 = new AwaitFut();
+      a1!awaitFut(list[f2]);
+      while(!(b1))
+      {
+        b1 = await a1!checkFut();
+        await duration(1);
+      }
+      }
+      [Deadline: Duration(5)]      f3 = fr!deductBalance(rm,10);
+      await f3?;
+    } else {
+      println("No Balance");
+    }try {
     Duration d = deadline();
     Rat r = durationValue(d);
     assert r > 0;
     } catch {
-    AssertionFailException => println(`The method "alarm" have missed the deadline.`);
-    }
-    return 0;
-  }
-  Int repEmgInfo(ResourceManager rm,ECC ecc, EOD eod, FB fb, Hospital h){
-    Police p1 = new Police();Police p2 = new Police();Fut<Int> f1;Fut<Int> f2;Fut<Int> f3;Fut<Int> f4;Int x = 0;duration(5, 5);[Deadline: Duration(55)]    f1 = ecc!estEmgCtr(rm);[Deadline: Duration(25)]    x = this.rushToSite(rm);[Deadline: Duration(25)]    f2 = p1!dealSituation(rm);[Deadline: Duration(25)]    f3 = p2!evacuation(rm);[Deadline: Duration(25)]    x = this.rescue(rm);await f1? & f2? & f3?;[Deadline: Duration(55)]    f4 = ecc!makeEmgPlan(rm,eod, fb, h);await f4?;try {
-    Duration d = deadline();
-    Rat r = durationValue(d);
-    assert r > 0;
-    } catch {
-    AssertionFailException => println(`The method "repEmgInfo" have missed the deadline.`);
-    }
-    return 0;
-  }
-  Int rushToSite(ResourceManager rm){
-    duration(20, 20);try {
-    Duration d = deadline();
-    Rat r = durationValue(d);
-    assert r > 0;
-    } catch {
-    AssertionFailException => println(`The method "rushToSite" have missed the deadline.`);
-    }
-    return 0;
-  }
-  Int dealSituation(ResourceManager rm){
-    duration(20, 20);try {
-    Duration d = deadline();
-    Rat r = durationValue(d);
-    assert r > 0;
-    } catch {
-    AssertionFailException => println(`The method "dealSituation" have missed the deadline.`);
-    }
-    return 0;
-  }
-  Int evacuation(ResourceManager rm){
-    duration(20, 20);try {
-    Duration d = deadline();
-    Rat r = durationValue(d);
-    assert r > 0;
-    } catch {
-    AssertionFailException => println(`The method "evacuation" have missed the deadline.`);
-    }
-    return 0;
-  }
-  Int rescue(ResourceManager rm){
-    duration(20, 20);try {
-    Duration d = deadline();
-    Rat r = durationValue(d);
-    assert r > 0;
-    } catch {
-    AssertionFailException => println(`The method "rescue" have missed the deadline.`);
-    }
-    return 0;
-  }
-  }
-
-interface ECC {
-  Int estEmgCtr(ResourceManager rm);
-  Int makeEmgPlan(ResourceManager rm,EOD eod, FB fb, Hospital h);
-  Int doMediaCoverage(ResourceManager rm);}
-
-class ECC implements ECC {
-  
-  Int estEmgCtr(ResourceManager rm){
-    duration(50, 50);try {
-    Duration d = deadline();
-    Rat r = durationValue(d);
-    assert r > 0;
-    } catch {
-    AssertionFailException => println(`The method "estEmgCtr" have missed the deadline.`);
-    }
-    return 0;
-  }
-  Int makeEmgPlan(ResourceManager rm,EOD eod, FB fb, Hospital h){
-    Int x = 0;Fut<Int> f1;Fut<Int> f2;Fut<Int> f3;[Deadline: Duration(50)]    f1 = eod!start(rm);[Deadline: Duration(50)]    f2 = fb!start(rm);[Deadline: Duration(50)]    f3 = h!start(rm);await f1? & f2? & f3?;[Deadline: Duration(20)]    x = this.doMediaCoverage(rm);println("Plan Done");try {
-    Duration d = deadline();
-    Rat r = durationValue(d);
-    assert r > 0;
-    } catch {
-    AssertionFailException => println(`The method "makeEmgPlan" have missed the deadline.`);
-    }
-    return 0;
-  }
-  Int doMediaCoverage(ResourceManager rm){
-    duration(15, 15);try {
-    Duration d = deadline();
-    Rat r = durationValue(d);
-    assert r > 0;
-    } catch {
-    AssertionFailException => println(`The method "doMediaCoverage" have missed the deadline.`);
-    }
-    return 0;
-  }
-  }
-
-interface EOD {
-  Int start(ResourceManager rm);
-  Int rushToSite(ResourceManager rm);
-  Int searchEOD(ResourceManager rm);
-  Int reportEOD(ResourceManager rm);}
-
-class EOD implements EOD {
-  
-  Int start(ResourceManager rm){
-    Int x = 0;[Deadline: Duration(25)]    x = this.rushToSite(rm);[Deadline: Duration(15)]    x = this.searchEOD(rm);[Deadline: Duration(10)]    x = this.reportEOD(rm);try {
-    Duration d = deadline();
-    Rat r = durationValue(d);
-    assert r > 0;
-    } catch {
-    AssertionFailException => println(`The method "start" have missed the deadline.`);
-    }
-    return 0;
-  }
-  Int rushToSite(ResourceManager rm){
-    duration(20, 20);try {
-    Duration d = deadline();
-    Rat r = durationValue(d);
-    assert r > 0;
-    } catch {
-    AssertionFailException => println(`The method "rushToSite" have missed the deadline.`);
-    }
-    return 0;
-  }
-  Int searchEOD(ResourceManager rm){
-    duration(10, 10);try {
-    Duration d = deadline();
-    Rat r = durationValue(d);
-    assert r > 0;
-    } catch {
-    AssertionFailException => println(`The method "searchEOD" have missed the deadline.`);
-    }
-    return 0;
-  }
-  Int reportEOD(ResourceManager rm){
-    duration(5, 5);try {
-    Duration d = deadline();
-    Rat r = durationValue(d);
-    assert r > 0;
-    } catch {
-    AssertionFailException => println(`The method "reportEOD" have missed the deadline.`);
-    }
-    return 0;
-  }
-  }
-
-interface FB {
-  Int start(ResourceManager rm);
-  Int rushToSite(ResourceManager rm);
-  Int fightFire(ResourceManager rm);
-  Int mitigate(ResourceManager rm);
-  Int recoverSite(ResourceManager rm);
-  Int reportFireRescue(ResourceManager rm);}
-
-class FB implements FB {
-  
-  Int start(ResourceManager rm){
-    Int x = 0;FB fb1 = new FB();Fut<Int> f1;[Deadline: Duration(25)]    x = this.rushToSite(rm);[Deadline: Duration(35)]    x = this.fightFire(rm);[Deadline: Duration(15)]    f1 = fb1!mitigate(rm);[Deadline: Duration(15)]    x = this.recoverSite(rm);await f1?;[Deadline: Duration(10)]    x = this.reportFireRescue(rm);try {
-    Duration d = deadline();
-    Rat r = durationValue(d);
-    assert r > 0;
-    } catch {
-    AssertionFailException => println(`The method "start" have missed the deadline.`);
-    }
-    return 0;
-  }
-  Int rushToSite(ResourceManager rm){
-    duration(20, 20);try {
-    Duration d = deadline();
-    Rat r = durationValue(d);
-    assert r > 0;
-    } catch {
-    AssertionFailException => println(`The method "rushToSite" have missed the deadline.`);
-    }
-    return 0;
-  }
-  Int fightFire(ResourceManager rm){
-    duration(30, 30);try {
-    Duration d = deadline();
-    Rat r = durationValue(d);
-    assert r > 0;
-    } catch {
-    AssertionFailException => println(`The method "fightFire" have missed the deadline.`);
-    }
-    return 0;
-  }
-  Int mitigate(ResourceManager rm){
-    duration(10, 10);try {
-    Duration d = deadline();
-    Rat r = durationValue(d);
-    assert r > 0;
-    } catch {
-    AssertionFailException => println(`The method "mitigate" have missed the deadline.`);
-    }
-    return 0;
-  }
-  Int recoverSite(ResourceManager rm){
-    duration(10, 10);try {
-    Duration d = deadline();
-    Rat r = durationValue(d);
-    assert r > 0;
-    } catch {
-    AssertionFailException => println(`The method "recoverSite" have missed the deadline.`);
-    }
-    return 0;
-  }
-  Int reportFireRescue(ResourceManager rm){
-    duration(5, 5);try {
-    Duration d = deadline();
-    Rat r = durationValue(d);
-    assert r > 0;
-    } catch {
-    AssertionFailException => println(`The method "reportFireRescue" have missed the deadline.`);
-    }
-    return 0;
-  }
-  }
-
-interface Hospital {
-  Int start(ResourceManager rm);
-  Int rushToSite(ResourceManager rm);
-  Int shuntWounded(ResourceManager rm);
-  Int treatSliInj(ResourceManager rm);
-  Int treatSevInj(ResourceManager rm);
-  Int reportMedRescue(ResourceManager rm);}
-
-class Hospital implements Hospital {
-  
-  Int start(ResourceManager rm){
-    Int x = 0;Hospital h1 = new Hospital();Fut<Int> f1;[Deadline: Duration(25)]    x = this.rushToSite(rm);[Deadline: Duration(25)]    x = this.shuntWounded(rm);[Deadline: Duration(25)]    f1 = h1!treatSliInj(rm);[Deadline: Duration(25)]    x = this.treatSevInj(rm);await f1?;[Deadline: Duration(10)]    x = this.reportMedRescue(rm);try {
-    Duration d = deadline();
-    Rat r = durationValue(d);
-    assert r > 0;
-    } catch {
-    AssertionFailException => println(`The method "start" have missed the deadline.`);
-    }
-    return 0;
-  }
-  Int rushToSite(ResourceManager rm){
-    duration(20, 20);try {
-    Duration d = deadline();
-    Rat r = durationValue(d);
-    assert r > 0;
-    } catch {
-    AssertionFailException => println(`The method "rushToSite" have missed the deadline.`);
-    }
-    return 0;
-  }
-  Int shuntWounded(ResourceManager rm){
-    duration(10, 10);try {
-    Duration d = deadline();
-    Rat r = durationValue(d);
-    assert r > 0;
-    } catch {
-    AssertionFailException => println(`The method "shuntWounded" have missed the deadline.`);
-    }
-    return 0;
-  }
-  Int treatSliInj(ResourceManager rm){
-    duration(10, 10);try {
-    Duration d = deadline();
-    Rat r = durationValue(d);
-    assert r > 0;
-    } catch {
-    AssertionFailException => println(`The method "treatSliInj" have missed the deadline.`);
-    }
-    return 0;
-  }
-  Int treatSevInj(ResourceManager rm){
-    duration(20, 20);try {
-    Duration d = deadline();
-    Rat r = durationValue(d);
-    assert r > 0;
-    } catch {
-    AssertionFailException => println(`The method "treatSevInj" have missed the deadline.`);
-    }
-    return 0;
-  }
-  Int reportMedRescue(ResourceManager rm){
-    duration(5, 5);try {
-    Duration d = deadline();
-    Rat r = durationValue(d);
-    assert r > 0;
-    } catch {
-    AssertionFailException => println(`The method "reportMedRescue" have missed the deadline.`);
+    AssertionFailException => println(`The method "distribute" have missed the deadline.`);
     }
     return 0;
   }
@@ -436,14 +206,32 @@ class Hospital implements Hospital {
 {
   ResourceManager rm = new ResourceManager();
   await rm!addRes(list[set[Pathologist, Efficiency(3)], set[BioTechnician, Efficiency(5)], set[BioTechnician, Efficiency(3)], set[BioTechnician, Efficiency(10)], set[VanDriver, Efficiency(5)], set[DeliveryVan, Efficiency(1500)], set[BioTechnician, Efficiency(2)], set[BioTechnician, Efficiency(2)], set[BioTechnician, Efficiency(2)], set[BioTechnician, Efficiency(2)], set[ProcessingMachine, Efficiency(10)], set[ProcessingMachine, Efficiency(10)], set[StainingMachine, Efficiency(5)], set[StainingMachine, Efficiency(5)], set[Pathologist, Efficiency(2)], set[HeadWaiter, Efficiency(2)], set[RunnerWaiter, Efficiency(1)], set[RunnerWaiter, Efficiency(1)], set[Cook, Efficiency(5)], set[CookAssistant, Efficiency(1)], set[CookAssistant, Efficiency(1)], set[CookAssistant, Efficiency(1)], set[Cook, Efficiency(3)]]);
-  Police p = new Police();
-  ECC ecc = new ECC();
-  EOD eod = new EOD();
-  FB fb = new FB();
-  Hospital h = new Hospital();
-  Fut<Int> f;
-  [Deadline: Duration(150)]  f = p!alarm(rm,ecc, eod, fb, h);
-  await f?;
-  println("Cool");
+  Account a1 = new Account();
+  Account a2 = new Account();
+  Account a3 = new Account();
+  Account a4 = new Account();
+  Account a5 = new Account();
+  Bankers b1 = new Bankers();
+  Bankers b2 = new Bankers();
+  Bankers b3 = new Bankers();
+  Fut<Int> f1;
+  Fut<Int> f2;
+  Fut<Int> f3;
+  Fut<Int> f4;
+  Fut<Int> f5;
+  Fut<Int> f6;
+  Fut<Int> f7;
+  Fut<Int> f8;
+  [Deadline: Duration(5)]  f1 = a1!addBalance(rm,10);
+  [Deadline: Duration(5)]  f2 = a2!addBalance(rm,10);
+  [Deadline: Duration(5)]  f3 = a3!addBalance(rm,10);
+  [Deadline: Duration(5)]  f4 = a4!addBalance(rm,10);
+  [Deadline: Duration(5)]  f5 = a5!addBalance(rm,10);
+  await f1? & f2? & f3? & f4? & f5?;
+  [Deadline: Duration(10)]  f6 = b1!distribute(rm,a1, a2);
+  [Deadline: Duration(10)]  f7 = b2!distribute(rm,a3, a4);
+  [Deadline: Duration(10)]  f8 = b3!distribute(rm,a5, a1);
+  await f6? & f7? & f8?;
+  println(":)");
   println(( ( "Time: " + toString(now()) ) + "" ));
 }

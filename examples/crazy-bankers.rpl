@@ -80,4 +80,5 @@ class Bankers implements Bankers
     f8 = !distribute(b3,a5,a1) after dl 10;
     await f6?&f7?&f8?;
     println(":)");
+    println(`Time: $now()$`);
 }
