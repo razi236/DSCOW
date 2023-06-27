@@ -447,6 +447,9 @@ aspect doABSTranslator {
             formatter.afterStmt();
             getStmtList().doABSTranslation(stream, formatter);
             stream.println();
+            formatter.afterStmt();
+            stream.println("Int method_end = 0;");
+            stream.println();
             formatter.beforeCloseBrace();
             formatter.afterStmt();
             stream.print("}");

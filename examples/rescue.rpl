@@ -31,7 +31,9 @@ class Police implements Police
         f2 = !dealSituation(p1) after dl 25;
         f3 = !evacuation(p2) after dl 25;
         x = rescue(this) after dl 25;
-        await f1?&f2?&f3?;
+        await f1?;
+        await f2?;
+        await f3?;
         f4 = !makeEmgPlan(ecc,eod,fb,h) after dl 55;
         await f4?;
         return 0;
@@ -79,7 +81,9 @@ class ECC implements ECC
         f1 = !start(eod) after dl 50;
         f2 = !start(fb) after dl 50;
         f3 = !start(h) after dl 50;
-        await f1?&f2?&f3?;
+        await f1?;
+        await f2?;
+        await f3?;
         x = doMediaCoverage(this) after dl 20;
         println("Plan Done");
         return 0;

@@ -227,11 +227,17 @@ class Bankers implements Bankers {
   [Deadline: Duration(5)]  f3 = a3!addBalance(rm,10);
   [Deadline: Duration(5)]  f4 = a4!addBalance(rm,10);
   [Deadline: Duration(5)]  f5 = a5!addBalance(rm,10);
-  await f1? & f2? & f3? & f4? & f5?;
+  await f1?;
+  await f2?;
+  await f3?;
+  await f4?;
+  await f5?;
   [Deadline: Duration(10)]  f6 = b1!distribute(rm,a1, a2);
   [Deadline: Duration(10)]  f7 = b2!distribute(rm,a3, a4);
   [Deadline: Duration(10)]  f8 = b3!distribute(rm,a5, a1);
-  await f6? & f7? & f8?;
+  await f6?;
+  await f7?;
+  await f8?;
   println(":)");
   println(( ( "Time: " + toString(now()) ) + "" ));
 }
