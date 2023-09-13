@@ -1,49 +1,68 @@
 module ABS.ResourceManager;
 import * from ABS.StdLib;
 export *;
-data Quality = Efficiency(Int) | Pathologist | BioTechnician | ProcessingMachine | EmbeddingMachine | StainingMachine | Receptionist | VanDriver | DeliveryVan | HeadWaiter | RunnerWaiter | Cook | CookAssistant;
+data Quality = Ferry | Doctor | SmokeMask | PoliceMan | Clerk | EODTech | FireFighter | FireExt | FirstAidBox;
 
 // Resource Management
 // Translation fetches resources from the database and store them in a resource map in the ABS program.
 // The following code helps to add, acquire and release the resources.
-
 data Availability = Free | Busy;
-
 interface ResourceManager {
-    List<Int> addRes(List<Set<Quality>> newResources);
-    List<Int> holdRes(List<Set<Quality>> wantedResources);
+    List<Int> addRes(List<Pair<Int,Quality>> newResources);
+    List<Int> holdRes(List<Pair<Int,Quality>> wantedResources);
+    List<Int> findRes(Pair<Int,Quality> wantedResource);
+    List<Int> findMoreEfficientRes(Pair<Int,Quality> wantedResource);
+    List<Pair<Int,Int>> findNearestMoreEfficientRes(Pair<Int,Quality> wantedResource);
+    List<Int> findLessEfficientRes(Pair<Int,Quality> wantedResource);
+    List<Pair<Int,Int>> findNearestLessEfficientRes(Pair<Int,Quality> wantedResource);
+    List<Pair<Int,Int>> findNearestRes(Pair<Int,Quality> wantedResource);
+    List<Pair<Int,Pair<Availability, Pair<Int,Quality>>>> getResources(Quality q);
+    List<Pair<Int,Pair<Availability, Pair<Int,Quality>>>> sortResources(List<Pair<Int,Pair<Availability, Pair<Int,Quality>>>> lr);
     Unit releaseRes(List<Int> ids);
     Unit print();
+    Unit updateCost(Int x);
+    Unit updateEfficiency();
 }
 
 class ResourceManager implements ResourceManager {
-    Map<Int, Pair<Availability, Set<Quality>>> resources = map[];
+    Int cst = 0;
+    Map<Int, Pair<Availability, Pair<Int,Quality>>> resources = map[];
     Int resource_counter = 0;
-
-    Unit print() {
-        println(toString(resources));
+    Unit updateEfficiency()
+    {
+        foreach (entry in entries(this.resources)) {
+            if (fst(snd(entry)) == Free && snd(snd(snd(entry))) != Ferry)
+            {
+                Pair<Int,Quality> p = snd(snd(entry));
+                Pair<Int,Quality> p1 = Pair(random(50)+50,snd(p));
+                this.resources = put(this.resources, fst(entry), Pair(Free,p1));
+            }
+        }
     }
-    List<Int> addRes(List<Set<Quality>> newResources) {
+    Unit print() {
+        print(`;Cost = %$cst$`);
+    }
+    List<Int> addRes(List<Pair<Int,Quality>> newResources) {
         List<Int> result = list[];
         foreach (r in newResources) {
             resource_counter = resource_counter + 1;
             resources = insert(resources, Pair(resource_counter, Pair(Free, r)));
             result = Cons(resource_counter, result);
         }
-        //println(toString(resources));
+        //print(toString(resources));
         return result;
     }
 
-    List<Int> holdRes(List<Set<Quality>> wantedResources) {
+    List<Int> holdRes(List<Pair<Int,Quality>> wantedResources) {
         List<Int> result = list[];
-        Map<Int, Pair<Availability, Set<Quality>>> lr = this.resources;
+        Map<Int, Pair<Availability, Pair<Int,Quality>>> lr = this.resources;
         while (result == Nil) {
             foreach (q in wantedResources) {
                 Bool found = False;
                 foreach (entry in entries(lr)) {
                     if (!found
                         && fst(snd(entry)) == Free
-                        && isSubset(q, snd(snd(entry))))
+                        && fst(q) == fst(snd(snd(entry))) && snd(q) == snd(snd(snd(entry))))
                     {
                         found = True;
                         result = Cons(fst(entry), result);
@@ -53,7 +72,7 @@ class ResourceManager implements ResourceManager {
             }
             if (length(result) != length(wantedResources)) {
                 // we did not find all needed resources
-                println(`hold retrying: Resources = $this.resources$ We want $wantedResources$`);
+                print(`;hold retrying: Resources = $this.resources$ We want $wantedResources$`);
                 result = Nil;
                 lr = this.resources;
                 await this.resources != lr;
@@ -61,32 +80,357 @@ class ResourceManager implements ResourceManager {
             } else {
                 // we're happy
                 /*
-                println("***********************************************");
-                println("We have acquired all the requested resources :)");
-                println("***********************************************");
+                print("***********************************************");
+                print("We have acquired all the requested resources :)");
+                print("***********************************************");
                 */
                 this.resources = lr;
             }
         }
 
-        //println(toString(this.resources));
+        //print(toString(this.resources));
         return result;
+    }
+
+    List<Int> findRes(Pair<Int,Quality> wantedResource)
+    {
+            List<Int> result = list[];
+            Map<Int, Pair<Availability, Pair<Int,Quality>>> lr = this.resources;
+            while (result == Nil) {
+                //foreach (q in wantedResources) {
+                    Bool found = False;
+                    foreach (entry in entries(lr)) {
+                        if (!found
+                            && fst(snd(entry)) == Free
+                            && fst(wantedResource) == fst(snd(snd(entry))) && snd(wantedResource) == snd(snd(snd(entry))))
+                        {
+                            found = True;
+                            result = Cons(fst(entry), result);
+                            lr = put(lr, fst(entry), Pair(Busy, snd(snd(entry))));
+                        }
+                    }
+                //}
+                if (length(result) != 1 ){
+                    // we did not find the required resource
+                    print(`;hold retrying: Resources = $this.resources$ We want $wantedResource$`);
+                    result = Nil;
+                    lr = this.resources;
+                    await this.resources != lr;
+                    lr = this.resources;
+                } else {
+                    // we're happy
+                    /*
+                    print("***********************************************");
+                    print("We have acquired the requested resource :)");
+                    print("***********************************************");
+                    */
+                    this.resources = lr;
+                }
+            }
+
+            //print(toString(this.resources));
+            return result;
+        }
+    List<Int> findMoreEfficientRes(Pair<Int,Quality> wantedResource) // when all required resources are not available
+    {
+        List<Int> result = Nil;
+        Map<Int, Pair<Availability, Pair<Int,Quality>>> lr = this.resources;
+        //while (result == Nil) {
+            //foreach (q in wantedResources) {
+                Bool found = False;
+                foreach (entry in entries(lr)) {
+                    if (!found
+                        && fst(snd(entry)) == Free
+                        && fst(wantedResource) == fst(snd(snd(entry))) && snd(wantedResource) == snd(snd(snd(entry))))
+                    {
+                        found = True;
+                        result = Cons(fst(entry), result);
+                        lr = put(lr, fst(entry), Pair(Busy, snd(snd(entry))));
+                    }
+                }
+            //}
+            if (length(result) != 1 ){
+                // we did not find the required resource
+                found = False;
+                foreach (entry in entries(lr)) {
+                    if (!found && fst(snd(entry)) == Free
+                        && snd(wantedResource) == snd(snd(snd(entry))))
+                    {
+                        if(fst(wantedResource) < fst(snd(snd(entry))))
+                        {
+                            found = True;
+                            result = Cons(fst(entry), result);
+                            lr = put(lr, fst(entry), Pair(Busy, snd(snd(entry))));
+                            //print("***********************************************");
+                            //print("We have acquired the more efficient resource :)");
+                            //print("***********************************************");
+                            this.resources = lr;
+                        }
+                    }
+                }
+            } else {
+                // we're happy
+                /*
+                print("***********************************************");
+                print("We have acquired the requested resource :)");
+                print("***********************************************");
+                */
+                this.resources = lr;
+            }
+        //}
+        //print(toString(this.resources));
+        return result;
+    }
+
+    List<Pair<Int,Int>> findNearestMoreEfficientRes(Pair<Int,Quality> wantedResource) // when all required resources are not available
+    {
+        List<Pair<Int,Int>> result = list[];
+        Map<Int, Pair<Availability, Pair<Int,Quality>>> lr = this.resources;
+        List<Pair<Int,Pair<Availability, Pair<Int,Quality>>>> getResList = this.getResources(snd(wantedResource));
+        //print("Got Resources");
+        //print(toString(getResList));
+        List<Pair<Int,Pair<Availability, Pair<Int,Quality>>>> resList = this.sortResources(getResList);
+        //print("Sorted Resources");
+        //print(toString(resList));
+        //while (result == Nil) {
+            Bool found = False;
+            foreach (entry in resList) {
+                if (!found
+                    && fst(snd(entry)) == Free
+                    && fst(wantedResource) == fst(snd(snd(entry))) && snd(wantedResource) == snd(snd(snd(entry))))
+                {
+                    found = True;
+                    result = Cons(Pair(fst(entry),fst(snd(snd(entry)))), result);
+                    lr = put(lr, fst(entry), Pair(Busy, snd(snd(entry))));
+                }
+            }
+            if (length(result) != 1 ){
+                // we did not find the required resource
+                found = False;
+                foreach (entry in resList) {
+                    if (!found && fst(snd(entry)) == Free
+                        && snd(wantedResource) == snd(snd(snd(entry))))
+                    {
+                        if(fst(wantedResource) < fst(snd(snd(entry))))
+                        {
+                            found = True;
+                            result = Cons(Pair(fst(entry),fst(snd(snd(entry)))), result);
+                            lr = put(lr, fst(entry), Pair(Busy, snd(snd(entry))));
+                            /*
+                            print("***********************************************");
+                            print("We have acquired the nearest more efficient resource :)");
+                            print("***********************************************");
+                            */
+                            this.resources = lr;
+                        }
+                    }
+                }
+            } else {
+                // we're happy
+                /*
+                print("***********************************************");
+                print("We have acquired the requested resource :)");
+                print("***********************************************");
+                */
+                this.resources = lr;
+            }
+        //}
+        //print(toString(this.resources));
+        return result;
+    }
+    List<Int> findLessEfficientRes(Pair<Int,Quality> wantedResource) // when all required resources are not available
+    {
+        List<Int> result = Nil;
+        Map<Int, Pair<Availability, Pair<Int,Quality>>> lr = this.resources;
+        //while (result == Nil) {
+            //foreach (q in wantedResources) {
+                Bool found = False;
+                foreach (entry in entries(lr)) {
+                    if (!found
+                        && fst(snd(entry)) == Free
+                        && fst(wantedResource) == fst(snd(snd(entry))) && snd(wantedResource) == snd(snd(snd(entry))))
+                    {
+                        found = True;
+                        result = Cons(fst(entry), result);
+                        lr = put(lr, fst(entry), Pair(Busy, snd(snd(entry))));
+                    }
+                }
+            //}
+            if (length(result) != 1 ){
+                // we did not find the required resource
+                found = False;
+                foreach (entry in entries(lr)) {
+                    if (!found && fst(snd(entry)) == Free
+                        && snd(wantedResource) == snd(snd(snd(entry))))
+                    {
+                        if(fst(wantedResource) > fst(snd(snd(entry))))
+                        {
+                            found = True;
+                            result = Cons(fst(entry), result);
+                            lr = put(lr, fst(entry), Pair(Busy, snd(snd(entry))));
+                            /*
+                            print("***********************************************");
+                            print("We have acquired the less efficient resource :)");
+                            print("***********************************************");
+                            */
+                            this.resources = lr;
+                        }
+                    }
+                }
+            } else {
+                // we're happy
+                /*
+                print("***********************************************");
+                print("We have acquired the requested resource :)");
+                print("***********************************************");
+                */
+                this.resources = lr;
+            }
+            //}
+            //print(toString(this.resources));
+            return result;
+        }
+
+        List<Pair<Int,Int>> findNearestLessEfficientRes(Pair<Int,Quality> wantedResource) // when all required resources are not available
+        {
+            List<Pair<Int,Int>> result = list[];
+            Map<Int, Pair<Availability, Pair<Int,Quality>>> lr = this.resources;
+            List<Pair<Int,Pair<Availability, Pair<Int,Quality>>>> getResList = this.getResources(snd(wantedResource));
+            //print("Got Resources");
+            //print(toString(getResList));
+            List<Pair<Int,Pair<Availability, Pair<Int,Quality>>>> resList = this.sortResources(getResList);
+            //print("Sorted Resources");
+            //print(toString(resList));
+            resList = reverse(resList);
+            //print("Reversed Resources");
+            //print(toString(resList));
+            //while (result == Nil) {
+                Bool found = False;
+                foreach (entry in resList) {
+                    if (!found
+                        && fst(snd(entry)) == Free
+                        && fst(wantedResource) == fst(snd(snd(entry))) && snd(wantedResource) == snd(snd(snd(entry))))
+                    {
+                        found = True;
+                        result = Cons(Pair(fst(entry),fst(snd(snd(entry)))), result);
+                        lr = put(lr, fst(entry), Pair(Busy, snd(snd(entry))));
+                    }
+                }
+                if (length(result) != 1 ){
+                    // we did not find the required resource
+                    found = False;
+                    foreach (entry in resList) {
+                        if (!found && fst(snd(entry)) == Free
+                            && snd(wantedResource) == snd(snd(snd(entry))))
+                        {
+                            if(fst(wantedResource) > fst(snd(snd(entry))))
+                            {
+                                found = True;
+                                result = Cons(Pair(fst(entry),fst(snd(snd(entry)))), result);
+                                lr = put(lr, fst(entry), Pair(Busy, snd(snd(entry))));
+                                /*
+                                print("***********************************************");
+                                print("We have acquired the nearest less efficient resource :)");
+                                print("***********************************************");
+                                */
+                                this.resources = lr;
+                            }
+                        }
+                    }
+                } else {
+                    // we're happy
+                    /*
+                    print("***********************************************");
+                    print("We have acquired the requested resource :)");
+                    print("***********************************************");
+                    */
+                    this.resources = lr;
+                }
+            //}
+            //print(toString(this.resources));
+            return result;
+        }
+    List<Pair<Int,Pair<Availability, Pair<Int,Quality>>>> getResources(Quality q)
+    {
+        Map<Int, Pair<Availability, Pair<Int,Quality>>> lr = this.resources;
+        List<Pair<Int,Pair<Availability, Pair<Int,Quality>>>> mapToList = list(Nil);
+        foreach (entry in entries(lr)) {
+            if (q == snd(snd(snd(entry))))
+            {
+                mapToList = appendright(mapToList, entry);
+            }
+        }
+        return mapToList;
+    }
+
+    List<Pair<Int,Pair<Availability, Pair<Int,Quality>>>> sortResources(List<Pair<Int,Pair<Availability, Pair<Int,Quality>>>> lr)
+    {
+        List<Pair<Int,Pair<Availability, Pair<Int,Quality>>>> mapToList = list(Nil);
+        foreach (c in lr) {
+        if ( isEmpty(mapToList) ){
+              mapToList = appendright(mapToList, c);
+            } else {
+              Int i = 0;
+              List<Pair<Int,Pair<Availability, Pair<Int,Quality>>>> left = list(Nil);
+              List<Pair<Int,Pair<Availability, Pair<Int,Quality>>>> right = list(Nil);
+              List<Pair<Int,Pair<Availability, Pair<Int,Quality>>>> mid = list(Nil);
+              Bool flag = True;
+              while (( i < length(mapToList) )) {
+                if(fst(snd(snd(nth(mapToList, i)))) <= fst(snd(snd(c)))){
+                  left = appendright(left, nth(mapToList, i));
+                } else {
+                  while (( i < length(mapToList) )) {
+                    right = appendright(right, nth(mapToList, i));
+                    i = ( i + 1 );
+                  }
+                  mid = appendright(mid, c);
+                  mapToList = concatenate(left, concatenate(mid, right));
+                  flag = False;
+                }
+                i = ( i + 1 );
+              }
+              if ( ( flag == True ) ){
+                mapToList = appendright(left, c);
+              }
+            }
+        }
+        return mapToList;
+    }
+    List<Pair<Int,Int>> findNearestRes(Pair<Int,Quality> wantedResource)
+    {
+        List<Pair<Int,Int>> r = list(Nil);
+        while(isEmpty(r)){
+            this.updateEfficiency();
+            r = this.findNearestMoreEfficientRes(wantedResource);
+            if(isEmpty(r))
+                r = this.findNearestLessEfficientRes(wantedResource);
+        }
+        /*
+        foreach(q in r)
+        {
+            this.cst = this.cst + snd(q);
+        }
+        */
+        return r;
     }
     Unit releaseRes(List<Int> ids) {
         Set<Int> all_ids = keys(resources);
         foreach (id in ids) {
             if (contains(all_ids, id)) {
-                Pair<Availability, Set<Quality>> entry = lookupUnsafe(resources, id);
+                Pair<Availability, Pair<Int,Quality> > entry = lookupUnsafe(resources, id);
                 resources = put(resources, id, Pair(Free, snd(entry)));
             }
         }
         /*
-        println("***********************************************");
-        println("We have released all the acquired resources :)");
-        println("***********************************************");
+        print("***********************************************");
+        print("We have released all the acquired resources :)");
+        print("***********************************************");
         */
-
-        //println(toString(this.resources));
+        //print(toString(this.resources));
+    }
+    Unit updateCost(Int x)
+    {
+        this.cst = this.cst + x;
     }
 }
 
@@ -111,10 +455,10 @@ class AwaitFut implements AwaitFut
                    await f?;
                }
                resolved = True;
-               println("Future Resolved:)");
+               print("Future Resolved:)");
             }
         } catch {
-            NullPointerException  => println(`Future is not initialized`);
+            NullPointerException  => print(`;Future is not initialized`);
         }
     }
     Bool checkFut()
@@ -122,81 +466,355 @@ class AwaitFut implements AwaitFut
         return resolved;
     }
 }
-module CrazyBankers;
+module Rescue;
 import * from ABS.ResourceManager;
 
 import * from ABS.StdLib;
 
-interface Account {
-  Int addBalance(ResourceManager rm,Int bal);
-  Int deductBalance(ResourceManager rm,Int bal);
-  Int getBalance(ResourceManager rm);}
+interface Police {
+  Int alarm(ResourceManager rm,ECC ecc, EOD eod, FB fb, Hospital h);
+  Int repEmgInfo(ResourceManager rm,ECC ecc, EOD eod, FB fb, Hospital h);
+  Int rushToSite(ResourceManager rm);
+  Int dealSituation(ResourceManager rm);
+  Int evacuation(ResourceManager rm);
+  Int rescue(ResourceManager rm);}
 
-class Account implements Account {
-  Int balance = 0;
-  Int addBalance(ResourceManager rm,Int bal){
-    this.balance = ( this.balance + bal );duration(10, 10);try {
+class Police implements Police {
+  List<Pair<Int, Int>> rid = Nil;
+  Int alarm(ResourceManager rm,ECC ecc, EOD eod, FB fb, Hospital h){
+    Int x = 0;[Deadline: Duration(400)]    x = this.repEmgInfo(rm,ecc, eod, fb, h);try {
     Duration d = deadline();
     Rat r = durationValue(d);
     assert r > 0;
     } catch {
-    AssertionFailException => println(`The method "addBalance" have missed the deadline.`);
+    AssertionFailException => println(`The method "alarm" have missed the deadline.`);
     }
     return 0;
   }
-  Int deductBalance(ResourceManager rm,Int bal){
-    this.balance = ( this.balance - bal );duration(10, 10);try {
+  Int repEmgInfo(ResourceManager rm,ECC ecc, EOD eod, FB fb, Hospital h){
+    Police p1 = new Police();Police p2 = new Police();Fut<Int> f1;Fut<Int> f2;Fut<Int> f3;Fut<Int> f4;Int x = 0;List<Int> temp = list(Nil);temp = await rm!holdRes(list[Pair( 10, Clerk )]);duration(( ( 100 / 10 ) * ( 100 / 50 ) ), ( ( 100 / 10 ) * ( 100 / 50 ) ));await rm!releaseRes(temp);[Deadline: Duration(20)]    f1 = ecc!estEmgCtr(rm);[Deadline: Duration(50)]    x = this.rushToSite(rm);[Deadline: Duration(80)]    f2 = p1!dealSituation(rm);[Deadline: Duration(80)]    f3 = p2!evacuation(rm);[Deadline: Duration(80)]    x = this.rescue(rm);
+    {
+    Bool b1 = False;
+    AwaitFut a1 = new AwaitFut();
+    a1!awaitFut(list[f1,f2,f3]);
+    while(!(b1))
+    {
+      b1 = await a1!checkFut();
+      await duration(1);
+    }
+    }
+    [Deadline: Duration(250)]    f4 = ecc!makeEmgPlan(rm,eod, fb, h);await f4?;try {
     Duration d = deadline();
     Rat r = durationValue(d);
     assert r > 0;
     } catch {
-    AssertionFailException => println(`The method "deductBalance" have missed the deadline.`);
+    AssertionFailException => println(`The method "repEmgInfo" have missed the deadline.`);
     }
     return 0;
   }
-  Int getBalance(ResourceManager rm){
-    try {
+  Int rushToSite(ResourceManager rm){
+    List<Int> temp = list(Nil);temp = await rm!holdRes(list[Pair( 30, Ferry )]);duration(30, 30);await rm!releaseRes(temp);try {
     Duration d = deadline();
     Rat r = durationValue(d);
     assert r > 0;
     } catch {
-    AssertionFailException => println(`The method "getBalance" have missed the deadline.`);
+    AssertionFailException => println(`The method "rushToSite" have missed the deadline.`);
     }
-    return this.balance;
+    return 0;
   }
-  }
-
-interface Bankers {
-  Int distribute(ResourceManager rm,Account t, Account f);}
-
-class Bankers implements Bankers {
-  
-  Int distribute(ResourceManager rm,Account t, Account fr){
-    Fut<Int> f1;Int bal = 0;[Deadline: Duration(5)]    f1 = fr!getBalance(rm);bal = f1.get;if ( ( bal > 0 ) ){
-      Fut<Int> f2;
-      Fut<Int> f3;
-      [Deadline: Duration(5)]      f2 = t!addBalance(rm,10);
-      
-      {
-      Bool b1 = False;
-      AwaitFut a1 = new AwaitFut();
-      a1!awaitFut(list[f2]);
-      while(!(b1))
-      {
-        b1 = await a1!checkFut();
-        await duration(1);
-      }
-      }
-      [Deadline: Duration(5)]      f3 = fr!deductBalance(rm,10);
-      await f3?;
-    } else {
-      println("No Balance");
-    }try {
+  Int dealSituation(ResourceManager rm){
+    List<Int> temp = list(Nil);temp = await rm!holdRes(list[Pair( 25, PoliceMan ), Pair( 25, PoliceMan )]);duration(( ( 2500 / 50 ) * ( 100 / 50 ) ), ( ( 2500 / 50 ) * ( 100 / 50 ) ));await rm!releaseRes(temp);try {
     Duration d = deadline();
     Rat r = durationValue(d);
     assert r > 0;
     } catch {
-    AssertionFailException => println(`The method "distribute" have missed the deadline.`);
+    AssertionFailException => println(`The method "dealSituation" have missed the deadline.`);
+    }
+    return 0;
+  }
+  Int evacuation(ResourceManager rm){
+    List<Int> temp = list(Nil);temp = await rm!holdRes(list[Pair( 25, PoliceMan ), Pair( 25, PoliceMan )]);duration(( ( 2500 / 50 ) * ( 100 / 50 ) ), ( ( 2500 / 50 ) * ( 100 / 50 ) ));await rm!releaseRes(temp);try {
+    Duration d = deadline();
+    Rat r = durationValue(d);
+    assert r > 0;
+    } catch {
+    AssertionFailException => println(`The method "evacuation" have missed the deadline.`);
+    }
+    return 0;
+  }
+  Int rescue(ResourceManager rm){
+    List<Int> temp = list(Nil);temp = await rm!holdRes(list[Pair( 25, PoliceMan ), Pair( 25, PoliceMan )]);duration(( ( 2500 / 50 ) * ( 100 / 50 ) ), ( ( 2500 / 50 ) * ( 100 / 50 ) ));await rm!releaseRes(temp);try {
+    Duration d = deadline();
+    Rat r = durationValue(d);
+    assert r > 0;
+    } catch {
+    AssertionFailException => println(`The method "rescue" have missed the deadline.`);
+    }
+    return 0;
+  }
+  }
+
+interface ECC {
+  Int estEmgCtr(ResourceManager rm);
+  Int makeEmgPlan(ResourceManager rm,EOD eod, FB fb, Hospital h);
+  Int doMediaCoverage(ResourceManager rm);}
+
+class ECC implements ECC {
+  List<Pair<Int, Int>> rid = Nil;
+  Int estEmgCtr(ResourceManager rm){
+    duration(10, 10);try {
+    Duration d = deadline();
+    Rat r = durationValue(d);
+    assert r > 0;
+    } catch {
+    AssertionFailException => println(`The method "estEmgCtr" have missed the deadline.`);
+    }
+    return 0;
+  }
+  Int makeEmgPlan(ResourceManager rm,EOD eod, FB fb, Hospital h){
+    Int x = 0;Fut<Int> f1;Fut<Int> f2;Fut<Int> f3;[Deadline: Duration(100)]    f1 = eod!start(rm);[Deadline: Duration(240)]    f2 = fb!start(rm);[Deadline: Duration(180)]    f3 = h!start(rm);
+    {
+    Bool b1 = False;
+    AwaitFut a1 = new AwaitFut();
+    a1!awaitFut(list[f1,f2,f3]);
+    while(!(b1))
+    {
+      b1 = await a1!checkFut();
+      await duration(1);
+    }
+    }
+    [Deadline: Duration(20)]    x = this.doMediaCoverage(rm);try {
+    Duration d = deadline();
+    Rat r = durationValue(d);
+    assert r > 0;
+    } catch {
+    AssertionFailException => println(`The method "makeEmgPlan" have missed the deadline.`);
+    }
+    return 0;
+  }
+  Int doMediaCoverage(ResourceManager rm){
+    duration(10, 10);try {
+    Duration d = deadline();
+    Rat r = durationValue(d);
+    assert r > 0;
+    } catch {
+    AssertionFailException => println(`The method "doMediaCoverage" have missed the deadline.`);
+    }
+    return 0;
+  }
+  }
+
+interface EOD {
+  Int start(ResourceManager rm);
+  Int rushToSite(ResourceManager rm);
+  Int searchEOD(ResourceManager rm);
+  Int reportEOD(ResourceManager rm);}
+
+class EOD implements EOD {
+  List<Pair<Int, Int>> rid = Nil;
+  Int start(ResourceManager rm){
+    Int x = 0;[Deadline: Duration(50)]    x = this.rushToSite(rm);[Deadline: Duration(20)]    x = this.searchEOD(rm);[Deadline: Duration(20)]    x = this.reportEOD(rm);try {
+    Duration d = deadline();
+    Rat r = durationValue(d);
+    assert r > 0;
+    } catch {
+    AssertionFailException => println(`The method "start" have missed the deadline.`);
+    }
+    return 0;
+  }
+  Int rushToSite(ResourceManager rm){
+    List<Int> temp = list(Nil);temp = await rm!holdRes(list[Pair( 30, Ferry )]);duration(30, 30);await rm!releaseRes(temp);try {
+    Duration d = deadline();
+    Rat r = durationValue(d);
+    assert r > 0;
+    } catch {
+    AssertionFailException => println(`The method "rushToSite" have missed the deadline.`);
+    }
+    return 0;
+  }
+  Int searchEOD(ResourceManager rm){
+    List<Pair<Int, Int>> temp = Nil;duration(10, 10);try {
+    Duration d = deadline();
+    Rat r = durationValue(d);
+    assert r > 0;
+    } catch {
+    AssertionFailException => println(`The method "searchEOD" have missed the deadline.`);
+    }
+    return 0;
+  }
+  Int reportEOD(ResourceManager rm){
+    List<Int> temp = list(Nil);temp = await rm!holdRes(list[Pair( 10, Clerk )]);duration(( ( 100 / 10 ) * ( 100 / 50 ) ), ( ( 100 / 10 ) * ( 100 / 50 ) ));await rm!releaseRes(temp);try {
+    Duration d = deadline();
+    Rat r = durationValue(d);
+    assert r > 0;
+    } catch {
+    AssertionFailException => println(`The method "reportEOD" have missed the deadline.`);
+    }
+    return 0;
+  }
+  }
+
+interface FB {
+  Int start(ResourceManager rm);
+  Int rushToSite(ResourceManager rm);
+  Int fightFire(ResourceManager rm);
+  Int mitigate(ResourceManager rm);
+  Int recoverSite(ResourceManager rm);
+  Int reportFireRescue(ResourceManager rm);}
+
+class FB implements FB {
+  List<Pair<Int, Int>> rid = list(Nil);
+  Int start(ResourceManager rm){
+    Int x = 0;FB fb1 = new FB();Fut<Int> f1;[Deadline: Duration(50)]    x = this.rushToSite(rm);[Deadline: Duration(70)]    x = this.fightFire(rm);[Deadline: Duration(70)]    f1 = fb1!mitigate(rm);[Deadline: Duration(50)]    x = this.recoverSite(rm);
+    {
+    Bool b1 = False;
+    AwaitFut a1 = new AwaitFut();
+    a1!awaitFut(list[f1]);
+    while(!(b1))
+    {
+      b1 = await a1!checkFut();
+      await duration(1);
+    }
+    }
+    [Deadline: Duration(50)]    x = this.reportFireRescue(rm);try {
+    Duration d = deadline();
+    Rat r = durationValue(d);
+    assert r > 0;
+    } catch {
+    AssertionFailException => println(`The method "start" have missed the deadline.`);
+    }
+    return 0;
+  }
+  Int rushToSite(ResourceManager rm){
+    List<Int> temp = list(Nil);temp = await rm!holdRes(list[Pair( 30, Ferry )]);duration(30, 30);await rm!releaseRes(temp);try {
+    Duration d = deadline();
+    Rat r = durationValue(d);
+    assert r > 0;
+    } catch {
+    AssertionFailException => println(`The method "rushToSite" have missed the deadline.`);
+    }
+    return 0;
+  }
+  Int fightFire(ResourceManager rm){
+    List<Int> temp = list(Nil);temp = await rm!holdRes(list[Pair( 25, FireFighter ), Pair( 25, FireFighter )]);duration(( ( 2500 / 50 ) * ( 100 / 50 ) ), ( ( 2500 / 50 ) * ( 100 / 50 ) ));await rm!releaseRes(temp);try {
+    Duration d = deadline();
+    Rat r = durationValue(d);
+    assert r > 0;
+    } catch {
+    AssertionFailException => println(`The method "fightFire" have missed the deadline.`);
+    }
+    return 0;
+  }
+  Int mitigate(ResourceManager rm){
+    List<Int> temp = list(Nil);temp = await rm!holdRes(list[Pair( 25, FireFighter ), Pair( 25, FireFighter )]);duration(( ( 2500 / 50 ) * ( 100 / 50 ) ), ( ( 2500 / 50 ) * ( 100 / 50 ) ));await rm!releaseRes(temp);try {
+    Duration d = deadline();
+    Rat r = durationValue(d);
+    assert r > 0;
+    } catch {
+    AssertionFailException => println(`The method "mitigate" have missed the deadline.`);
+    }
+    return 0;
+  }
+  Int recoverSite(ResourceManager rm){
+    List<Int> temp = list(Nil);temp = await rm!holdRes(list[Pair( 25, FireFighter ), Pair( 25, FireFighter )]);duration(( ( 2500 / 50 ) * ( 100 / 50 ) ), ( ( 2500 / 50 ) * ( 100 / 50 ) ));await rm!releaseRes(temp);try {
+    Duration d = deadline();
+    Rat r = durationValue(d);
+    assert r > 0;
+    } catch {
+    AssertionFailException => println(`The method "recoverSite" have missed the deadline.`);
+    }
+    return 0;
+  }
+  Int reportFireRescue(ResourceManager rm){
+    List<Int> temp = list(Nil);temp = await rm!holdRes(list[Pair( 10, Clerk )]);duration(( ( 100 / 10 ) * ( 100 / 50 ) ), ( ( 100 / 10 ) * ( 100 / 50 ) ));await rm!releaseRes(temp);try {
+    Duration d = deadline();
+    Rat r = durationValue(d);
+    assert r > 0;
+    } catch {
+    AssertionFailException => println(`The method "reportFireRescue" have missed the deadline.`);
+    }
+    return 0;
+  }
+  }
+
+interface Hospital {
+  Int start(ResourceManager rm);
+  Int rushToSite(ResourceManager rm);
+  Int shuntWounded(ResourceManager rm);
+  Int treatSliInj(ResourceManager rm);
+  Int treatSevInj(ResourceManager rm);
+  Int reportMedRescue(ResourceManager rm);}
+
+class Hospital implements Hospital {
+  List<Pair<Int, Int>> rid = list(Nil);
+  Int start(ResourceManager rm){
+    Int x = 0;Hospital h1 = new Hospital();Fut<Int> f1;[Deadline: Duration(50)]    x = this.rushToSite(rm);[Deadline: Duration(50)]    x = this.shuntWounded(rm);[Deadline: Duration(50)]    f1 = h1!treatSliInj(rm);[Deadline: Duration(70)]    x = this.treatSevInj(rm);
+    {
+    Bool b1 = False;
+    AwaitFut a1 = new AwaitFut();
+    a1!awaitFut(list[f1]);
+    while(!(b1))
+    {
+      b1 = await a1!checkFut();
+      await duration(1);
+    }
+    }
+    [Deadline: Duration(20)]    x = this.reportMedRescue(rm);try {
+    Duration d = deadline();
+    Rat r = durationValue(d);
+    assert r > 0;
+    } catch {
+    AssertionFailException => println(`The method "start" have missed the deadline.`);
+    }
+    return 0;
+  }
+  Int rushToSite(ResourceManager rm){
+    List<Int> temp = list(Nil);temp = await rm!holdRes(list[Pair( 30, Ferry )]);duration(30, 30);await rm!releaseRes(temp);try {
+    Duration d = deadline();
+    Rat r = durationValue(d);
+    assert r > 0;
+    } catch {
+    AssertionFailException => println(`The method "rushToSite" have missed the deadline.`);
+    }
+    return 0;
+  }
+  Int shuntWounded(ResourceManager rm){
+    List<Int> temp = list(Nil);temp = await rm!holdRes(list[Pair( 10, Doctor ), Pair( 10, Doctor ), Pair( 10, Doctor )]);duration(( ( 900 / 30 ) * ( 100 / 50 ) ), ( ( 900 / 30 ) * ( 100 / 50 ) ));await rm!releaseRes(temp);try {
+    Duration d = deadline();
+    Rat r = durationValue(d);
+    assert r > 0;
+    } catch {
+    AssertionFailException => println(`The method "shuntWounded" have missed the deadline.`);
+    }
+    return 0;
+  }
+  Int treatSliInj(ResourceManager rm){
+    List<Int> temp = list(Nil);temp = await rm!holdRes(list[Pair( 10, Doctor ), Pair( 10, Doctor ), Pair( 10, Doctor )]);duration(( ( 900 / 30 ) * ( 100 / 50 ) ), ( ( 900 / 30 ) * ( 100 / 50 ) ));await rm!releaseRes(temp);try {
+    Duration d = deadline();
+    Rat r = durationValue(d);
+    assert r > 0;
+    } catch {
+    AssertionFailException => println(`The method "treatSliInj" have missed the deadline.`);
+    }
+    return 0;
+  }
+  Int treatSevInj(ResourceManager rm){
+    List<Int> temp = list(Nil);temp = await rm!holdRes(list[Pair( 10, Doctor ), Pair( 10, Doctor ), Pair( 10, Doctor ), Pair( 10, Doctor ), Pair( 10, Doctor )]);duration(( ( 2500 / 50 ) * ( 100 / 50 ) ), ( ( 2500 / 50 ) * ( 100 / 50 ) ));await rm!releaseRes(temp);try {
+    Duration d = deadline();
+    Rat r = durationValue(d);
+    assert r > 0;
+    } catch {
+    AssertionFailException => println(`The method "treatSevInj" have missed the deadline.`);
+    }
+    return 0;
+  }
+  Int reportMedRescue(ResourceManager rm){
+    List<Int> temp = list(Nil);temp = await rm!holdRes(list[Pair( 10, Clerk )]);duration(( ( 100 / 10 ) * ( 100 / 50 ) ), ( ( 100 / 10 ) * ( 100 / 50 ) ));await rm!releaseRes(temp);try {
+    Duration d = deadline();
+    Rat r = durationValue(d);
+    assert r > 0;
+    } catch {
+    AssertionFailException => println(`The method "reportMedRescue" have missed the deadline.`);
     }
     return 0;
   }
@@ -205,39 +823,16 @@ class Bankers implements Bankers {
 
 {
   ResourceManager rm = new ResourceManager();
-  await rm!addRes(list[set[Pathologist, Efficiency(3)], set[BioTechnician, Efficiency(5)], set[BioTechnician, Efficiency(3)], set[BioTechnician, Efficiency(10)], set[VanDriver, Efficiency(5)], set[DeliveryVan, Efficiency(1500)], set[BioTechnician, Efficiency(2)], set[BioTechnician, Efficiency(2)], set[BioTechnician, Efficiency(2)], set[BioTechnician, Efficiency(2)], set[ProcessingMachine, Efficiency(10)], set[ProcessingMachine, Efficiency(10)], set[StainingMachine, Efficiency(5)], set[StainingMachine, Efficiency(5)], set[Pathologist, Efficiency(2)], set[HeadWaiter, Efficiency(2)], set[RunnerWaiter, Efficiency(1)], set[RunnerWaiter, Efficiency(1)], set[Cook, Efficiency(5)], set[CookAssistant, Efficiency(1)], set[CookAssistant, Efficiency(1)], set[CookAssistant, Efficiency(1)], set[Cook, Efficiency(3)]]);
-  Account a1 = new Account();
-  Account a2 = new Account();
-  Account a3 = new Account();
-  Account a4 = new Account();
-  Account a5 = new Account();
-  Bankers b1 = new Bankers();
-  Bankers b2 = new Bankers();
-  Bankers b3 = new Bankers();
-  Fut<Int> f1;
-  Fut<Int> f2;
-  Fut<Int> f3;
-  Fut<Int> f4;
-  Fut<Int> f5;
-  Fut<Int> f6;
-  Fut<Int> f7;
-  Fut<Int> f8;
-  [Deadline: Duration(5)]  f1 = a1!addBalance(rm,10);
-  [Deadline: Duration(5)]  f2 = a2!addBalance(rm,10);
-  [Deadline: Duration(5)]  f3 = a3!addBalance(rm,10);
-  [Deadline: Duration(5)]  f4 = a4!addBalance(rm,10);
-  [Deadline: Duration(5)]  f5 = a5!addBalance(rm,10);
-  await f1?;
-  await f2?;
-  await f3?;
-  await f4?;
-  await f5?;
-  [Deadline: Duration(10)]  f6 = b1!distribute(rm,a1, a2);
-  [Deadline: Duration(10)]  f7 = b2!distribute(rm,a3, a4);
-  [Deadline: Duration(10)]  f8 = b3!distribute(rm,a5, a1);
-  await f6?;
-  await f7?;
-  await f8?;
-  println(":)");
-  println(( ( "Time: " + toString(now()) ) + "" ));
+  await rm!addRes(list[Pair(10,Doctor), Pair(10,Doctor), Pair(30,Ferry), Pair(25,PoliceMan), Pair(25,PoliceMan), Pair(25,PoliceMan), Pair(5,EODTech), Pair(5,EODTech), Pair(25,FireFighter), Pair(25,FireFighter), Pair(10,Doctor), Pair(10,Doctor), Pair(10,Clerk), Pair(10,Doctor)]);
+  Police p = new Police();
+  ECC ecc = new ECC();
+  EOD eod = new EOD();
+  FB fb = new FB();
+  Hospital h = new Hospital();
+  Fut<Int> f;
+  [Deadline: Duration(400)]  f = p!alarm(rm,ecc, eod, fb, h);
+  await f?;
+  Rat t = timeValue(now());
+  Int t1 = truncate(t);
+  println(( ( "%" + toString(t1) ) + "" ));
 }

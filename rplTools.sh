@@ -11,13 +11,21 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
     if [ $option = "1" ]
     then
     {
+      [ -f test.csv ] && rm test.csv
       echo "Please enter the filename:"
       read file
       start=`echo $(($(gdate +%s%N)/1000000))`
       frontend/bin/absc -s ./examples/$file
       cp RABS.abs ABS.rpl
+
+      c=1
       frontend/bin/absc -e ABS.rpl
-      gen/erl/run
+      while [ $c -le 100 ]
+      do
+
+          timeout 15 gen/erl/run >> test.csv
+          (( c++ ))
+      done
       end=`echo $(($(gdate +%s%N)/1000000))`
       echo Execution time was `expr $end - $start` mili seconds.
     }

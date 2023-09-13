@@ -1,7 +1,0 @@
-module Test;
-data Case = Case(Int case_ID, Int priority, String patho_team, Int no_of_containers);
-{
-    Case c = Case(123,1,"Gyno",2);
-    String s = patho_team(c);
-    println(toString(case_ID(c)));
-}

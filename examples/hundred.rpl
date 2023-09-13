@@ -1,0 +1,262 @@
+module Rescue;
+interface Police {
+  Int alarm(ECC ecc, EOD eod, FB fb, Hospital h);
+  Int repEmgInfo(ECC ecc, EOD eod, FB fb, Hospital h);
+  Int rushToSite();
+  Int dealSituation();
+  Int evacuation();
+  Int rescue();}
+
+class Police implements Police {
+  List<Pair<Int,Int>> rid = Nil;
+  Int alarm(ECC ecc, EOD eod, FB fb, Hospital h)
+  {
+    Int x = 0;
+    x = repEmgInfo(this,ecc, eod, fb, h) after dl 400;
+    return 0;
+  }
+  Int repEmgInfo(ECC ecc, EOD eod, FB fb, Hospital h)
+  {
+    Police p1 = new Police();
+    Police p2 = new Police();
+    Fut<Int> f1;
+    Fut<Int> f2;
+    Fut<Int> f3;
+    Fut<Int> f4;
+    Int x = 0;
+    List<Int> temp = list(Nil);
+    temp = hold(list[Pair(10,Clerk)]);
+    cost((100/10)*(100/100));
+    rel(temp);
+    f1 = !estEmgCtr(ecc) after dl 20;
+    x = rushToSite(this) after dl 50;
+    f2 = !dealSituation(p1) after dl 80;
+    f3 = !evacuation(p2) after dl 80;
+    x = rescue(this) after dl 80;
+    f4 = !makeEmgPlan(ecc,eod,fb,h) after f1&f2&f3 dl 250;
+    await f4?;
+    return 0;
+  }
+  Int rushToSite(){
+    List<Int> temp = list(Nil);
+    temp = hold(list[Pair(30,Ferry)]);
+    cost(30);
+    rel(temp);
+    return 0;
+  }
+  Int dealSituation(){
+    List<Int> temp = list(Nil);
+    temp = hold(list[Pair(25,PoliceMan),Pair(25,PoliceMan)]);
+    cost((2500/50)*(100/100));
+    rel(temp);
+    return 0;
+  }
+  Int evacuation(){
+    List<Int> temp = list(Nil);
+    temp = hold(list[Pair(25,PoliceMan),Pair(25,PoliceMan)]);
+    cost((2500/50)*(100/100));
+    rel(temp);
+    return 0;
+  }
+  Int rescue(){
+    List<Int> temp = list(Nil);
+    temp = hold(list[Pair(25,PoliceMan),Pair(25,PoliceMan)]);
+    cost((2500/50)*(100/100));
+    rel(temp);
+    return 0;
+  }
+}
+
+interface ECC
+{
+  Int estEmgCtr();
+  Int makeEmgPlan(EOD eod, FB fb, Hospital h);
+  Int doMediaCoverage();
+}
+
+class ECC implements ECC
+{
+  List<Pair<Int,Int>> rid = Nil;
+  Int estEmgCtr(){
+    cost(10);
+    return 0;
+  }
+  Int makeEmgPlan(EOD eod, FB fb, Hospital h){
+    Int x = 0;Fut<Int> f1;Fut<Int> f2;Fut<Int> f3;
+    f1 = !start(eod) after dl 100;
+    f2 = !start(fb) after dl 240;
+    f3 = !start(h) after dl 180;
+    x = doMediaCoverage(this) after f1&f2&f3 dl 20;
+    return 0;
+  }
+  Int doMediaCoverage(){
+    cost(10);
+    return 0;
+  }
+}
+
+interface EOD
+{
+  Int start();
+  Int rushToSite();
+  Int searchEOD();
+  Int reportEOD();
+}
+
+class EOD implements EOD {
+  List<Pair<Int,Int>> rid = Nil;
+  Int start(){
+    Int x = 0;
+    x = rushToSite(this) after dl 50;
+    x = searchEOD(this) after dl 20;
+    x = reportEOD(this) after dl 20;
+    return 0;
+  }
+  Int rushToSite(){
+    List<Int> temp = list(Nil);
+    temp = hold(list[Pair(30,Ferry)]);
+    cost(30);
+    rel(temp);
+    return 0;
+  }
+  Int searchEOD(){
+    List<Pair<Int,Int>> temp = Nil;
+    cost(10);
+    return 0;
+  }
+  Int reportEOD(){
+    List<Int> temp = list(Nil);
+    temp = hold(list[Pair(10,Clerk)]);
+    cost((100/10)*(100/100));
+    rel(temp);
+    return 0;
+  }
+}
+interface FB {
+  Int start();
+  Int rushToSite();
+  Int fightFire();
+  Int mitigate();
+  Int recoverSite();
+  Int reportFireRescue();}
+
+class FB implements FB {
+  List<Pair<Int,Int>> rid = list(Nil);
+  Int start(){
+    Int x = 0;FB fb1 = new FB();Fut<Int> f1;
+    x = rushToSite(this) after dl 50;
+    x = fightFire(this) after dl 70;
+    f1 = !mitigate(fb1) after dl 70;
+    x = recoverSite(this) after dl 50;
+    x = reportFireRescue(this) after f1 dl 50;
+    return 0;
+  }
+  Int rushToSite(){
+    List<Int> temp = list(Nil);
+    temp = hold(list[Pair(30,Ferry)]);
+    cost(30);
+    rel(temp);
+    return 0;
+  }
+  Int fightFire(){
+    List<Int> temp = list(Nil);
+    temp = hold(list[Pair(25,FireFighter),Pair(25,FireFighter)]);
+    cost((2500/50)*(100/100));
+    rel(temp);
+    return 0;
+  }
+  Int mitigate(){
+    List<Int> temp = list(Nil);
+    temp = hold(list[Pair(25,FireFighter),Pair(25,FireFighter)]);
+    cost((2500/50)*(100/100));
+    rel(temp);
+    return 0;
+  }
+  Int recoverSite(){
+    List<Int> temp = list(Nil);
+    temp = hold(list[Pair(25,FireFighter),Pair(25,FireFighter)]);
+    cost((2500/50)*(100/100));
+    rel(temp);
+    return 0;
+  }
+  Int reportFireRescue(){
+    List<Int> temp = list(Nil);
+    temp = hold(list[Pair(10,Clerk)]);
+    cost((100/10)*(100/100));
+    rel(temp);
+    return 0;
+  }
+}
+
+interface Hospital {
+  Int start();
+  Int rushToSite();
+  Int shuntWounded();
+  Int treatSliInj();
+  Int treatSevInj();
+  Int reportMedRescue();}
+
+class Hospital implements Hospital {
+  List<Pair<Int,Int>> rid = list(Nil);
+  Int start(){
+    Int x = 0;
+    Hospital h1 = new Hospital();
+    Fut<Int> f1;
+    x = rushToSite(this) after dl 50;
+    x = shuntWounded(this) after dl 50;
+    f1 = !treatSliInj(h1) after dl 50;
+    x = treatSevInj(this) after dl 70;
+    x = reportMedRescue(this) after f1 dl 20;
+    return 0;
+  }
+  Int rushToSite(){
+    List<Int> temp = list(Nil);
+    temp = hold(list[Pair(30,Ferry)]);
+    cost(30);
+    rel(temp);
+    return 0;
+  }
+  Int shuntWounded(){
+    List<Int> temp = list(Nil);
+    temp = hold(list[Pair(10,Doctor),Pair(10,Doctor),Pair(10,Doctor)]);
+    cost((900/30)*(100/100));
+    rel(temp);
+    return 0;
+  }
+  Int treatSliInj(){
+    List<Int> temp = list(Nil);
+    temp = hold(list[Pair(10,Doctor),Pair(10,Doctor),Pair(10,Doctor)]);
+    cost((900/30)*(100/100));
+    rel(temp);
+    return 0;
+  }
+  Int treatSevInj(){
+    List<Int> temp = list(Nil);
+    temp = hold(list[Pair(10,Doctor),Pair(10,Doctor),Pair(10,Doctor),Pair(10,Doctor),Pair(10,Doctor)]);
+    cost((2500/50)*(100/100));
+    rel(temp);
+    return 0;
+  }
+  Int reportMedRescue(){
+    List<Int> temp = list(Nil);
+    temp = hold(list[Pair(10,Clerk)]);
+    cost((100/10)*(100/100));
+    rel(temp);
+    return 0;
+  }
+  }
+
+
+{
+  Police p = new Police();
+  ECC ecc = new ECC();
+  EOD eod = new EOD();
+  FB fb = new FB();
+  Hospital h = new Hospital();
+  Fut<Int> f;
+  f = !alarm(p,ecc, eod, fb, h) after dl 400;
+  await f?;
+  Rat t = timeValue(now());
+  Int t1 = truncate(t);
+  println(`%$t1$`);
+}
