@@ -20,7 +20,7 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
 
       c=1
       frontend/bin/absc -e ABS.rpl
-      while [ $c -le 100 ]
+      while [ $c -le 1 ]
       do
 
           timeout 15 gen/erl/run >> test.csv

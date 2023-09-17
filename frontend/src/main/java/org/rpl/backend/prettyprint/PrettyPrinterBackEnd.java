@@ -131,8 +131,11 @@ public class PrettyPrinterBackEnd extends Main {
         writer.println();
         writer.print("import * from ABS.StdLib;");
         writer.println();
+        writer.print("import * from RPL;");
+        writer.println();
         writer.print("export *;");
         writer.println();
+        /*
         writer.print("data Quality = ");
 
         String sql = "SELECT * FROM ResourceQuality";
@@ -153,12 +156,15 @@ public class PrettyPrinterBackEnd extends Main {
             writer.println();
             writer.println();
 
+
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         } finally {
-            writer.close();
+
             conn.close();
         }
+         */
+        writer.close();
         FileInputStream inputStream = new FileInputStream("frontend/src/main/resources/abs/lang/ResourceManager.abs");
         FileOutputStream outputStream = new FileOutputStream(file,true);
         //PrintWriter writer = null;
