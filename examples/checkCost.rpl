@@ -1,0 +1,15 @@
+module RPL;
+export Quality;
+export *;
+data Quality = ResEfficiency(Int) | ResCost(Int) | ResCapacity(Int) | Ferry | Doctor | SmokeMask | PoliceMan | Clerk | EODTech | FireFighter | FireExt | FirstAidBox;
+{
+    List<Int> rid = list[];
+    rid = hold(list[set[Doctor, ResEfficiency(10)]]);
+    cost(5);
+    await rm!computeResCost(rid,5);
+    await rm!print();
+    rel(rid);
+}
+
+// try to convert ResCost(7) into 7 . string to integer extraction
+// update resource managers accordingly

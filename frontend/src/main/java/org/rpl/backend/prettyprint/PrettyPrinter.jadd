@@ -356,13 +356,19 @@ aspect doPrettyPrinter {
                  Statement stmt  = conn.createStatement();
                  ResultSet rs    = stmt.executeQuery(sql)){
                  if(rs.next()){
-                    stream.print("Pair(" + rs.getInt("ResourceEfficiency") + "," +
-                       rs.getString("ResourceCategory") + ")");
-                       }
+                    stream.print("set[" + rs.getString("ResourceCategory") + ", ResEfficiency(" +
+                                           rs.getInt("ResourceEfficiency") + "), ResCost(" +
+                                           rs.getInt("ResourceCost") + "), ResCapacity(" +
+                                           rs.getInt("ResourceCapacity") +")]");
+                                           }
 
                 // loop through the result set
                 while (rs.next()) {
-                    stream.print(", Pair(" + rs.getInt("ResourceEfficiency") + "," + rs.getString("ResourceCategory") + ")");
+                    stream.print(", set[" + rs.getString("ResourceCategory") + ", ResEfficiency(" +
+                                                               rs.getInt("ResourceEfficiency") + "), ResCost(" +
+                                                               rs.getInt("ResourceCost") + ") , ResCapacity(" +
+                                                               rs.getInt("ResourceCapacity") +")]");
+
                 }
                 stream.println("]);");
                 conn.close();

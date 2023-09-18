@@ -4,11 +4,11 @@ export *;
 data Quality = ResEfficiency(Int) | ResCost(Int) | ResCapacity(Int) | Ferry | Doctor | SmokeMask | PoliceMan | Clerk | EODTech | FireFighter | FireExt | FirstAidBox;
 interface Police {
   Int alarm(ECC ecc, EOD eod, FB fb, Hospital h, Int effPercentage);
-  Int repEmgInfo(ECC ecc, EOD eod, FB fb, Hospital h,List<Pair<Int,Quality>> res,Int totalEfficiency, Int effPercentage);
-  Int rushToSite(List<Pair<Int,Quality>> res);
-  Int dealSituation(List<Pair<Int,Quality>> res,Int totalEfficiency, Int effPercentage);
-  Int evacuation(List<Pair<Int,Quality>> res,Int totalEfficiency, Int effPercentage);
-  Int rescue(List<Pair<Int,Quality>> res,Int totalEfficiency, Int effPercentage);}
+  Int repEmgInfo(ECC ecc, EOD eod, FB fb, Hospital h,List<Set<Quality>> res,Int totalEfficiency, Int effPercentage);
+  Int rushToSite(List<Set<Quality>> res);
+  Int dealSituation(List<Set<Quality>> res,Int totalEfficiency, Int effPercentage);
+  Int evacuation(List<Set<Quality>> res,Int totalEfficiency, Int effPercentage);
+  Int rescue(List<Set<Quality>> res,Int totalEfficiency, Int effPercentage);}
 
 class Police implements Police {
   List<Pair<Int,Int>> rid = Nil;
@@ -20,10 +20,10 @@ class Police implements Police {
   Int alarm(ECC ecc, EOD eod, FB fb, Hospital h, Int effPercentage)
   {
     Int x = 0;
-    x = repEmgInfo(this,ecc, eod, fb, h, list[Pair(10,Clerk)], 10, effPercentage) after dl 400;
+    x = repEmgInfo(this,ecc, eod, fb, h, list[set[Clerk,ResEfficiency(10)]], 10, effPercentage) after dl 400;
     return 0;
   }
-  Int repEmgInfo(ECC ecc, EOD eod, FB fb, Hospital h,List<Pair<Int,Quality>> res,Int totalEfficiency, Int effPercentage)
+  Int repEmgInfo(ECC ecc, EOD eod, FB fb, Hospital h,List<Set<Quality>> res,Int totalEfficiency, Int effPercentage)
   {
     Police p1 = new Police();
     Police p2 = new Police();
@@ -37,36 +37,36 @@ class Police implements Police {
     cost((repEmgInfoCost/totalEfficiency)*(100/effPercentage));
     rel(temp);
     f1 = !estEmgCtr(ecc) after dl 20;
-    x = rushToSite(this,list[Pair(30,Ferry)]) after dl 50;
-    f2 = !dealSituation(p1,list[Pair(25,PoliceMan),Pair(25,PoliceMan)],50,effPercentage) after dl 80;
-    f3 = !evacuation(p2,list[Pair(25,PoliceMan),Pair(25,PoliceMan)],50,effPercentage) after dl 80;
-    x = rescue(this,list[Pair(25,PoliceMan),Pair(25,PoliceMan)],50,effPercentage) after dl 80;
+    x = rushToSite(this,list[set[Ferry,ResEfficiency(30)]]) after dl 50;
+    f2 = !dealSituation(p1,list[set[PoliceMan,ResEfficiency(25)],set[PoliceMan,ResEfficiency(25)]],50,effPercentage) after dl 80;
+    f3 = !evacuation(p2,list[set[PoliceMan,ResEfficiency(25)],set[PoliceMan,ResEfficiency(25)]],50,effPercentage) after dl 80;
+    x = rescue(this,list[set[PoliceMan,ResEfficiency(25)],set[PoliceMan,ResEfficiency(25)]],50,effPercentage) after dl 80;
     f4 = !makeEmgPlan(ecc,eod,fb,h,effPercentage) after f1&f2&f3 dl 250;
     await f4?;
     return 0;
   }
-  Int rushToSite(List<Pair<Int,Quality>> res){
+  Int rushToSite(List<Set<Quality>> res){
     List<Int> temp = list(Nil);
     temp = hold(res);
     cost(rushToSiteCost);
     rel(temp);
     return 0;
   }
-  Int dealSituation(List<Pair<Int,Quality>> res,Int totalEfficiency, Int effPercentage){
+  Int dealSituation(List<Set<Quality>> res,Int totalEfficiency, Int effPercentage){
     List<Int> temp = list(Nil);
     temp = hold(res);
     cost((dealSituationCost/totalEfficiency)*(100/effPercentage));
     rel(temp);
     return 0;
   }
-  Int evacuation(List<Pair<Int,Quality>> res,Int totalEfficiency, Int effPercentage){
+  Int evacuation(List<Set<Quality>> res,Int totalEfficiency, Int effPercentage){
     List<Int> temp = list(Nil);
     temp = hold(res);
     cost((evacuationCost/totalEfficiency)*(100/effPercentage));
     rel(temp);
     return 0;
   }
-  Int rescue(List<Pair<Int,Quality>> res,Int totalEfficiency, Int effPercentage){
+  Int rescue(List<Set<Quality>> res,Int totalEfficiency, Int effPercentage){
     List<Int> temp = list(Nil);
     temp = hold(res);
     cost((rescueCost/totalEfficiency)*(100/effPercentage));
@@ -108,9 +108,9 @@ class ECC implements ECC
 interface EOD
 {
   Int start(Int effPercentage);
-  Int rushToSite(List<Pair<Int,Quality>> res);
+  Int rushToSite(List<Set<Quality>> res);
   Int searchEOD(Int totalEfficiency);
-  Int reportEOD(List<Pair<Int,Quality>> res,Int totalEfficiency, Int effPercentage);
+  Int reportEOD(List<Set<Quality>> res,Int totalEfficiency, Int effPercentage);
 }
 
 class EOD implements EOD {
@@ -120,12 +120,12 @@ class EOD implements EOD {
   Int reportEODCost = 100;
   Int start(Int effPercentage){
     Int x = 0;
-    x = rushToSite(this,list[Pair(30,Ferry)]) after dl 50;
+    x = rushToSite(this,list[set[Ferry,ResEfficiency(30)]]) after dl 50;
     x = searchEOD(this,10) after dl 20;
-    x = reportEOD(this,list[Pair(10,Clerk)],10,effPercentage) after dl 20;
+    x = reportEOD(this,list[set[Clerk,ResEfficiency(10)]],10,effPercentage) after dl 20;
     return 0;
   }
-  Int rushToSite(List<Pair<Int,Quality>> res){
+  Int rushToSite(List<Set<Quality>> res){
     List<Int> temp = list(Nil);
     temp = hold(res);
     cost(rushToSiteCost);
@@ -137,7 +137,7 @@ class EOD implements EOD {
     cost(totalEfficiency);
     return 0;
   }
-  Int reportEOD(List<Pair<Int,Quality>> res,Int totalEfficiency,Int effPercentage){
+  Int reportEOD(List<Set<Quality>> res,Int totalEfficiency,Int effPercentage){
     List<Int> temp = list(Nil);
     temp = hold(res);
     cost((reportEODCost/totalEfficiency)*(100/effPercentage));
@@ -147,11 +147,11 @@ class EOD implements EOD {
 }
 interface FB {
   Int start(Int effPercentage);
-  Int rushToSite(List<Pair<Int,Quality>> res);
-  Int fightFire(List<Pair<Int,Quality>> res,Int totalEfficiency,Int effPercentage);
-  Int mitigate(List<Pair<Int,Quality>> res,Int totalEfficiency,Int effPercentage);
-  Int recoverSite(List<Pair<Int,Quality>> res,Int totalEfficiency,Int effPercentage);
-  Int reportFireRescue(List<Pair<Int,Quality>> res,Int totalEfficiency,Int effPercentage);}
+  Int rushToSite(List<Set<Quality>> res);
+  Int fightFire(List<Set<Quality>> res,Int totalEfficiency,Int effPercentage);
+  Int mitigate(List<Set<Quality>> res,Int totalEfficiency,Int effPercentage);
+  Int recoverSite(List<Set<Quality>> res,Int totalEfficiency,Int effPercentage);
+  Int reportFireRescue(List<Set<Quality>> res,Int totalEfficiency,Int effPercentage);}
 
 class FB implements FB {
   List<Pair<Int,Int>> rid = list(Nil);
@@ -162,42 +162,42 @@ class FB implements FB {
   Int reportFireRescueCost = 100;
   Int start(Int effPercentage){
     Int x = 0;FB fb1 = new FB();Fut<Int> f1;
-    x = rushToSite(this,list[Pair(30,Ferry)]) after dl 50;
-    x = fightFire(this,list[Pair(25,FireFighter),Pair(25,FireFighter)],50,effPercentage) after dl 70;
-    f1 = !mitigate(fb1,list[Pair(25,FireFighter),Pair(25,FireFighter)],50,effPercentage) after dl 70;
-    x = recoverSite(this,list[Pair(25,FireFighter),Pair(25,FireFighter)],50,effPercentage) after dl 50;
-    x = reportFireRescue(this,list[Pair(10,Clerk)],10,effPercentage) after f1 dl 50;
+    x = rushToSite(this,list[set[Ferry,ResEfficiency(30)]]) after dl 50;
+    x = fightFire(this,list[set[FireFighter,ResEfficiency(25)],set[FireFighter,ResEfficiency(25)]],50,effPercentage) after dl 70;
+    f1 = !mitigate(fb1,list[set[FireFighter,ResEfficiency(25)],set[FireFighter,ResEfficiency(25)]],50,effPercentage) after dl 70;
+    x = recoverSite(this,list[set[FireFighter,ResEfficiency(25)],set[FireFighter,ResEfficiency(25)]],50,effPercentage) after dl 50;
+    x = reportFireRescue(this,list[set[Clerk,ResEfficiency(10)]],10,effPercentage) after f1 dl 50;
     return 0;
   }
-  Int rushToSite(List<Pair<Int,Quality>> res){
+  Int rushToSite(List<Set<Quality>> res){
     List<Int> temp = list(Nil);
     temp = hold(res);
     cost(rushToSiteCost);
     rel(temp);
     return 0;
   }
-  Int fightFire(List<Pair<Int,Quality>> res,Int totalEfficiency,Int effPercentage){
+  Int fightFire(List<Set<Quality>> res,Int totalEfficiency,Int effPercentage){
     List<Int> temp = list(Nil);
     temp = hold(res);
     cost((fightFireCost/totalEfficiency)*(100/effPercentage));
     rel(temp);
     return 0;
   }
-  Int mitigate(List<Pair<Int,Quality>> res,Int totalEfficiency,Int effPercentage){
+  Int mitigate(List<Set<Quality>> res,Int totalEfficiency,Int effPercentage){
     List<Int> temp = list(Nil);
     temp = hold(res);
     cost((mitigateCost/totalEfficiency)*(100/effPercentage));
     rel(temp);
     return 0;
   }
-  Int recoverSite(List<Pair<Int,Quality>> res,Int totalEfficiency,Int effPercentage){
+  Int recoverSite(List<Set<Quality>> res,Int totalEfficiency,Int effPercentage){
     List<Int> temp = list(Nil);
     temp = hold(res);
     cost((recoverSiteCost/totalEfficiency)*(100/effPercentage));
     rel(temp);
     return 0;
   }
-  Int reportFireRescue(List<Pair<Int,Quality>> res,Int totalEfficiency,Int effPercentage){
+  Int reportFireRescue(List<Set<Quality>> res,Int totalEfficiency,Int effPercentage){
     List<Int> temp = list(Nil);
     temp = hold(res);
     cost((reportFireRescueCost/totalEfficiency)*(100/effPercentage));
@@ -208,11 +208,11 @@ class FB implements FB {
 
 interface Hospital {
   Int start(Int effPercentage);
-  Int rushToSite(List<Pair<Int,Quality>> res);
-  Int shuntWounded(List<Pair<Int,Quality>> res,Int totalEfficiency,Int effPercentage);
-  Int treatSliInj(List<Pair<Int,Quality>> res,Int totalEfficiency,Int effPercentage);
-  Int treatSevInj(List<Pair<Int,Quality>> res,Int totalEfficiency,Int effPercentage);
-  Int reportMedRescue(List<Pair<Int,Quality>> res,Int totalEfficiency,Int effPercentage);}
+  Int rushToSite(List<Set<Quality>> res);
+  Int shuntWounded(List<Set<Quality>> res,Int totalEfficiency,Int effPercentage);
+  Int treatSliInj(List<Set<Quality>> res,Int totalEfficiency,Int effPercentage);
+  Int treatSevInj(List<Set<Quality>> res,Int totalEfficiency,Int effPercentage);
+  Int reportMedRescue(List<Set<Quality>> res,Int totalEfficiency,Int effPercentage);}
 
 class Hospital implements Hospital {
   List<Pair<Int,Int>> rid = list(Nil);
@@ -225,42 +225,42 @@ class Hospital implements Hospital {
     Int x = 0;
     Hospital h1 = new Hospital();
     Fut<Int> f1;
-    x = rushToSite(this,list[Pair(30,Ferry)]) after dl 50;
-    x = shuntWounded(this,list[Pair(10,Doctor),Pair(10,Doctor),Pair(10,Doctor)],30,effPercentage) after dl 50;
-    f1 = !treatSliInj(h1,list[Pair(10,Doctor),Pair(10,Doctor),Pair(10,Doctor)],30,effPercentage) after dl 50;
-    x = treatSevInj(this,list[Pair(10,Doctor),Pair(10,Doctor),Pair(10,Doctor),Pair(10,Doctor),Pair(10,Doctor)],50,effPercentage) after dl 70;
-    x = reportMedRescue(this,list[Pair(10,Clerk)],10,effPercentage) after f1 dl 20;
+    x = rushToSite(this,list[set[Ferry,ResEfficiency(30)]]) after dl 50;
+    x = shuntWounded(this,list[set[Doctor,ResEfficiency(10)],set[Doctor,ResEfficiency(10)],set[Doctor,ResEfficiency(10)]],30,effPercentage) after dl 50;
+    f1 = !treatSliInj(h1,list[set[Doctor,ResEfficiency(10)],set[Doctor,ResEfficiency(10)],set[Doctor,ResEfficiency(10)]],30,effPercentage) after dl 50;
+    x = treatSevInj(this,list[set[Doctor,ResEfficiency(10)],set[Doctor,ResEfficiency(10)],set[Doctor,ResEfficiency(10)],set[Doctor,ResEfficiency(10)],set[Doctor,ResEfficiency(10)]],50,effPercentage) after dl 70;
+    x = reportMedRescue(this,list[set[Clerk,ResEfficiency(10)]],10,effPercentage) after f1 dl 20;
     return 0;
   }
-  Int rushToSite(List<Pair<Int,Quality>> res){
+  Int rushToSite(List<Set<Quality>> res){
     List<Int> temp = list(Nil);
     temp = hold(res);
     cost(rushToSiteCost);
     rel(temp);
     return 0;
   }
-  Int shuntWounded(List<Pair<Int,Quality>> res,Int totalEfficiency,Int effPercentage){
+  Int shuntWounded(List<Set<Quality>> res,Int totalEfficiency,Int effPercentage){
     List<Int> temp = list(Nil);
     temp = hold(res);
     cost((shuntWoundedCost/totalEfficiency)*(100/effPercentage));
     rel(temp);
     return 0;
   }
-  Int treatSliInj(List<Pair<Int,Quality>> res,Int totalEfficiency,Int effPercentage){
+  Int treatSliInj(List<Set<Quality>> res,Int totalEfficiency,Int effPercentage){
     List<Int> temp = list(Nil);
     temp = hold(res);
     cost((treatSliInjCost/totalEfficiency)*(100/effPercentage));
     rel(temp);
     return 0;
   }
-  Int treatSevInj(List<Pair<Int,Quality>> res,Int totalEfficiency,Int effPercentage){
+  Int treatSevInj(List<Set<Quality>> res,Int totalEfficiency,Int effPercentage){
     List<Int> temp = list(Nil);
     temp = hold(res);
     cost((treatSevInjCost/totalEfficiency)*(100/effPercentage));
     rel(temp);
     return 0;
   }
-  Int reportMedRescue(List<Pair<Int,Quality>> res,Int totalEfficiency,Int effPercentage){
+  Int reportMedRescue(List<Set<Quality>> res,Int totalEfficiency,Int effPercentage){
     List<Int> temp = list(Nil);
     temp = hold(res);
     cost((reportMedRescueCost/totalEfficiency)*(100/effPercentage));
@@ -283,8 +283,8 @@ class Hospital implements Hospital {
   println(`%$t1$`);
 }
 
-// Make it generic. (specially cost and hold statement arguments should be passed as a parameter on method invocation.)
-// [Done] replace cost value (e.g, 2500) with a class field, so it can be changed easily.
+// [Done] Make it generic. (specially cost and hold statement arguments should be passed as a parameter on method invocation.)
+// [Done] Replace cost value (e.g, 2500) with a class field, so it can be changed easily.
 // Cost in terms of budget (try to implement it).
 // [r -> (rid, Q)] -> (eff,specialization,cost,capacity).
 // also try to implement with capacity.

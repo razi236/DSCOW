@@ -1,4 +1,7 @@
-module Rescue;
+module RPL;
+export Quality;
+export *;
+data Quality = Ferry | Doctor | SmokeMask | PoliceMan | Clerk | EODTech | FireFighter | FireExt | FirstAidBox;
 interface Police {
   Int alarm(ECC ecc, EOD eod, FB fb, Hospital h);
   Int repEmgInfo(ECC ecc, EOD eod, FB fb, Hospital h);
@@ -9,6 +12,11 @@ interface Police {
 
 class Police implements Police {
   List<Pair<Int,Int>> rid = Nil;
+  Int repEmgInfoCost = 100;
+  Int rushToSiteCost = 300;
+  Int dealSituationCost = 2500;
+  Int evacuationCost = 2500;
+  Int rescueCost = 2500;
   Int alarm(ECC ecc, EOD eod, FB fb, Hospital h)
   {
     Int x = 0;
@@ -26,7 +34,7 @@ class Police implements Police {
     Int x = 0;
     List<Int> temp = list(Nil);
     temp = hold(list[Pair(10,Clerk)]);
-    cost((100/10)*(100/60));
+    cost((repEmgInfoCost/10)*(100/60));
     rel(temp);
     f1 = !estEmgCtr(ecc) after dl 20;
     x = rushToSite(this) after dl 50;
@@ -40,28 +48,28 @@ class Police implements Police {
   Int rushToSite(){
     List<Int> temp = list(Nil);
     temp = hold(list[Pair(30,Ferry)]);
-    cost(30);
+    cost(rushToSiteCost);
     rel(temp);
     return 0;
   }
   Int dealSituation(){
     List<Int> temp = list(Nil);
     temp = hold(list[Pair(25,PoliceMan),Pair(25,PoliceMan)]);
-    cost((2500/50)*(100/60));
+    cost((dealSituationCost/50)*(100/60));
     rel(temp);
     return 0;
   }
   Int evacuation(){
     List<Int> temp = list(Nil);
     temp = hold(list[Pair(25,PoliceMan),Pair(25,PoliceMan)]);
-    cost((2500/50)*(100/60));
+    cost((evacuationCost/50)*(100/60));
     rel(temp);
     return 0;
   }
   Int rescue(){
     List<Int> temp = list(Nil);
     temp = hold(list[Pair(25,PoliceMan),Pair(25,PoliceMan)]);
-    cost((2500/50)*(100/60));
+    cost((rescueCost/50)*(100/60));
     rel(temp);
     return 0;
   }
@@ -77,8 +85,10 @@ interface ECC
 class ECC implements ECC
 {
   List<Pair<Int,Int>> rid = Nil;
+  Int estEmgCtrCost = 10;
+  Int doMediaCoverageCost = 10;
   Int estEmgCtr(){
-    cost(10);
+    cost(estEmgCtrCost);
     return 0;
   }
   Int makeEmgPlan(EOD eod, FB fb, Hospital h){
@@ -90,7 +100,7 @@ class ECC implements ECC
     return 0;
   }
   Int doMediaCoverage(){
-    cost(10);
+    cost(doMediaCoverageCost);
     return 0;
   }
 }
@@ -105,6 +115,9 @@ interface EOD
 
 class EOD implements EOD {
   List<Pair<Int,Int>> rid = Nil;
+  Int rushToSiteCost = 30;
+  Int searchEODCost = 10;
+  Int reportEODCost = 100;
   Int start(){
     Int x = 0;
     x = rushToSite(this) after dl 50;
@@ -115,7 +128,7 @@ class EOD implements EOD {
   Int rushToSite(){
     List<Int> temp = list(Nil);
     temp = hold(list[Pair(30,Ferry)]);
-    cost(30);
+    cost(rushToSiteCost);
     rel(temp);
     return 0;
   }
@@ -127,62 +140,67 @@ class EOD implements EOD {
   Int reportEOD(){
     List<Int> temp = list(Nil);
     temp = hold(list[Pair(10,Clerk)]);
-    cost((100/10)*(100/60));
+    cost((reportEODCost/10)*(100/60));
     rel(temp);
     return 0;
   }
 }
 interface FB {
   Int start();
-  Int rushToSite();
-  Int fightFire();
-  Int mitigate();
-  Int recoverSite();
-  Int reportFireRescue();}
+  Int rushToSite(List<Pair<Int,Quality>> res,Int totalEfficiency);
+  Int fightFire(List<Pair<Int,Quality>> res,Int totalEfficiency);
+  Int mitigate(List<Pair<Int,Quality>> res,Int totalEfficiency);
+  Int recoverSite(List<Pair<Int,Quality>> res,Int totalEfficiency);
+  Int reportFireRescue(List<Pair<Int,Quality>> res,Int totalEfficiency);}
 
 class FB implements FB {
   List<Pair<Int,Int>> rid = list(Nil);
+  Int rushToSiteCost = 10;
+  Int fightFireCost = 2500;
+  Int mitigateCost = 2500;
+  Int recoverSiteCost = 2500;
+  Int reportFireRescueCost = 100;
   Int start(){
     Int x = 0;FB fb1 = new FB();Fut<Int> f1;
-    x = rushToSite(this) after dl 50;
-    x = fightFire(this) after dl 70;
-    f1 = !mitigate(fb1) after dl 70;
-    x = recoverSite(this) after dl 50;
-    x = reportFireRescue(this) after f1 dl 50;
+    x = rushToSite(this,list[Pair(30,Ferry)],30) after dl 50;
+    x = fightFire(this,list[Pair(25,FireFighter),Pair(25,FireFighter)],50) after dl 70;
+    f1 = !mitigate(fb1,list[Pair(25,FireFighter),Pair(25,FireFighter)],50) after dl 70;
+    x = recoverSite(this,list[Pair(25,FireFighter),Pair(25,FireFighter)],50) after dl 50;
+    x = reportFireRescue(this,list[Pair(10,Clerk)],10) after f1 dl 50;
     return 0;
   }
-  Int rushToSite(){
+  Int rushToSite(List<Pair<Int,Quality>> res,Int totalEfficiency){
     List<Int> temp = list(Nil);
-    temp = hold(list[Pair(30,Ferry)]);
-    cost(30);
+    temp = hold(res);
+    cost(rushToSiteCost);
     rel(temp);
     return 0;
   }
-  Int fightFire(){
+  Int fightFire(List<Pair<Int,Quality>> res,Int totalEfficiency){
     List<Int> temp = list(Nil);
-    temp = hold(list[Pair(25,FireFighter),Pair(25,FireFighter)]);
-    cost((2500/50)*(100/60));
+    temp = hold(res);
+    cost((fightFireCost/totalEfficiency)*(100/60));
     rel(temp);
     return 0;
   }
-  Int mitigate(){
+  Int mitigate(List<Pair<Int,Quality>> res,Int totalEfficiency){
     List<Int> temp = list(Nil);
-    temp = hold(list[Pair(25,FireFighter),Pair(25,FireFighter)]);
-    cost((2500/50)*(100/60));
+    temp = hold(res);
+    cost((mitigateCost/totalEfficiency)*(100/60));
     rel(temp);
     return 0;
   }
-  Int recoverSite(){
+  Int recoverSite(List<Pair<Int,Quality>> res,Int totalEfficiency){
     List<Int> temp = list(Nil);
-    temp = hold(list[Pair(25,FireFighter),Pair(25,FireFighter)]);
-    cost((2500/50)*(100/60));
+    temp = hold(res);
+    cost((recoverSiteCost/totalEfficiency)*(100/60));
     rel(temp);
     return 0;
   }
-  Int reportFireRescue(){
+  Int reportFireRescue(List<Pair<Int,Quality>> res,Int totalEfficiency){
     List<Int> temp = list(Nil);
-    temp = hold(list[Pair(10,Clerk)]);
-    cost((100/10)*(100/60));
+    temp = hold(res);
+    cost((reportFireRescueCost/totalEfficiency)*(100/60));
     rel(temp);
     return 0;
   }
@@ -190,63 +208,66 @@ class FB implements FB {
 
 interface Hospital {
   Int start();
-  Int rushToSite();
-  Int shuntWounded();
-  Int treatSliInj();
-  Int treatSevInj();
-  Int reportMedRescue();}
+  Int rushToSite(List<Pair<Int,Quality>> res,Int totalEfficiency);
+  Int shuntWounded(List<Pair<Int,Quality>> res,Int totalEfficiency);
+  Int treatSliInj(List<Pair<Int,Quality>> res,Int totalEfficiency);
+  Int treatSevInj(List<Pair<Int,Quality>> res,Int totalEfficiency);
+  Int reportMedRescue(List<Pair<Int,Quality>> res,Int totalEfficiency);}
 
 class Hospital implements Hospital {
   List<Pair<Int,Int>> rid = list(Nil);
+  Int rushToSiteCost = 30;
+  Int shuntWoundedCost = 900;
+  Int treatSliInjCost = 900;
+  Int treatSevInjCost = 2500;
+  Int reportMedRescueCost = 100;
   Int start(){
     Int x = 0;
     Hospital h1 = new Hospital();
     Fut<Int> f1;
-    x = rushToSite(this) after dl 50;
-    x = shuntWounded(this) after dl 50;
-    f1 = !treatSliInj(h1) after dl 50;
-    x = treatSevInj(this) after dl 70;
-    x = reportMedRescue(this) after f1 dl 20;
+    x = rushToSite(this,list[Pair(30,Ferry)],30) after dl 50;
+    x = shuntWounded(this,list[Pair(10,Doctor),Pair(10,Doctor),Pair(10,Doctor)],30) after dl 50;
+    f1 = !treatSliInj(h1,list[Pair(10,Doctor),Pair(10,Doctor),Pair(10,Doctor)],30) after dl 50;
+    x = treatSevInj(this,list[Pair(10,Doctor),Pair(10,Doctor),Pair(10,Doctor),Pair(10,Doctor),Pair(10,Doctor)],50) after dl 70;
+    x = reportMedRescue(this,list[Pair(10,Clerk)],10) after f1 dl 20;
     return 0;
   }
-  Int rushToSite(){
+  Int rushToSite(List<Pair<Int,Quality>> res,Int totalEfficiency){
     List<Int> temp = list(Nil);
-    temp = hold(list[Pair(30,Ferry)]);
-    cost(30);
+    temp = hold(res);
+    cost(rushToSiteCost);
     rel(temp);
     return 0;
   }
-  Int shuntWounded(){
+  Int shuntWounded(List<Pair<Int,Quality>> res,Int totalEfficiency){
     List<Int> temp = list(Nil);
-    temp = hold(list[Pair(10,Doctor),Pair(10,Doctor),Pair(10,Doctor)]);
-    cost((900/30)*(100/60));
+    temp = hold(res);
+    cost((shuntWoundedCost/totalEfficiency)*(100/60));
     rel(temp);
     return 0;
   }
-  Int treatSliInj(){
+  Int treatSliInj(List<Pair<Int,Quality>> res,Int totalEfficiency){
     List<Int> temp = list(Nil);
-    temp = hold(list[Pair(10,Doctor),Pair(10,Doctor),Pair(10,Doctor)]);
-    cost((900/30)*(100/60));
+    temp = hold(res);
+    cost((treatSliInjCost/totalEfficiency)*(100/60));
     rel(temp);
     return 0;
   }
-  Int treatSevInj(){
+  Int treatSevInj(List<Pair<Int,Quality>> res,Int totalEfficiency){
     List<Int> temp = list(Nil);
-    temp = hold(list[Pair(10,Doctor),Pair(10,Doctor),Pair(10,Doctor),Pair(10,Doctor),Pair(10,Doctor)]);
-    cost((2500/50)*(100/60));
+    temp = hold(res);
+    cost((treatSevInjCost/totalEfficiency)*(100/60));
     rel(temp);
     return 0;
   }
-  Int reportMedRescue(){
+  Int reportMedRescue(List<Pair<Int,Quality>> res,Int totalEfficiency){
     List<Int> temp = list(Nil);
-    temp = hold(list[Pair(10,Clerk)]);
-    cost((100/10)*(100/60));
+    temp = hold(res);
+    cost((reportMedRescueCost/totalEfficiency)*(100/60));
     rel(temp);
     return 0;
   }
-  }
-
-
+}
 {
   Police p = new Police();
   ECC ecc = new ECC();
@@ -260,3 +281,9 @@ class Hospital implements Hospital {
   Int t1 = truncate(t);
   println(`%$t1$`);
 }
+
+// Make it generic. (specially cost and hold statement arguments should be passed as a parameter on method invocation.)
+// [Done] replace cost value (e.g, 2500) with a class field, so it can be changed easily.
+// Cost in terms of budget (try to implement it).
+// [r -> (rid, Q)] -> (eff,specialization,cost,capacity).
+// also try to implement with capacity.
