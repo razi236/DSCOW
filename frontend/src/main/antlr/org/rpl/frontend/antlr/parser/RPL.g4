@@ -201,10 +201,10 @@ stmt : annotations type_exp IDENTIFIER ('=' exp)? ';'                  # Vardecl
     | annotations exp ';'                                              # ExpStmt
         // Prefer case expression to old-style case statement, so case
         // statement comes later
-    | annotations 'case' c=pure_exp '{' casestmtbranch* '}'            # CaseStmtOld
+    | annotations 'case' c=pure_exp '{' casestmtbranch* '}'        # CaseStmtOld
     | annotations 'cost' '(' c=pure_exp ')' ';'                    # CostStmt
-    | annotations 'add' '(' p = pure_exp_list ')' ';'                  # AddResStmt
-    | annotations 'rel' '(' p = pure_exp ')' ';'                       # ReleaseResStmt
+    | annotations 'add' '(' p = pure_exp_list ')' ';'              # AddResStmt
+    | annotations 'rel' '(' p = pure_exp ')' ';'                   # ReleaseResStmt
     ;
 
 guard : var_or_field_ref '?'                              # ClaimGuard

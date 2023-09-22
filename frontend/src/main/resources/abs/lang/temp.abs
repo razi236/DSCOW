@@ -6,7 +6,7 @@ data Availability = Free | Busy;
 
 interface ResourceManager {
     List<Int> addRes(List<Set<Quality>> newResources);
-    Pair<List<Int>,Int> holdRes(List<Set<Quality>> wantedResources);
+    List<Int> holdRes(List<Set<Quality>> wantedResources);
     Unit releaseRes(List<Int> ids);
     Unit computeResCost(List<Int> ids,Int t);
     Unit print();
@@ -25,9 +25,8 @@ class ResourceManager implements ResourceManager {
                 List<Quality> qualities = elements(snd(entry));
                 println(toString(qualities));
                 Quality q = nth(qualities,2);
-                Int c = cst(q);
-                println(toString(c));
-                //resource_cost = resource_cost + "+(" + toString(q) + "*" + toString(t) + ")";
+                println(toString(q));
+                resource_cost = resource_cost + "+(" + toString(q) + "*" + toString(t) + ")";
                 //println(toString(cst));
             }
         }
@@ -46,9 +45,8 @@ class ResourceManager implements ResourceManager {
         return result;
     }
 
-    Pair<List<Int>,Int> holdRes(List<Set<Quality>> wantedResources) {
+    List<Int> holdRes(List<Set<Quality>> wantedResources) {
         List<Int> result = list[];
-        Int c = 0;
         Map<Int, Pair<Availability, Set<Quality>>> lr = this.resources;
         while (result == Nil) {
             foreach (q in wantedResources) {
@@ -61,10 +59,6 @@ class ResourceManager implements ResourceManager {
                         found = True;
                         result = Cons(fst(entry), result);
                         lr = put(lr, fst(entry), Pair(Busy, snd(snd(entry))));
-                        List<Quality> qualities = elements(snd(snd(entry)));
-                        Quality q1 = nth(qualities,2);
-                        c = c + cst(q1);
-                        //println(toString(c));
                     }
                 }
             }
@@ -87,7 +81,7 @@ class ResourceManager implements ResourceManager {
         }
 
         //println(toString(this.resources));
-        return Pair(result,c);
+        return result;
     }
 
     Unit releaseRes(List<Int> ids) {

@@ -379,6 +379,8 @@ aspect doPrettyPrinter {
             formatter.afterStmt();
             getStmtList().doPrettyPrint(stream, formatter);
             stream.println();
+            formatter.afterStmt();
+            stream.println("await rm!print();");
             formatter.beforeCloseBrace();
             formatter.afterStmt();
             stream.print("}");
@@ -600,6 +602,8 @@ aspect doPrettyPrinter {
                 getRes().doPrettyPrint(stream, formatter);
                 stream.print(");");
     }
+
+
 
 
     public void NewExp.doPrettyPrint(PrintWriter stream, ABSFormatter formatter) {

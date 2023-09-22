@@ -56,6 +56,7 @@ aspect Typing {
     /* TODO: Those will lead to utter confusion when running without stdlib, as e.g. RelExps depend on Bool. */
     syn DataTypeType Model.getResType(Type typeArg) = ((DataTypeType)getStdDataType("Res")).withTypeArgs(typeArg);
     syn Type Model.getUnitType() = getStdDataType("Unit");
+    syn Type Model.getPairType(Type typeArg,Type typeArg1) = ((DataTypeType)getStdDataType("Pair")).withTypeArgs(typeArg,typeArg1);
     syn Type Model.getIntType() = getStdDataType("Int");
     syn Type Model.getFloatType() = getStdDataType("Float");
     syn Type Model.getRatType() = getStdDataType("Rat");
@@ -247,7 +248,8 @@ aspect Typing {
     }
 
     eq HoldExp.getType() {
-                    return getModel().getListType(getModel().getIntType());
+                       return getModel().getPairType(getModel().getListType(getModel().getIntType()),getModel().getIntType());
+
                     }
 
     eq NewExp.getType() {

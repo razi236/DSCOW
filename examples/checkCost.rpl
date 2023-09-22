@@ -1,14 +1,21 @@
 module RPL;
 export Quality;
 export *;
-data Quality = ResEfficiency(Int) | ResCost(Int) | ResCapacity(Int) | Ferry | Doctor | SmokeMask | PoliceMan | Clerk | EODTech | FireFighter | FireExt | FirstAidBox;
+data C = C(Int val);
+data Quality = ResEfficiency(Int) | ResCost(Int cst) | ResCapacity(Int) | Ferry | Doctor | SmokeMask | PoliceMan | Clerk | EODTech | FireFighter | FireExt | FirstAidBox;
 {
     List<Int> rid = list[];
-    rid = hold(list[set[Doctor, ResEfficiency(10)]]);
+    Pair<List<Int>,Int> p = hold(list[set[Doctor, ResEfficiency(10)]]);
+    rid = fst(p);
     cost(5);
-    await rm!computeResCost(rid,5);
-    await rm!print();
+    //await rm!computeResCost(rid,5);
+    //await rm!print();
     rel(rid);
+    println(`$snd(p)$`);
+    C c = C (5);
+    c = C(val(c)*3);
+    Int x =val(c);
+    println(`$x$`);
 }
 
 // try to convert ResCost(7) into 7 . string to integer extraction
