@@ -1,0 +1,5 @@
+module ABC;
+data Quality = Int | String;
+{
+    Quality q = 1;
+}
