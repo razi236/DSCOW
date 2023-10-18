@@ -70,7 +70,7 @@ class ResourceManager implements ResourceManager {
             }
             if (length(result) != length(wantedResources)) {
                 // we did not find all needed resources
-                println(`hold retrying: Resources = $this.resources$ We want $wantedResources$`);
+               // println(`hold retrying: Resources = $this.resources$ We want $wantedResources$`);
                 result = Nil;
                 lr = this.resources;
                 await this.resources != lr;

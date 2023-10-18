@@ -123,6 +123,7 @@ public class RplToABSBackEnd extends Main {
 
         File file = new File("RplToStaticABS/RplToABS.abs");
         PrintWriter writer = new PrintWriter(file);
+        /*
         writer.print("module ABS.ResourceManager;");
         writer.println();
         writer.print("import * from ABS.StdLib;");
@@ -155,6 +156,10 @@ public class RplToABSBackEnd extends Main {
             writer.close();
             conn.close();
         }
+
+
+
+
         FileInputStream inputStream = new FileInputStream("frontend/src/main/resources/abs/lang/ResourceManagerForStaticABS.abs");
         FileOutputStream outputStream = new FileOutputStream(file,true);
         //PrintWriter writer = null;
@@ -182,6 +187,7 @@ public class RplToABSBackEnd extends Main {
                 outputStream.close();
             }
         }
+        */
 
         BufferedWriter br = null;
         FileWriter fr = null;

@@ -1,6 +1,5 @@
 module RPL;
 export Quality;
-export *;
 data RC = RC(Int rc);
 data Quality = ResEfficiency(Int) | Int | ResCost(Int cst) | ResCapacity(Int) | Ferry | Doctor | SmokeMask | PoliceMan | Clerk | EODTech | FireFighter | FireExt | FirstAidBox;
 

@@ -67,9 +67,12 @@ else
       echo "Please enter the filename:"
       read file
       start=`date +%s`
-      frontend/bin/absc -c ./examples/$file
+      frontend/bin/absc -s ./examples/$file
+      cp RABS.abs ABS.rpl
+      frontend/bin/absc -e ABS.rpl
+      gen/erl/run
       end=`date +%s`
-      echo Analysis time was `expr $end - $start` seconds.
+      echo Execution time was `expr $end - $start` seconds.
     }
     # shellcheck disable=SC1073
     elif [ $option = "2" ]
@@ -94,9 +97,12 @@ else
         read file
         #start=`echo $($(date +%s))`
         start=`date +%s`
-        frontend/bin/absc -t ./examples/$file
+        frontend/bin/absc -s ./examples/$file
+        cp RABS.abs ABS.rpl
+        frontend/bin/absc -e ABS.rpl
+        gen/erl/run
         end=`date +%s`
-        echo Translation time was `expr $end - $start` seconds.
+        echo Execution time was `expr $end - $start` seconds.
     }
     else
     {

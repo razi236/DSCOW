@@ -216,7 +216,7 @@ aspect doABSTranslator {
 
     public void ModuleDecl.doABSTranslation(PrintWriter stream, RplToABSFormatter formatter) {
         stream.println("module " + getName() + ";");
-        stream.println("import * from ABS.ResourceManager;");
+        //stream.println("import * from ABS.ResourceManager;");
         //stream.println("export *;");
         formatter.afterStmt();
 
@@ -419,15 +419,16 @@ aspect doABSTranslator {
             stream.println("{");
             formatter.afterOpenBrace();
             formatter.afterStmt();
-            stream.println("ResourceManager rm = new ResourceManager();");
-            formatter.afterStmt();
-            stream.print("await rm!addRes(list[");
-            String sql = "SELECT * FROM Resources";
+            /*
+            //stream.println("ResourceManager rm = new ResourceManager();");
+            //formatter.afterStmt();
+            //stream.print("await rm!addRes(list[");
+            //String sql = "SELECT * FROM Resources";
             //Connection conn = null;
-            String url = "jdbc:sqlite:identifier.sqlite";
-            try (Connection conn = DriverManager.getConnection(url);
-                 Statement stmt  = conn.createStatement();
-                 ResultSet rs    = stmt.executeQuery(sql)){
+            //String url = "jdbc:sqlite:identifier.sqlite";
+            //try (Connection conn = DriverManager.getConnection(url);
+              //   Statement stmt  = conn.createStatement();
+               //  ResultSet rs    = stmt.executeQuery(sql)){
                  if(rs.next()){
                     stream.print("set[" + rs.getString("ResourceCategory") + ", Efficiency(" +
                        rs.getInt("ResourceEfficiency") + ")]");
@@ -445,6 +446,7 @@ aspect doABSTranslator {
             }
 
             formatter.afterStmt();
+            */
             getStmtList().doABSTranslation(stream, formatter);
             stream.println();
             formatter.afterStmt();
@@ -532,10 +534,11 @@ aspect doABSTranslator {
         doABSTranslationCallType(stream, formatter);
         stream.print(getMethod().replaceAll("\\$", ""));
         List<PureExp> list = getParamList();
-        if(list.getNumChild()>0)
-             stream.print("(rm, ");
-        else
-             stream.print("(rm");
+        //if(list.getNumChild()>0)
+             //stream.print("(rm, ");
+        //else
+             //stream.print("(rm");
+        stream.print("(");
         getParamList().doABSTranslation(stream, formatter, ",");
         stream.print(")");
     }
@@ -554,10 +557,11 @@ aspect doABSTranslator {
          doABSTranslationCallType(stream, formatter);
          stream.print(getMethod().replaceAll("\\$", ""));
          List<PureExp> list = getParamList();
-             if(list.getNumChild()>0)
-                 stream.print("(rm, ");
-             else
-                 stream.print("(rm");
+             //if(list.getNumChild()>0)
+                 //stream.print("(rm, ");
+             //else
+                 //stream.print("(rm");
+         stream.print("(");
          list.doABSTranslation(stream, formatter, ",");
          stream.print(")");
          stream.print(";");
@@ -617,21 +621,21 @@ aspect doABSTranslator {
     }
 
     public void AddResStmt.doABSTranslation(PrintWriter stream, RplToABSFormatter formatter) {
-            stream.print("await rm!addRes(");
-            getParamList().doABSTranslation(stream, formatter, ",");
-            stream.print(");");
+            //stream.print("await rm!addRes(");
+            //getParamList().doABSTranslation(stream, formatter, ",");
+            //stream.print(");");
     }
 
     public void HoldExp.doABSTranslation(PrintWriter stream, RplToABSFormatter formatter) {
-             stream.print("await rm!holdRes(");
-             getParamList().doABSTranslation(stream, formatter, ",");
-             stream.print(")");
+             //stream.print("await rm!holdRes(");
+             //getParamList().doABSTranslation(stream, formatter, ",");
+             //stream.print(")");
     }
 
     public void ReleaseResStmt.doABSTranslation(PrintWriter stream, RplToABSFormatter formatter) {
-                stream.print("await rm!releaseRes(");
-                getRes().doABSTranslation(stream, formatter);
-                stream.print(");");
+                //stream.print("await rm!releaseRes(");
+                //getRes().doABSTranslation(stream, formatter);
+                //stream.print(");");
     }
 
 
@@ -1245,10 +1249,11 @@ aspect doABSTranslator {
         stream.print(" ");
         stream.print(getName().replaceAll("\\$", ""));
         List<ParamDecl> list = getParams();
-            if(list.getNumChild()>0)
-                stream.print("(ResourceManager rm,");
-            else
-                stream.print("(ResourceManager rm");
+            //if(list.getNumChild()>0)
+                //stream.print("(ResourceManager rm,");
+            //else
+                //stream.print("(ResourceManager rm");
+        stream.print("(");
         list.doABSTranslation(stream, formatter, ",");
         //stream.print("(ResourceManager rm,");
         //getParams().doABSTranslation(stream, formatter, ",");

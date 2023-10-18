@@ -393,7 +393,7 @@ class Hospital implements Hospital {
       Int max = 5;
       while (counter <= max) {
           Fut<Int> f;
-          f = !alarm(p,ecc, eod, fb, h, list[100,100,100,100,100], c) after dl 400*max; // list[PoliceMan,Clerk,EODTech,FireFighter,Doctor]
+          f = !alarm(p,ecc, eod, fb, h, list[50,80,60,100,80], c) after dl 400*max; // list[PoliceMan,Clerk,EODTech,FireFighter,Doctor]
           fl = appendright(fl,f);
           counter = counter + 1;
       }
