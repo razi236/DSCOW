@@ -53,6 +53,7 @@ aspect doABSTranslator {
         }
     }
     public void List.doABSTranslation(PrintWriter stream, RplToABSFormatter formatter, String separator, String test) {
+        int rnd = getNumChild();
         if (getNumChild() > 0) {
             if(getNumChild() == 1)
             {
@@ -60,15 +61,17 @@ aspect doABSTranslator {
                 formatter.afterStmt();
                 stream.print("await ");
                 getChild(0).doABSTranslation(stream, formatter);
-                //List<PureExp> futList= getChild(0);
-                //cleanFut(toString(futList),stream,formatter);
+                //PureExp futList= (PureExp) getChild(0);
+                //cleanFut(String.valueOf(futList),stream,formatter);
                 stream.print("?;");
             }
             else
             {
                 stream.println();
                 formatter.afterStmt();
-                stream.print("if (True) {");
+                stream.println("Int rnd = random(" + String.valueOf(rnd) + ");");
+                formatter.afterStmt();
+                stream.print("if (rnd == 0) {");
                 stream.println();
                 formatter.afterStmt();
                 formatter.afterStmt();
@@ -76,12 +79,14 @@ aspect doABSTranslator {
                 getChild(0).doABSTranslation(stream, formatter);
                 stream.print("?;");
                 stream.println();
+                //PureExp futList1= (PureExp) getChild(0);
+                //cleanFut(String.valueOf(futList1),stream,formatter);
                 formatter.afterStmt();
                 stream.print("}");
                 for (int i = 1; i < getNumChild()-1; i++) {
                     stream.println();
                     formatter.afterStmt();
-                    stream.print("else if (True) {");
+                    stream.print("else if (rnd == " + String.valueOf(i) +") {");
                     stream.println();
                     formatter.afterStmt();
                     formatter.afterStmt();
@@ -89,6 +94,8 @@ aspect doABSTranslator {
                     getChild(i).doABSTranslation(stream, formatter);
                     stream.print("?;");
                     stream.println();
+                    //PureExp futList2= (PureExp) getChild(i);
+                    //cleanFut(String.valueOf(futList2),stream,formatter);
                     formatter.afterStmt();
                     stream.print("}");
                 }
@@ -102,6 +109,8 @@ aspect doABSTranslator {
                 getChild(getNumChild()-1).doABSTranslation(stream, formatter);
                 stream.print("?;");
                 stream.println();
+                //PureExp futList3= (PureExp) getChild(getNumChild()-1);
+                //cleanFut(String.valueOf(futList3),stream,formatter);
                 formatter.afterStmt();
                 stream.print("}");
             }
@@ -168,13 +177,14 @@ aspect doABSTranslator {
           if(scanner.hasNext())
           {
               String s = scanner.next();
-              stream.print(s+"?");
+              stream.print(s+"?;");
+              stream.println();
           }
           while(scanner.hasNext())
           {
             String s = scanner.next();
-            stream.print(" & ");
-            stream.print(s+"?");
+            formatter.afterStmt();
+            stream.println("await "+s+"?;");
           }
           scanner.close();
     }
@@ -451,7 +461,7 @@ aspect doABSTranslator {
             stream.println();
             formatter.afterStmt();
             stream.println("Int method_end = 0;");
-            stream.println();
+            //stream.println();
             formatter.beforeCloseBrace();
             formatter.afterStmt();
             stream.print("}");
@@ -1587,13 +1597,15 @@ aspect doABSTranslator {
             //stream.print("( ");
             //formatter.afterOpenBrace();
             getLeft().doABSTranslation(stream, formatter);
-            stream.print("?");
-            stream.print(" ");
-            doABSTranslationOperator(stream, formatter);
-            stream.print(" ");
-            getRight().doABSTranslation(stream, formatter);
-            //stream.print("?");
+            stream.print("?;");
+            stream.println();
+            formatter.afterStmt();
+            stream.print("await ");
+            //doABSTranslationOperator(stream, formatter);
             //stream.print(" ");
+            getRight().doABSTranslation(stream, formatter);
+            //stream.print("?;");
+            //stream.println();
             //caformatter.beforeCloseBrace();
             //stream.print(" )");
             formatter.afterCloseBrace();

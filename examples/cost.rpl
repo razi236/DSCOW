@@ -23,9 +23,11 @@ class DLD implements DL
     Fut<Int> f1;
     Fut<Int> f2;
     f = !check(o) after dl 21;
-    f1 = !check(o) after dl 21;
-    f2 = !check(o) after dl 21;
-    await f? & f1? & f2?;
+    f1 = !check(o) after f1 dl 21;
+    f2 = !check(o) after f&f1,f&f,f1&f dl 21;
+    await f?;
+    await f1?;
+    await f2?;
     //await f1?;
     //await f2?;
     println("RplTools");
