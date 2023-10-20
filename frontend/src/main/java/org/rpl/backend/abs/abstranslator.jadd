@@ -457,6 +457,8 @@ aspect doABSTranslator {
 
             formatter.afterStmt();
             */
+            stream.println("Int fake = 0;");
+            formatter.afterStmt();
             getStmtList().doABSTranslation(stream, formatter);
             stream.println();
             formatter.afterStmt();
@@ -511,6 +513,8 @@ aspect doABSTranslator {
         {
             VarOrFieldUse v = getVar();
             getValue().doABSTranslation(stream, formatter,v);
+        }
+        else if (getValue() instanceof HoldExp){
         }
         else
         {
