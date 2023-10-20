@@ -248,7 +248,6 @@ aspect doABSTranslator {
 
         stream.println();
         formatter.afterStmt();
-
         for (Decl decl : getDecls()) {
             decl.doABSTranslation(stream, formatter);
             stream.println();
@@ -420,11 +419,13 @@ aspect doABSTranslator {
     }
 
     public void MainBlock.doABSTranslation(PrintWriter stream, RplToABSFormatter formatter) {
-            getAnnotationList().doABSTranslation(stream, formatter, "");
-            if (getNumAnnotation() > 0) {
-                stream.println();
-                formatter.afterStmt();
-            }
+            stream.println("interface Main{");
+            formatter.afterStmt();
+            stream.println("Unit main( );");
+            stream.println("}");
+            stream.println("class IMain implements Main{");
+            formatter.afterStmt();
+            stream.print("Unit main( )");
             formatter.beforeOpenBrace();
             stream.println("{");
             formatter.afterOpenBrace();
@@ -466,7 +467,13 @@ aspect doABSTranslator {
             //stream.println();
             formatter.beforeCloseBrace();
             formatter.afterStmt();
-            stream.print("}");
+            stream.println("}");
+            stream.println("}");
+            stream.println("{");
+            stream.println("Main m = new IMain();");
+            formatter.afterStmt();
+            stream.println("m ! main();");
+            stream.println("}");
             formatter.afterCloseBrace();
         }
 
@@ -514,7 +521,10 @@ aspect doABSTranslator {
             VarOrFieldUse v = getVar();
             getValue().doABSTranslation(stream, formatter,v);
         }
-        else if (getValue() instanceof HoldExp){
+
+        else if (getValue() instanceof GetExp) {
+            getValue().doABSTranslation(stream, formatter);
+            stream.print(";");
         }
         else
         {
@@ -642,6 +652,7 @@ aspect doABSTranslator {
     }
 
     public void SyncCall1Exp.doABSTranslationCallType(PrintWriter stream, RplToABSFormatter formatter,PureExp callee,String m,List<PureExp> pl,VarOrFieldUse v) {
+        /*
         if(String.valueOf(getCallee())=="this")
         {
              v.doABSTranslation(stream, formatter);
@@ -657,6 +668,7 @@ aspect doABSTranslator {
         }
         else
         {
+        */
             stream.print("Fut<");
             Type t = callee.getType();
             MethodSig s = t.lookupMethod(m);
@@ -672,11 +684,11 @@ aspect doABSTranslator {
             stream.print(";");
             stream.println();
             formatter.afterStmt();
-            v.doABSTranslation(stream, formatter);
-            stream.print(" = ");
-            stream.print("f"+ m + ".get;");
+            //v.doABSTranslation(stream, formatter);
+            //stream.print(" = ");
+            stream.print("await f"+ m + "?;");
             //stream.println();
-        }
+        //}
 
 
     }
@@ -688,8 +700,9 @@ aspect doABSTranslator {
     }
 
     public void GetExp.doABSTranslation(PrintWriter stream, RplToABSFormatter formatter) {
+        stream.print("await ");
         getPureExp().doABSTranslation(stream, formatter);
-        stream.print(".get");
+        stream.print("?");
     }
 
     public void AddResStmt.doABSTranslation(PrintWriter stream, RplToABSFormatter formatter) {
@@ -702,6 +715,7 @@ aspect doABSTranslator {
              //stream.print("await rm!holdRes(");
              //getParamList().doABSTranslation(stream, formatter, ",");
              //stream.print(")");
+             stream.print("Pair(Nil,0)");
     }
 
     public void ReleaseResStmt.doABSTranslation(PrintWriter stream, RplToABSFormatter formatter) {
