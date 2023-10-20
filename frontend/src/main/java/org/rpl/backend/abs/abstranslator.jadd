@@ -541,7 +541,8 @@ aspect doABSTranslator {
         formatter.afterStmt();
         doABSTranslationCallPrefix(stream, formatter);
         getCallee().doABSTranslation(stream, formatter);
-        doABSTranslationCallType(stream, formatter);
+
+        doABSTranslationCallType(stream, formatter,getCallee());
         stream.print(getMethod().replaceAll("\\$", ""));
         List<PureExp> list = getParamList();
         //if(list.getNumChild()>0)
@@ -560,11 +561,9 @@ aspect doABSTranslator {
          //stream.print("]");
          stream.println();
          formatter.afterStmt();
-         v.doABSTranslation(stream, formatter);
-         stream.print(" = ");
-         doABSTranslationCallPrefix(stream, formatter);
-         getCallee().doABSTranslation(stream, formatter);
-         doABSTranslationCallType(stream, formatter);
+         String m = getMethod().replaceAll("\\$", "");
+         doABSTranslationCallType(stream, formatter, getCallee(),m,getParamList(),v);
+         /*
          stream.print(getMethod().replaceAll("\\$", ""));
          List<PureExp> list = getParamList();
              //if(list.getNumChild()>0)
@@ -575,13 +574,16 @@ aspect doABSTranslator {
          list.doABSTranslation(stream, formatter, ",");
          stream.print(")");
          stream.print(";");
+         */
     }
 
     abstract public void Call.doABSTranslationCallType(PrintWriter stream, RplToABSFormatter formatter);
 
     abstract public void Call.doABSTranslationCallPrefix(PrintWriter stream, RplToABSFormatter formatter);
 
-    abstract public void Call1Exp.doABSTranslationCallType(PrintWriter stream, RplToABSFormatter formatter);
+    abstract public void Call1Exp.doABSTranslationCallType(PrintWriter stream, RplToABSFormatter formatter,PureExp callee);
+
+    abstract public void Call1Exp.doABSTranslationCallType(PrintWriter stream, RplToABSFormatter formatter,PureExp callee,String m,List<PureExp> pl,VarOrFieldUse v);
 
     abstract public void Call1Exp.doABSTranslationCallPrefix(PrintWriter stream, RplToABSFormatter formatter);
 
@@ -611,12 +613,68 @@ aspect doABSTranslator {
     public void SyncCall.doABSTranslationCallPrefix(PrintWriter stream, RplToABSFormatter formatter) {
     }
 
-    public void AsyncCall1Exp.doABSTranslationCallType(PrintWriter stream, RplToABSFormatter formatter) {
+    public void AsyncCall1Exp.doABSTranslationCallType(PrintWriter stream, RplToABSFormatter formatter,PureExp callee) {
         stream.print("!");
     }
 
-    public void SyncCall1Exp.doABSTranslationCallType(PrintWriter stream, RplToABSFormatter formatter) {
-        stream.print(".");
+    public void SyncCall1Exp.doABSTranslationCallType(PrintWriter stream, RplToABSFormatter formatter,PureExp callee) {
+        if(String.valueOf(getCallee())=="this")
+        {
+            stream.print(".");
+        }
+    }
+
+    public void AsyncCall1Exp.doABSTranslationCallType(PrintWriter stream, RplToABSFormatter formatter,PureExp callee,String m,List<PureExp> pl,VarOrFieldUse v) {
+         v.doABSTranslation(stream, formatter);
+         stream.print(" = ");
+         doABSTranslationCallPrefix(stream, formatter);
+         getCallee().doABSTranslation(stream, formatter);
+         stream.print("!");
+         stream.print(m);
+         stream.print("(");
+         pl.doABSTranslation(stream, formatter, ",");
+         stream.print(")");
+         stream.print(";");
+    }
+
+    public void SyncCall1Exp.doABSTranslationCallType(PrintWriter stream, RplToABSFormatter formatter,PureExp callee,String m,List<PureExp> pl,VarOrFieldUse v) {
+        if(String.valueOf(getCallee())=="this")
+        {
+             v.doABSTranslation(stream, formatter);
+             stream.print(" = ");
+             doABSTranslationCallPrefix(stream, formatter);
+             getCallee().doABSTranslation(stream, formatter);
+             stream.print(".");
+             stream.print(m);
+             stream.print("(");
+             pl.doABSTranslation(stream, formatter, ",");
+             stream.print(")");
+             stream.print(";");
+        }
+        else
+        {
+            stream.print("Fut<");
+            Type t = callee.getType();
+            MethodSig s = t.lookupMethod(m);
+            TypeUse tu = s.getReturnType();
+            stream.print(String.valueOf(tu));
+            stream.print("> " + "f"+ m + " = ");
+            callee.doABSTranslation(stream, formatter);
+            stream.print("!");
+            stream.print(m);
+            stream.print("(");
+            pl.doABSTranslation(stream, formatter, ",");
+            stream.print(")");
+            stream.print(";");
+            stream.println();
+            formatter.afterStmt();
+            v.doABSTranslation(stream, formatter);
+            stream.print(" = ");
+            stream.print("f"+ m + ".get;");
+            //stream.println();
+        }
+
+
     }
 
     public void AsyncCall1Exp.doABSTranslationCallPrefix(PrintWriter stream, RplToABSFormatter formatter) {
