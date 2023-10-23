@@ -410,6 +410,8 @@ aspect doABSTranslator {
         formatter.afterStmt();
         stream.println("Int fake = 0;");
         formatter.afterStmt();
+        stream.println("Fut<Int> fake_fut;");
+        formatter.afterStmt();
         getStmtList().doABSTranslation(stream, m, formatter);
         stream.println();
         formatter.beforeCloseBrace();
@@ -459,6 +461,8 @@ aspect doABSTranslator {
             formatter.afterStmt();
             */
             stream.println("Int fake = 0;");
+            formatter.afterStmt();
+            stream.println("Fut<Int> fake_fut;");
             formatter.afterStmt();
             getStmtList().doABSTranslation(stream, formatter);
             stream.println();
@@ -669,12 +673,13 @@ aspect doABSTranslator {
         else
         {
         */
-            stream.print("Fut<");
-            Type t = callee.getType();
-            MethodSig s = t.lookupMethod(m);
-            TypeUse tu = s.getReturnType();
-            stream.print(String.valueOf(tu));
-            stream.print("> " + "f"+ m + " = ");
+            //stream.print("Fut<Int");
+            //Type t = callee.getType();
+            //MethodSig s = t.lookupMethod(m);
+            //TypeUse tu = s.getReturnType();
+            //stream.print(String.valueOf(tu));
+            //stream.print("> " + "f"+ m + " = ");
+            stream.print("fake_fut = ");
             callee.doABSTranslation(stream, formatter);
             stream.print("!");
             stream.print(m);
@@ -686,7 +691,7 @@ aspect doABSTranslator {
             formatter.afterStmt();
             //v.doABSTranslation(stream, formatter);
             //stream.print(" = ");
-            stream.print("await f"+ m + "?;");
+            stream.print("await fake_fut?;");
             //stream.println();
         //}
 
