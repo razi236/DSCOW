@@ -21,20 +21,12 @@ class DLD implements DL
 
 {
     DL o = new DLD();
-    Fut<Int> f;
     Fut<Int> f1;
     Fut<Int> f2;
     Int x = 0;
     x = check(o) after dl 21;
-    f1 = !check(o) after f1 dl 21;
-    x = check(o) after f1,f&f,f1&f dl 21;
-    await f?;
+    f2 = !check(o) after f1 dl 21;
     await f1?;
     await f2?;
-    x = f.get;
-    x = f1.get;
-    x = f2.get;
-    //await f1?;
-    //await f2?;
     println("RplTools");
 }
