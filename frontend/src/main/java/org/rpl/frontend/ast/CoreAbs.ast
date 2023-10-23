@@ -10,7 +10,7 @@
 Name ::= <Name>;
 
 abstract CoreModel ::= CompilationUnit* ;
-//Model ::= CompilationUnit* ;
+Model ::= CompilationUnit* ;
 
 
 abstract CoreCompilationUnit ::= <Name> ModuleDecl* ;

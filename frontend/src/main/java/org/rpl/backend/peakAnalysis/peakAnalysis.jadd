@@ -1,0 +1,1892 @@
+// -*- mode: java; tab-width: 4; -*-
+import java.io.PrintWriter;
+import org.rpl.backend.peakAnalysis.*;
+import java.util.stream.Collectors;
+import com.google.common.collect.Streams;
+import java.sql.DriverManager;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+
+aspect dopeakAnalysis {
+
+    /** Controls whether to include the standard library in pretty-printing
+     */
+    public boolean Model.dopeakAnalysisStdLib = false;
+    public boolean Model.dopeakAnalysisResourceManager = false;
+
+    public void List.dopeakAnalysis(PrintWriter stream, PeakAnalysisFormatter formatter, String separator) {
+        if (getNumChild() > 0) {
+            getChild(0).dopeakAnalysis(stream, formatter);
+            for (int i = 1; i < getNumChild(); i++) {
+                stream.print(separator+" ");
+                getChild(i).dopeakAnalysis(stream, formatter);
+            }
+        }
+    }
+
+    public void List.dopeakAnalysis(PrintWriter stream, String method, PeakAnalysisFormatter formatter) {
+        if (getNumChild() > 0) {
+            Stmt s = (Stmt) getChild(0);
+            if (s instanceof ReturnStmt) {
+                s.dopeakAnalysis(stream,formatter,method);
+            }
+            else {
+                s.dopeakAnalysis(stream, formatter);
+                stream.println();
+                formatter.afterStmt();
+            }
+            //getChild(0).dopeakAnalysis(stream, formatter);
+            for (int i = 1; i < getNumChild(); i++) {
+                Stmt s1 = (Stmt) getChild(i);
+                if (s1 instanceof ReturnStmt) {
+                    s1.dopeakAnalysis(stream,formatter,method);
+                }
+                else {
+                    s1.dopeakAnalysis(stream, formatter);
+                    stream.println();
+                    formatter.afterStmt();
+                }
+                //getChild(i).dopeakAnalysis(stream, formatter);
+            }
+        }
+    }
+    public void List.dopeakAnalysis(PrintWriter stream, PeakAnalysisFormatter formatter, String separator, String test) {
+        int rnd = getNumChild();
+        if (getNumChild() > 0) {
+            if(getNumChild() == 1)
+            {
+                stream.println();
+                formatter.afterStmt();
+                stream.print("await ");
+                getChild(0).dopeakAnalysis(stream, formatter);
+                //PureExp futList= (PureExp) getChild(0);
+                //cleanFut(String.valueOf(futList),stream,formatter);
+                stream.print("?;");
+            }
+            else
+            {
+                stream.println();
+                formatter.afterStmt();
+                stream.println("Int rnd = random(" + String.valueOf(rnd) + ");");
+                formatter.afterStmt();
+                stream.print("if (rnd == 0) {");
+                stream.println();
+                formatter.afterStmt();
+                formatter.afterStmt();
+                stream.print("await ");
+                getChild(0).dopeakAnalysis(stream, formatter);
+                stream.print("?;");
+                stream.println();
+                //PureExp futList1= (PureExp) getChild(0);
+                //cleanFut(String.valueOf(futList1),stream,formatter);
+                formatter.afterStmt();
+                stream.print("}");
+                for (int i = 1; i < getNumChild()-1; i++) {
+                    stream.println();
+                    formatter.afterStmt();
+                    stream.print("else if (rnd == " + String.valueOf(i) +") {");
+                    stream.println();
+                    formatter.afterStmt();
+                    formatter.afterStmt();
+                    stream.print("await ");
+                    getChild(i).dopeakAnalysis(stream, formatter);
+                    stream.print("?;");
+                    stream.println();
+                    //PureExp futList2= (PureExp) getChild(i);
+                    //cleanFut(String.valueOf(futList2),stream,formatter);
+                    formatter.afterStmt();
+                    stream.print("}");
+                }
+                stream.println();
+                formatter.afterStmt();
+                stream.print("else {");
+                stream.println();
+                formatter.afterStmt();
+                formatter.afterStmt();
+                stream.print("await ");
+                getChild(getNumChild()-1).dopeakAnalysis(stream, formatter);
+                stream.print("?;");
+                stream.println();
+                //PureExp futList3= (PureExp) getChild(getNumChild()-1);
+                //cleanFut(String.valueOf(futList3),stream,formatter);
+                formatter.afterStmt();
+                stream.print("}");
+            }
+            /*
+            stream.println();
+            formatter.afterStmt();
+            stream.println("{");
+            int count = 0;
+            for (int i = 1; i <= getNumChild(); i++) {
+                formatter.afterStmt();
+                stream.print("Bool b"+i+" = False;");
+                stream.println();
+                formatter.afterStmt();
+                stream.print("AwaitFut a"+i+" = new AwaitFut();");
+                stream.println();
+                formatter.afterStmt();
+                stream.print("a"+i+"!awaitFut(list[");
+                getChild(i-1).dopeakAnalysis(stream, formatter);
+                stream.print("]);");
+                stream.println();
+                formatter.afterStmt();
+                count++;
+            }
+            stream.print("while(!(");
+            stream.print("b"+1);
+            for(int i = 2; i <= count; i++)
+            {
+                stream.print(" || b"+i);
+            }
+            stream.print("))");
+            stream.println();
+            formatter.afterStmt();
+            formatter.beforeOpenBrace();
+            stream.println("{");
+            formatter.afterOpenBrace();
+            //formatter.afterStmt();
+            for(int i = 1; i <= count; i++)
+            {
+                formatter.afterStmt();
+                stream.print("b"+i+" = await a"+i+"!checkFut();");
+                stream.println();
+            }
+            formatter.afterStmt();
+            stream.print("await duration(1);");
+            stream.println();
+            //formatter.afterStmt();
+            formatter.beforeCloseBrace();
+            formatter.afterStmt();
+            stream.print("}");
+            stream.println();
+            formatter.afterStmt();
+            stream.print("}");
+            stream.println();
+            formatter.afterStmt();
+            formatter.afterCloseBrace();
+            */
+        }
+    }
+
+    public void List.cleanFut(String fut, PrintWriter stream, PeakAnalysisFormatter formatter) {
+          String futList = fut;
+          Scanner scanner = new Scanner(futList);
+          scanner.useDelimiter("&");
+          if(scanner.hasNext())
+          {
+              String s = scanner.next();
+              stream.print(s+"?;");
+              stream.println();
+          }
+          while(scanner.hasNext())
+          {
+            String s = scanner.next();
+            formatter.afterStmt();
+            stream.println("await "+s+"?;");
+          }
+          scanner.close();
+    }
+    public void List.dopeakAnalysis(PrintWriter stream, PeakAnalysisFormatter formatter) {
+        if (getNumChild() > 0) {
+            getChild(0).dopeakAnalysis(stream, formatter);
+            for (int i = 1; i < getNumChild(); i++) {
+                stream.println();
+                formatter.afterStmt();
+                getChild(i).dopeakAnalysis(stream, formatter);
+            }
+        }
+    }
+
+    public void ASTNode.dopeakAnalysis(PrintWriter stream, PeakAnalysisFormatter formatter) {
+        throw new NotImplementedYetException(this);
+    }
+    public void ASTNode.dopeakAnalysis(PrintWriter stream, PeakAnalysisFormatter formatter, VarOrFieldUse v ) {
+        throw new NotImplementedYetException(this);
+    }
+    public void ASTNode.dopeakAnalysis(PrintWriter stream, PeakAnalysisFormatter formatter, String m ) {
+        throw new NotImplementedYetException(this);
+    }
+
+    public void Model.dopeakAnalysis(PrintWriter stream, PeakAnalysisFormatter formatter) {
+        for (ModuleDecl d : getModuleDecls()) {
+            if (dopeakAnalysisStdLib || dopeakAnalysisResourceManager || (! Constants.BUILT_IN_LIBS.contains(d.getName()))) {
+                d.dopeakAnalysis(stream, formatter);
+            }
+        }
+
+        for (DeltaDecl d : getDeltaDecls()) {
+            d.dopeakAnalysis(stream, formatter);
+        }
+        if (hasProductLine()) {
+            getProductLine().dopeakAnalysis(stream, formatter);
+        }
+    }
+
+    public void ModuleDecl.dopeakAnalysis(PrintWriter stream, PeakAnalysisFormatter formatter) {
+        stream.println("module " + getName() + ";");
+        //stream.println("import * from ABS.ResourceManager;");
+        //stream.println("export *;");
+        formatter.afterStmt();
+
+        for (Export e : getExportList()) {
+            e.dopeakAnalysis(stream, formatter);
+            stream.println();
+            formatter.afterStmt();
+        }
+
+        stream.println();
+        formatter.afterStmt();
+
+        for (Import i : getImportList()) {
+            if (i instanceof StarImport && ((StarImport)i).getModuleName().equals(Constants.ResourceManager_NAME)) continue;
+            i.dopeakAnalysis(stream, formatter);
+            stream.println();
+            formatter.afterStmt();
+        }
+
+        stream.println();
+        formatter.afterStmt();
+        for (Decl decl : getDecls()) {
+            decl.dopeakAnalysis(stream, formatter);
+            stream.println();
+            stream.println();
+            formatter.afterStmt();
+        }
+
+        stream.println();
+        formatter.afterStmt();
+
+        if (hasBlock()) {
+            getBlock().dopeakAnalysis(stream, formatter);
+        }
+        stream.println();
+
+        stream.flush();
+
+    }
+
+    public void ProductDecl.dopeakAnalysis(PrintWriter stream, PeakAnalysisFormatter formatter) {
+        stream.print("product ");
+        stream.print(getName());
+        stream.print("(");
+        getProduct().getFeatureList().dopeakAnalysis(stream, formatter, ",");
+        stream.print(");");
+
+        stream.println();
+        formatter.afterStmt();
+        stream.flush();
+    }
+
+    public void Feature.dopeakAnalysis(PrintWriter stream, PeakAnalysisFormatter formatter) {
+        stream.print(getName());
+        if (getNumAttrAssignment() > 0) {
+            stream.print("{");
+            getAttrAssignmentList().dopeakAnalysis(stream, formatter, ",");
+            stream.print("}");
+        }
+    }
+
+    public void AttrAssignment.dopeakAnalysis(PrintWriter stream, PeakAnalysisFormatter formatter) {
+        stream.print(getName());
+        stream.print("=");
+        Value v = getValue();
+        if (v instanceof IntVal) {
+            stream.print(((IntVal) v).getValue());
+        } else if (v instanceof BoolVal) {
+            stream.print(((BoolVal) v).getValue() ? "True" : "False");
+        }
+    }
+
+    public void ProductLine.dopeakAnalysis(PrintWriter stream, PeakAnalysisFormatter formatter) {
+        stream.print("productline ");
+        stream.print(getName());
+        stream.print(";");
+        formatter.afterStmt();
+        boolean hasFeatures = false;
+        if (getNumFeature() > 0 && ! hasFeatures) {
+            hasFeatures = true;
+            stream.println();
+            stream.print("features ");
+        }
+        getFeatureList().dopeakAnalysis(stream, formatter, ",");
+        if (hasFeatures) {
+            stream.println(";");
+            formatter.afterStmt();
+        }
+
+        getDeltaClauseList().dopeakAnalysis(stream, formatter);
+
+        stream.println();
+        formatter.afterStmt();
+        stream.flush();
+    }
+
+    public void DeltaClause.dopeakAnalysis(PrintWriter stream, PeakAnalysisFormatter formatter) {
+        stream.print("delta ");
+        getDeltaspec().dopeakAnalysis(stream, formatter);
+
+        if (getNumAfterDeltaID() > 0) {
+            stream.print(" after ");
+            getAfterDeltaIDList().dopeakAnalysis(stream, formatter, ",");
+        }
+
+        if (hasAppCond()) {
+            stream.print(" when ");
+            getAppCond().dopeakAnalysis(stream, formatter);
+        }
+
+        stream.print(";");
+    }
+
+    public abstract void AppCond.dopeakAnalysis(PrintWriter stream, PeakAnalysisFormatter formatter);
+    
+    public void AppCondAnd.dopeakAnalysis(PrintWriter stream, PeakAnalysisFormatter formatter) {
+        getLeft().dopeakAnalysis(stream, formatter);
+        stream.print(" && ");
+        getRight().dopeakAnalysis(stream, formatter);
+    }
+    
+    public void AppCondOr.dopeakAnalysis(PrintWriter stream, PeakAnalysisFormatter formatter) {
+        getLeft().dopeakAnalysis(stream, formatter);
+        stream.print(" || ");
+        getRight().dopeakAnalysis(stream, formatter);
+    }
+
+    public void AppCondNot.dopeakAnalysis(PrintWriter stream, PeakAnalysisFormatter formatter) {
+        stream.print("~");
+        getAppCond().dopeakAnalysis(stream, formatter);
+    }
+    
+    public void AppCondFeature.dopeakAnalysis(PrintWriter stream, PeakAnalysisFormatter formatter) {
+        stream.print(getName());
+    }
+    
+    public void Deltaspec.dopeakAnalysis(PrintWriter stream, PeakAnalysisFormatter formatter) {
+        stream.print(getDeltaID());
+        if (getNumDeltaparam() > 0) {
+            stream.print("(");
+            getDeltaparamList().dopeakAnalysis(stream, formatter, ",");
+            stream.print(")");
+        }
+    }
+
+    public void Deltaparam.dopeakAnalysis(PrintWriter stream, PeakAnalysisFormatter formatter) {
+        stream.print(getName());
+    }
+
+    public void DeltaID.dopeakAnalysis(PrintWriter stream, PeakAnalysisFormatter formatter) {
+        stream.print(getName());
+    }
+
+    public void Block.dopeakAnalysis(PrintWriter stream, PeakAnalysisFormatter formatter) {
+        getAnnotationList().dopeakAnalysis(stream, formatter, "");
+        if (getNumAnnotation() > 0) {
+            stream.println();
+            formatter.afterStmt();
+        }
+        formatter.beforeOpenBrace();
+        stream.println("{");
+        formatter.afterOpenBrace();
+        formatter.afterStmt();
+        getStmtList().dopeakAnalysis(stream, formatter);
+        stream.println();
+        formatter.beforeCloseBrace();
+        formatter.afterStmt();
+        stream.print("}");
+        formatter.afterCloseBrace();
+    }
+
+    public void Block.dopeakAnalysis(PrintWriter stream, PeakAnalysisFormatter formatter, String m) {
+        getAnnotationList().dopeakAnalysis(stream, formatter, "");
+        if (getNumAnnotation() > 0) {
+            stream.println();
+            formatter.afterStmt();
+        }
+        formatter.beforeOpenBrace();
+        stream.println("{");
+        formatter.afterOpenBrace();
+        formatter.afterStmt();
+        stream.println("Int fake = 0;");
+        formatter.afterStmt();
+        //stream.println("Fut<Int> fake_fut;");
+        //formatter.afterStmt();
+        getStmtList().dopeakAnalysis(stream, m, formatter);
+        stream.println();
+        formatter.beforeCloseBrace();
+        formatter.afterStmt();
+        stream.print("}");
+        formatter.afterCloseBrace();
+    }
+
+    public void MainBlock.dopeakAnalysis(PrintWriter stream, PeakAnalysisFormatter formatter) {
+            stream.println("interface Main{");
+            formatter.afterStmt();
+            stream.println("Unit main( );");
+            stream.println("}");
+            stream.println("class IMain implements Main{");
+            formatter.afterStmt();
+            stream.print("Unit main( )");
+            formatter.beforeOpenBrace();
+            stream.println("{");
+            formatter.afterOpenBrace();
+            formatter.afterStmt();
+            /*
+            //stream.println("ResourceManager rm = new ResourceManager();");
+            //formatter.afterStmt();
+            //stream.print("await rm!addRes(list[");
+            //String sql = "SELECT * FROM Resources";
+            //Connection conn = null;
+            //String url = "jdbc:sqlite:identifier.sqlite";
+            //try (Connection conn = DriverManager.getConnection(url);
+              //   Statement stmt  = conn.createStatement();
+               //  ResultSet rs    = stmt.executeQuery(sql)){
+                 if(rs.next()){
+                    stream.print("set[" + rs.getString("ResourceCategory") + ", Efficiency(" +
+                       rs.getInt("ResourceEfficiency") + ")]");
+                       }
+
+                // loop through the result set
+                while (rs.next()) {
+                    stream.print(", set[" + rs.getString("ResourceCategory") + ", Efficiency(" +
+                                           rs.getInt("ResourceEfficiency") + ")]");
+                }
+                stream.println("]);");
+                conn.close();
+            } catch (SQLException e) {
+                System.out.println(e.getMessage());
+            }
+
+            formatter.afterStmt();
+            */
+            stream.println("Int fake = 0;");
+            formatter.afterStmt();
+            //stream.println("Fut<Int> fake_fut;");
+            //formatter.afterStmt();
+            getStmtList().dopeakAnalysis(stream, formatter);
+            stream.println();
+            formatter.afterStmt();
+            stream.println("Int method_end = 0;");
+            //stream.println();
+            formatter.beforeCloseBrace();
+            formatter.afterStmt();
+            stream.println("}");
+            stream.println("}");
+            stream.println("{");
+            stream.println("Main m = new IMain();");
+            formatter.afterStmt();
+            stream.println("m ! main();");
+            stream.println("}");
+            formatter.afterCloseBrace();
+        }
+
+    public void AssertStmt.dopeakAnalysis(PrintWriter stream, PeakAnalysisFormatter formatter) {
+        getAnnotationList().dopeakAnalysis(stream, formatter, "");
+        if (getNumAnnotation() > 0) {
+            stream.println();
+            formatter.afterStmt();
+        }
+        stream.print("assert ");
+        getCondition().dopeakAnalysis(stream, formatter);
+        stream.print(";");
+    }
+
+    public void ThrowStmt.dopeakAnalysis(PrintWriter stream, PeakAnalysisFormatter formatter) {
+        getAnnotationList().dopeakAnalysis(stream, formatter, "");
+        if (getNumAnnotation() > 0) {
+            stream.println();
+            formatter.afterStmt();
+        }
+        stream.print("throw ");
+        getReason().dopeakAnalysis(stream, formatter);
+        stream.print(";");
+    }
+
+    public void DieStmt.dopeakAnalysis(PrintWriter stream, PeakAnalysisFormatter formatter) {
+        getAnnotationList().dopeakAnalysis(stream, formatter, "");
+        if (getNumAnnotation() > 0) {
+            stream.println();
+            formatter.afterStmt();
+        }
+        stream.print("die ");
+        getReason().dopeakAnalysis(stream, formatter);
+        stream.print(";");
+    }
+
+    public void AssignStmt.dopeakAnalysis(PrintWriter stream, PeakAnalysisFormatter formatter) {
+        getAnnotationList().dopeakAnalysis(stream, formatter, "");
+        if (getNumAnnotation() > 0) {
+            stream.println();
+            formatter.afterStmt();
+        }
+
+        else if (getValue() instanceof Call1Exp)
+        {
+            VarOrFieldUse v = getVar();
+            getValue().dopeakAnalysis(stream, formatter,v);
+        }
+        else
+        {
+            getVar().dopeakAnalysis(stream, formatter);
+            stream.print(" = ");
+            getValue().dopeakAnalysis(stream, formatter);
+            stream.print(";");
+        }
+    }
+
+    public void Call.dopeakAnalysis(PrintWriter stream, PeakAnalysisFormatter formatter) {
+        dopeakAnalysisCallPrefix(stream, formatter);
+        getCallee().dopeakAnalysis(stream, formatter);
+        dopeakAnalysisCallType(stream, formatter);
+        stream.print(getMethod().replaceAll("\\$", ""));
+        stream.print("(");
+        getParamList().dopeakAnalysis(stream, formatter, ",");
+        stream.print(")");
+    }
+
+    public void Call1Exp.dopeakAnalysis(PrintWriter stream, PeakAnalysisFormatter formatter) {
+        getQList().dopeakAnalysis(stream, formatter, " || ", "?");
+        //stream.print("[Deadline: Duration(");
+        //getD().dopeakAnalysis(stream, formatter);
+        //stream.print(")");
+        //stream.print("]");
+        stream.println();
+        formatter.afterStmt();
+        dopeakAnalysisCallPrefix(stream, formatter);
+        getCallee().dopeakAnalysis(stream, formatter);
+
+        dopeakAnalysisCallType(stream, formatter,getCallee());
+        stream.print(getMethod().replaceAll("\\$", ""));
+        List<PureExp> list = getParamList();
+        //if(list.getNumChild()>0)
+             //stream.print("(rm, ");
+        //else
+             //stream.print("(rm");
+        stream.print("(");
+        getParamList().dopeakAnalysis(stream, formatter, ",");
+        stream.print(")");
+    }
+    public void Call1Exp.dopeakAnalysis(PrintWriter stream, PeakAnalysisFormatter formatter, VarOrFieldUse v) {
+         getQList().dopeakAnalysis(stream, formatter, " || ", "?");
+         //stream.print("[Deadline: Duration(");
+         //getD().dopeakAnalysis(stream, formatter);
+         //stream.print(")");
+         //stream.print("]");
+         stream.println();
+         formatter.afterStmt();
+         String m = getMethod().replaceAll("\\$", "");
+         dopeakAnalysisCallType(stream, formatter, getCallee(),m,getParamList(),v);
+         /*
+         stream.print(getMethod().replaceAll("\\$", ""));
+         List<PureExp> list = getParamList();
+             //if(list.getNumChild()>0)
+                 //stream.print("(rm, ");
+             //else
+                 //stream.print("(rm");
+         stream.print("(");
+         list.dopeakAnalysis(stream, formatter, ",");
+         stream.print(")");
+         stream.print(";");
+         */
+    }
+
+    abstract public void Call.dopeakAnalysisCallType(PrintWriter stream, PeakAnalysisFormatter formatter);
+
+    abstract public void Call.dopeakAnalysisCallPrefix(PrintWriter stream, PeakAnalysisFormatter formatter);
+
+    abstract public void Call1Exp.dopeakAnalysisCallType(PrintWriter stream, PeakAnalysisFormatter formatter,PureExp callee);
+
+    abstract public void Call1Exp.dopeakAnalysisCallType(PrintWriter stream, PeakAnalysisFormatter formatter,PureExp callee,String m,List<PureExp> pl,VarOrFieldUse v);
+
+    abstract public void Call1Exp.dopeakAnalysisCallPrefix(PrintWriter stream, PeakAnalysisFormatter formatter);
+
+
+
+
+
+    public void AsyncCall.dopeakAnalysisCallType(PrintWriter stream, PeakAnalysisFormatter formatter) {
+        stream.print("!");
+    }
+
+    public void AwaitAsyncCall.dopeakAnalysisCallType(PrintWriter stream, PeakAnalysisFormatter formatter) {
+        stream.print("!");
+    }
+
+    public void SyncCall.dopeakAnalysisCallType(PrintWriter stream, PeakAnalysisFormatter formatter) {
+        stream.print(".");
+    }
+
+    public void AsyncCall.dopeakAnalysisCallPrefix(PrintWriter stream, PeakAnalysisFormatter formatter) {
+    }
+
+    public void AwaitAsyncCall.dopeakAnalysisCallPrefix(PrintWriter stream, PeakAnalysisFormatter formatter) {
+        stream.print("await ");
+    }
+
+    public void SyncCall.dopeakAnalysisCallPrefix(PrintWriter stream, PeakAnalysisFormatter formatter) {
+    }
+
+    public void AsyncCall1Exp.dopeakAnalysisCallType(PrintWriter stream, PeakAnalysisFormatter formatter,PureExp callee) {
+        stream.print("!");
+    }
+
+    public void SyncCall1Exp.dopeakAnalysisCallType(PrintWriter stream, PeakAnalysisFormatter formatter,PureExp callee) {
+            stream.print(".");
+    }
+
+    public void AsyncCall1Exp.dopeakAnalysisCallType(PrintWriter stream, PeakAnalysisFormatter formatter,PureExp callee,String m,List<PureExp> pl,VarOrFieldUse v) {
+         v.dopeakAnalysis(stream, formatter);
+         stream.print(" = ");
+         dopeakAnalysisCallPrefix(stream, formatter);
+         getCallee().dopeakAnalysis(stream, formatter);
+         stream.print("!");
+         stream.print(m);
+         stream.print("(");
+         pl.dopeakAnalysis(stream, formatter, ",");
+         stream.print(")");
+         stream.print(";");
+    }
+
+    public void SyncCall1Exp.dopeakAnalysisCallType(PrintWriter stream, PeakAnalysisFormatter formatter,PureExp callee,String m,List<PureExp> pl,VarOrFieldUse v) {
+         v.dopeakAnalysis(stream, formatter);
+         stream.print(" = ");
+         dopeakAnalysisCallPrefix(stream, formatter);
+         getCallee().dopeakAnalysis(stream, formatter);
+         stream.print(".");
+         stream.print(m);
+         stream.print("(");
+         pl.dopeakAnalysis(stream, formatter, ",");
+         stream.print(")");
+         stream.print(";");
+    }
+
+    public void AsyncCall1Exp.dopeakAnalysisCallPrefix(PrintWriter stream, PeakAnalysisFormatter formatter) {
+    }
+
+    public void SyncCall1Exp.dopeakAnalysisCallPrefix(PrintWriter stream, PeakAnalysisFormatter formatter) {
+    }
+
+    public void GetExp.dopeakAnalysis(PrintWriter stream, PeakAnalysisFormatter formatter) {
+        //stream.print("await ");
+        getPureExp().dopeakAnalysis(stream, formatter);
+        stream.print(".get");
+    }
+
+    public void AddResStmt.dopeakAnalysis(PrintWriter stream, PeakAnalysisFormatter formatter) {
+            //stream.print("await rm!addRes(");
+            //getParamList().dopeakAnalysis(stream, formatter, ",");
+            //stream.print(");");
+    }
+
+    public void HoldExp.dopeakAnalysis(PrintWriter stream, PeakAnalysisFormatter formatter) {
+             stream.print("Pair(Nil,0);");
+             stream.println();
+             formatter.afterStmt();
+             stream.print("[j == acquire(");
+             getParamList().dopeakAnalysis(stream, formatter, ",");
+             stream.print(") ] fake = 0");
+
+    }
+
+    public void ReleaseResStmt.dopeakAnalysis(PrintWriter stream, PeakAnalysisFormatter formatter) {
+                //stream.print("await rm!releaseRes(");
+                //getRes().dopeakAnalysis(stream, formatter);
+                stream.print("[j == release()] fake = 0;");
+    }
+
+
+    public void NewExp.dopeakAnalysis(PrintWriter stream, PeakAnalysisFormatter formatter) {
+        stream.print("new ");
+        if (hasLocal()) {
+            stream.print("local ");
+        }
+        stream.print(getClassName());
+        stream.print("(");
+        getParamList().dopeakAnalysis(stream, formatter, ",");
+        stream.print(")");
+    }
+
+    public void OriginalCall.dopeakAnalysis(PrintWriter stream, PeakAnalysisFormatter formatter) {
+        stream.print("original ");
+        stream.print("(");
+        getParamList().dopeakAnalysis(stream, formatter, ",");
+        stream.print(")");
+    }
+
+    public void AwaitStmt.dopeakAnalysis(PrintWriter stream, PeakAnalysisFormatter formatter) {
+        stream.println();
+        formatter.afterStmt();
+        getAnnotationList().dopeakAnalysis(stream, formatter, "");
+        if (getNumAnnotation() > 0) {
+            stream.println();
+            formatter.afterStmt();
+        }
+        stream.print("await ");
+        getGuard().dopeakAnalysis(stream, formatter);
+        stream.print(";");
+    }
+
+    public void AndGuard.dopeakAnalysis(PrintWriter stream, PeakAnalysisFormatter formatter) {
+        getLeft().dopeakAnalysis(stream, formatter);
+        stream.print(" & ");
+        getRight().dopeakAnalysis(stream, formatter);
+    }
+
+    public void ClaimGuard.dopeakAnalysis(PrintWriter stream, PeakAnalysisFormatter formatter) {
+        getVar().dopeakAnalysis(stream, formatter);
+        stream.print("?");
+    }
+
+    public void DurationGuard.dopeakAnalysis(PrintWriter stream, PeakAnalysisFormatter formatter) {
+        stream.print("duration(");
+        getMin().dopeakAnalysis(stream, formatter);
+        stream.print(", ");
+        getMax().dopeakAnalysis(stream, formatter);
+        stream.print(")");
+    }
+
+    public void ExpGuard.dopeakAnalysis(PrintWriter stream, PeakAnalysisFormatter formatter) {
+        getPureExp().dopeakAnalysis(stream, formatter);
+    }
+
+    public void CostStmt.dopeakAnalysis(PrintWriter stream, PeakAnalysisFormatter formatter) {
+        getAnnotationList().dopeakAnalysis(stream, formatter, "");
+        if (getNumAnnotation() > 0) {
+            stream.println();
+            formatter.afterStmt();
+        }
+        stream.println();
+        formatter.afterStmt();
+        stream.print("[wait(");
+        getMin().dopeakAnalysis(stream, formatter);
+        //stream.print(", ");
+        //getMin().dopeakAnalysis(stream, formatter);
+        stream.print(")] fake = 0");
+        stream.print(";");
+    }
+
+    public void ExpressionStmt.dopeakAnalysis(PrintWriter stream, PeakAnalysisFormatter formatter) {
+        getAnnotationList().dopeakAnalysis(stream, formatter, "");
+        if (getNumAnnotation() > 0) {
+            stream.println();
+            formatter.afterStmt();
+        }
+        getExp().dopeakAnalysis(stream, formatter);
+        stream.print(";");
+    }
+
+    public void IfStmt.dopeakAnalysis(PrintWriter stream, PeakAnalysisFormatter formatter) {
+        getAnnotationList().dopeakAnalysis(stream, formatter, "");
+        stream.print("if ( ");
+        getCondition().dopeakAnalysis(stream, formatter);
+        stream.print(" )");
+        getThen().dopeakAnalysis(stream, formatter);
+        if (hasElse()) {
+            stream.print(" else ");
+            getElse().dopeakAnalysis(stream, formatter);
+        }
+    }
+
+    public void ReturnStmt.dopeakAnalysis(PrintWriter stream, PeakAnalysisFormatter formatter) {
+    }
+
+    public void ReturnStmt.dopeakAnalysis(PrintWriter stream, PeakAnalysisFormatter formatter, String m) {
+        //stream.print("try {");
+        stream.println();
+        formatter.afterStmt();
+        /*
+        stream.print("Duration d = deadline();");
+        stream.println();
+        formatter.afterStmt();
+        stream.print("Rat r = durationValue(d);");
+        stream.println();
+        formatter.afterStmt();
+        stream.print("assert r > 0;");
+        stream.println();
+        formatter.afterStmt();
+        stream.print("} catch {");
+        stream.println();
+        formatter.afterStmt();
+        stream.print("AssertionFailException => println(`The method \"");
+        stream.print(m);
+        stream.print("\" have missed the deadline.`);");
+        stream.println();
+        formatter.afterStmt();
+        stream.print("}");
+        stream.println();
+        formatter.afterStmt();
+        */
+        stream.println("Int method_end = 0;");
+        formatter.afterStmt();
+        getAnnotationList().dopeakAnalysis(stream, formatter, "");
+        stream.print("return ");
+        getRetExp().dopeakAnalysis(stream, formatter);
+        stream.print(";");
+    }
+
+    public void SkipStmt.dopeakAnalysis(PrintWriter stream, PeakAnalysisFormatter formatter) {
+        getAnnotationList().dopeakAnalysis(stream, formatter, "");
+        stream.print("skip;");
+    }
+
+    public void SuspendStmt.dopeakAnalysis(PrintWriter stream, PeakAnalysisFormatter formatter) {
+        getAnnotationList().dopeakAnalysis(stream, formatter, "");
+        stream.print("suspend;");
+    }
+
+    public void VarDeclStmt.dopeakAnalysis(PrintWriter stream, PeakAnalysisFormatter formatter) {
+        getAnnotationList().dopeakAnalysis(stream, formatter, "");
+        if (getNumAnnotation() > 0) {
+            stream.println();
+            formatter.afterStmt();
+        }
+        getVarDecl().dopeakAnalysis(stream, formatter);
+        stream.print(";");
+    }
+
+    public void VarDecl.dopeakAnalysis(PrintWriter stream, PeakAnalysisFormatter formatter) {
+        getTypeUse().dopeakAnalysis(stream, formatter);
+        stream.print(" ");
+        stream.print(getName());
+        if (hasInitExp()) {
+            stream.print(" = ");
+            getInitExp().dopeakAnalysis(stream, formatter);
+        }
+    }
+
+    public void WhileStmt.dopeakAnalysis(PrintWriter stream, PeakAnalysisFormatter formatter) {
+        getAnnotationList().dopeakAnalysis(stream, formatter, "");
+        stream.print("while (");
+        getCondition().dopeakAnalysis(stream, formatter);
+        stream.print(") ");
+        getBody().dopeakAnalysis(stream, formatter);
+    }
+
+    public void ForeachStmt.dopeakAnalysis(PrintWriter stream, PeakAnalysisFormatter formatter) {
+        getAnnotationList().dopeakAnalysis(stream, formatter, "");
+        stream.print("foreach (");
+        stream.print(getValueVar().getName());
+        if (hasIndexVar()) {
+            stream.print(", ");
+            stream.print(getIndexVar().getName());
+        }
+        stream.print(" in ");
+        getListExp().dopeakAnalysis(stream, formatter);
+        stream.print(") ");
+        getBody().dopeakAnalysis(stream, formatter);
+    }
+
+    public void CaseStmt.dopeakAnalysis(PrintWriter stream, PeakAnalysisFormatter formatter) {
+        getAnnotationList().dopeakAnalysis(stream, formatter, "");
+        stream.print("switch (");
+        getExpr().dopeakAnalysis(stream, formatter);
+        formatter.beforeOpenBrace();
+        stream.println(") {");
+        formatter.afterOpenBrace();
+        for (CaseBranchStmt b : getBranchList()) {
+            formatter.afterStmt();
+            b.getLeft().dopeakAnalysis(stream, formatter);
+            stream.print(" => ");
+            b.getRight().dopeakAnalysis(stream, formatter);
+            stream.println();
+        }
+        formatter.beforeCloseBrace();
+        formatter.afterStmt();
+        stream.print("}");
+        formatter.afterCloseBrace();
+    }
+
+    public void TryCatchFinallyStmt.dopeakAnalysis(PrintWriter stream, PeakAnalysisFormatter formatter) {
+        getAnnotationList().dopeakAnalysis(stream, formatter, "");
+        stream.print("try ");
+        getBody().dopeakAnalysis(stream, formatter);
+        stream.print(" catch");
+        formatter.beforeOpenBrace();
+        stream.println(" {");
+        formatter.afterOpenBrace();
+        for (CaseBranchStmt b : getCatchs()) {
+            formatter.afterStmt();
+            b.getLeft().dopeakAnalysis(stream, formatter);
+            stream.print(" => ");
+            b.getRight().dopeakAnalysis(stream, formatter);
+            stream.println();
+        }
+        formatter.beforeCloseBrace();
+        formatter.afterStmt();
+        stream.print("}");
+        if (hasFinally()) {
+            stream.print(" finally ");
+            getFinally().dopeakAnalysis(stream, formatter);
+        } else {
+            formatter.afterCloseBrace();
+        }
+    }
+
+    abstract public void Export.dopeakAnalysis(PrintWriter stream, PeakAnalysisFormatter formatter);
+
+    public void NamedExport.dopeakAnalysis(PrintWriter stream, PeakAnalysisFormatter formatter) {
+        stream.print("export ");
+        getNames().dopeakAnalysis(stream, formatter, ",");
+        stream.print(";");
+    }
+
+    public void Name.dopeakAnalysis(PrintWriter stream, PeakAnalysisFormatter formatter) {
+        stream.print(getName());
+    }
+
+    public void StarExport.dopeakAnalysis(PrintWriter stream, PeakAnalysisFormatter formatter) {
+        stream.print("export *");
+        if (hasModuleName()) {
+            stream.print(" from ");
+            stream.print(getModuleName());
+        }
+        stream.print(";");
+    }
+
+    public void FromExport.dopeakAnalysis(PrintWriter stream, PeakAnalysisFormatter formatter) {
+        stream.print("export ");
+        getNames().dopeakAnalysis(stream, formatter, ",");
+        stream.print(" from ");
+        stream.print(getModuleName());
+        stream.print(";");
+    }
+
+    public void NamedImport.dopeakAnalysis(PrintWriter stream, PeakAnalysisFormatter formatter) {
+        stream.print("import ");
+        getNames().dopeakAnalysis(stream, formatter, ",");
+        stream.print(";");
+
+    }
+
+    public void StarImport.dopeakAnalysis(PrintWriter stream, PeakAnalysisFormatter formatter) {
+        stream.print("import * from ");
+        stream.print(getModuleName());
+        stream.print(";");
+    }
+
+    public void FromImport.dopeakAnalysis(PrintWriter stream, PeakAnalysisFormatter formatter) {
+        stream.print("import ");
+        getNames().dopeakAnalysis(stream, formatter, ",");
+        stream.print(" from ");
+        stream.print(getModuleName());
+        stream.print(";");
+    }
+    
+    /*protected boolean FunctionDecl.isSelector() {
+    	for (Annotation a : getAnnotationList()) {
+            if (! (a.getValue() instanceof StringLiteral)) {
+                continue;
+            }
+              
+            StringLiteral sl = (StringLiteral) a.getValue();
+            if (ASTPreProcessor.FUNCTIONSELECTOR.equals(sl.getContent())) {
+                return true;
+            }
+        }
+        return false;
+    }*/
+    
+    public void FunctionDecl.dopeakAnalysis(PrintWriter stream, PeakAnalysisFormatter formatter) {
+        if (isSelector()) {
+        	//skip selector
+        	return;
+        }
+    
+        getAnnotationList().dopeakAnalysis(stream, formatter, "");
+        if (getNumAnnotation() > 0) {
+            stream.println();
+            formatter.afterStmt();
+        }
+        stream.print("def ");
+        getTypeUse().dopeakAnalysis(stream, formatter);
+        stream.print(" ");
+        stream.print(getName());
+        dopeakAnalysisTypeParam(stream, formatter);
+        stream.print("(");
+        getParamList().dopeakAnalysis(stream, formatter, ",");
+        stream.print(") = ");
+        getFunctionDef().dopeakAnalysis(stream, formatter);
+        formatter.afterStmt();
+    }
+
+    public void PartialFunctionDecl.dopeakAnalysis(PrintWriter stream, PeakAnalysisFormatter formatter) {
+      getAnnotationList().dopeakAnalysis(stream, formatter, "");
+      if (getNumAnnotation() > 0) {
+          stream.println();
+          formatter.afterStmt();
+      }
+      stream.print("def ");
+      getTypeUse().dopeakAnalysis(stream, formatter);
+      stream.print(" ");
+      stream.print(getName());
+      dopeakAnalysisTypeParam(stream, formatter);
+      stream.print("(");
+      getParamList().dopeakAnalysis(stream, formatter, ",");
+      stream.print(") (");
+      getFuncParamList().dopeakAnalysis(stream, formatter, ",");
+      stream.print(") = ");
+      getPartialFunctionDef().dopeakAnalysis(stream, formatter);
+      formatter.afterStmt();
+    }
+
+    public void FunctionParamDecl.dopeakAnalysis(PrintWriter stream, PeakAnalysisFormatter formatter) {
+      stream.print(getName());
+    }
+
+    public void PartialFunctionDef.dopeakAnalysis(PrintWriter stream, PeakAnalysisFormatter formatter) {
+        stream.println();
+        formatter.afterOpenBrace();
+        formatter.afterStmt();
+        getPureExp().dopeakAnalysis(stream, formatter);
+        stream.print(";");
+        formatter.beforeCloseBrace();
+    }
+
+    public void NamedParFnAppParam.dopeakAnalysis(PrintWriter stream, PeakAnalysisFormatter formatter) {
+        stream.print(getName());
+    }
+
+    public void AnonymousFunctionDecl.dopeakAnalysis(PrintWriter stream, PeakAnalysisFormatter formatter) {
+        stream.print("(");
+        getParams().dopeakAnalysis(stream, formatter, ",");
+        stream.print(") => ");
+        getPureExp().dopeakAnalysis(stream, formatter);
+    }
+
+    public void FunctionDecl.dopeakAnalysisTypeParam(PrintWriter stream, PeakAnalysisFormatter formatter) { }
+
+    public void ParametricFunctionDecl.dopeakAnalysisTypeParam(PrintWriter stream, PeakAnalysisFormatter formatter) { 
+        if (getNumTypeParameter() > 0) {
+            stream.print("<");
+            getTypeParameterList().dopeakAnalysis(stream, formatter, ",");
+            stream.print(">");
+        }	
+    }
+
+    public void PartialFunctionDecl.dopeakAnalysisTypeParam(PrintWriter stream, PeakAnalysisFormatter formatter) {}
+
+    public void ParametricPartialFunctionDecl.dopeakAnalysisTypeParam(PrintWriter stream, PeakAnalysisFormatter formatter) {
+       if (getNumTypeParameter() > 0) {
+           stream.print("<");
+           getTypeParameterList().dopeakAnalysis(stream, formatter, ",");
+           stream.print(">");
+       }
+    }
+
+    public void BuiltinFunctionDef.dopeakAnalysis(PrintWriter stream, PeakAnalysisFormatter formatter) {
+        stream.print("builtin;");
+    }
+
+    public void ExpFunctionDef.dopeakAnalysis(PrintWriter stream, PeakAnalysisFormatter formatter) {
+        stream.println();
+        formatter.afterOpenBrace();
+        formatter.afterStmt();
+        getRhs().dopeakAnalysis(stream, formatter);
+        stream.print(";");
+        formatter.beforeCloseBrace();
+    }
+
+    public void DeltaDecl.dopeakAnalysis(PrintWriter stream, PeakAnalysisFormatter formatter) {
+        stream.print("delta ");
+        stream.print(getName());
+
+        List<DeltaParamDecl> dpl = getParamList();
+        if (dpl.getNumChild() > 0) {
+            stream.print("(");
+            dpl.dopeakAnalysis(stream, formatter, ",");
+            stream.print(")");
+        }
+        stream.println(";");
+        formatter.afterStmt();
+        if (hasImportedModule()) {
+            getImportedModule().dopeakAnalysis(stream, formatter);
+        }
+        stream.println();
+        getModuleModifierList().dopeakAnalysis(stream, formatter);
+
+        //        List<FunctionalModifier> fms = getFunctionalModifierList();
+        //        int mcount = fms.getNumChild();
+        //        if (mcount > 0) {
+        //            formatter.afterStmt();
+        //        }
+        //        fms.dopeakAnalysis(stream, formatter);
+        //
+        //        List<ClassOrIfaceModifier> cms = getClassOrIfaceModifierList();
+        //        if (cms.getNumChild() > 0 && mcount == 0) {
+        //            formatter.afterStmt();
+        //        } 
+        //        cms.dopeakAnalysis(stream, formatter);
+
+        stream.println();
+    }
+
+    public void DeltaAccess.dopeakAnalysis(PrintWriter stream, PeakAnalysisFormatter formatter) {
+        stream.print("uses ");
+        stream.print(getModuleName());
+        stream.print(";");
+    }
+
+    public void AddImportModifier.dopeakAnalysis(PrintWriter stream, PeakAnalysisFormatter formatter) {
+        stream.print("adds ");
+        getImport().dopeakAnalysis(stream, formatter);
+        stream.println();
+    }
+
+    public void AddExportModifier.dopeakAnalysis(PrintWriter stream, PeakAnalysisFormatter formatter) {
+        stream.print("adds ");
+        getExport().dopeakAnalysis(stream, formatter);
+        stream.println();
+    }
+
+    public void RemoveClassModifier.dopeakAnalysis(PrintWriter stream, PeakAnalysisFormatter formatter) {
+        stream.print("removes class ");
+        stream.print(getName());
+        stream.print(";");
+    }
+
+    public void ModifyClassModifier.dopeakAnalysis(PrintWriter stream, PeakAnalysisFormatter formatter) {
+        stream.print("modifies class ");
+        stream.print(getName());
+
+        if (getNumAddedInterface() > 0) {
+            stream.print(" adds ");
+            getAddedInterfaceList().dopeakAnalysis(stream, formatter, ",");
+        }
+        // TODO deal with removedInterfaceList
+
+        formatter.beforeOpenBrace();
+        stream.println("{");
+        formatter.afterOpenBrace();
+
+        List<Modifier> mms = getModifierList();
+        if (mms.getNumChild() > 0) {
+            mms.dopeakAnalysis(stream, formatter);
+            stream.println();
+            formatter.afterStmt();
+        }
+
+        formatter.beforeCloseBrace();
+        stream.print("}");
+        formatter.afterCloseBrace();
+    }
+
+    public void AddFieldModifier.dopeakAnalysis(PrintWriter stream, PeakAnalysisFormatter formatter) {
+        stream.print("adds ");
+        getFieldDecl().dopeakAnalysis(stream, formatter);
+    }
+
+    public void RemoveFieldModifier.dopeakAnalysis(PrintWriter stream, PeakAnalysisFormatter formatter) {
+        stream.print("removes ");
+        getFieldDecl().dopeakAnalysis(stream, formatter);
+    }
+
+    public void AddInterfaceModifier.dopeakAnalysis(PrintWriter stream, PeakAnalysisFormatter formatter) {
+        stream.print("adds ");
+        getInterfaceDecl().dopeakAnalysis(stream, formatter);
+    }
+
+    public void AddClassModifier.dopeakAnalysis(PrintWriter stream, PeakAnalysisFormatter formatter) {
+        stream.print("adds ");
+        getClassDecl().dopeakAnalysis(stream, formatter);
+    }
+
+    public void DeltaFieldParam.dopeakAnalysis(PrintWriter stream, PeakAnalysisFormatter formatter) {
+        getParamDecl().dopeakAnalysis(stream, formatter);
+    }
+
+    public void DeltaClassParam.dopeakAnalysis(PrintWriter stream, PeakAnalysisFormatter formatter) {
+        stream.print(getName());
+        stream.print(" ");
+        getHasCondition().dopeakAnalysis(stream, formatter);
+    }
+
+    public void HasField.dopeakAnalysis(PrintWriter stream, PeakAnalysisFormatter formatter) {
+        stream.print("hasField");
+        getFieldDecl().dopeakAnalysis(stream, formatter);
+    }
+
+    public void HasInterface.dopeakAnalysis(PrintWriter stream, PeakAnalysisFormatter formatter) {
+        stream.print("hasInterface");
+        getInterfaceTypeUse().dopeakAnalysis(stream, formatter);
+    }
+
+    public void HasMethod.dopeakAnalysis(PrintWriter stream, PeakAnalysisFormatter formatter) {
+        stream.print("hasMethod");
+        getMethodSig().dopeakAnalysis(stream, formatter);
+    }
+
+    public void TypeSynDecl.dopeakAnalysis(PrintWriter stream, PeakAnalysisFormatter formatter) {
+        getAnnotationList().dopeakAnalysis(stream, formatter, "");
+        if (getNumAnnotation() > 0) {
+            stream.println();
+            formatter.afterStmt();
+        }
+        stream.print("type ");
+        stream.print(getName());
+        stream.print(" = ");
+        getValue().dopeakAnalysis(stream, formatter);
+        stream.print(";");
+    }
+
+    public void InterfaceDecl.dopeakAnalysis(PrintWriter stream, PeakAnalysisFormatter formatter) {
+        getAnnotationList().dopeakAnalysis(stream, formatter, "");
+        if (getNumAnnotation() > 0) {
+            stream.println();
+            formatter.afterStmt();
+        }
+        stream.print("interface ");
+        stream.print(getName());
+	/* Filter `extends ABS.StdLib.Object, ...` by way of streams. */
+	String s = Streams.stream(getExtendedInterfaceUses()).filter(i -> !i.getName().equals(Constants.STDLIB_NAME+".Object")).map(tu -> tu.getName()).collect(Collectors.joining(", "));
+        if (s.length() > 0) {
+            stream.print(" extends ");
+            stream.print(s);
+        }
+        formatter.beforeOpenBrace();
+        stream.println(" {");
+        formatter.afterOpenBrace();
+        formatter.afterStmt();
+
+        List<MethodSig> ms = getBodys();
+        if (ms.getNumChild() > 0) {
+            ms.getChild(0).dopeakAnalysis(stream, formatter);
+            stream.print(";");
+            for (int i = 1; i < ms.getNumChild(); i++) {
+                stream.println();
+                formatter.afterStmt();
+                ms.getChild(i).dopeakAnalysis(stream, formatter);
+                stream.print(";");
+            }
+        }
+
+        formatter.beforeCloseBrace();
+        stream.print("}");
+        formatter.afterCloseBrace();
+    }
+
+    public void InterfaceDecl1.dopeakAnalysis(PrintWriter stream, PeakAnalysisFormatter formatter) {
+            getAnnotationList().dopeakAnalysis(stream, formatter, "");
+            if (getNumAnnotation() > 0) {
+                stream.println();
+                formatter.afterStmt();
+            }
+            stream.print("interface ");
+            stream.print(getName());
+    	/* Filter `extends ABS.StdLib.Object, ...` by way of streams. */
+    	String s = Streams.stream(getExtendedInterfaceUses()).filter(i -> !i.getName().equals(Constants.STDLIB_NAME+".Object")).map(tu -> tu.getName()).collect(Collectors.joining(", "));
+            if (s.length() > 0) {
+                stream.print(" extends ");
+                stream.print(s);
+            }
+            formatter.beforeOpenBrace();
+            stream.println(" {");
+            formatter.afterOpenBrace();
+            formatter.afterStmt();
+
+            List<MethodSig1> ms = getBodys();
+            if (ms.getNumChild() > 0) {
+                ms.getChild(0).dopeakAnalysis(stream, formatter);
+                stream.print(";");
+                for (int i = 1; i < ms.getNumChild(); i++) {
+                    stream.println();
+                    formatter.afterStmt();
+                    ms.getChild(i).dopeakAnalysis(stream, formatter);
+                    stream.print(";");
+                }
+            }
+
+            formatter.beforeCloseBrace();
+            stream.print("}");
+            formatter.afterCloseBrace();
+        }
+
+    public void MethodSig.dopeakAnalysis(PrintWriter stream, PeakAnalysisFormatter formatter) {
+        getReturnType().dopeakAnalysis(stream, formatter);
+        stream.print(" ");
+        stream.print(getName().replaceAll("\\$", ""));
+        List<ParamDecl> list = getParams();
+            //if(list.getNumChild()>0)
+                //stream.print("(ResourceManager rm,");
+            //else
+                //stream.print("(ResourceManager rm");
+        stream.print("(");
+        list.dopeakAnalysis(stream, formatter, ",");
+        //stream.print("(ResourceManager rm,");
+        //getParams().dopeakAnalysis(stream, formatter, ",");
+        stream.print(")");
+    }
+
+    public void MethodSig1.dopeakAnalysis(PrintWriter stream, PeakAnalysisFormatter formatter) {
+        getReturnType().dopeakAnalysis(stream, formatter);
+        stream.print(" ");
+        stream.print(getName().replaceAll("\\$", ""));
+        stream.print("(");
+        getObjs().dopeakAnalysis(stream, formatter, ",");
+        stream.print(", ");
+        getParams().dopeakAnalysis(stream, formatter, ",");
+        stream.print(")");
+    }
+
+    public void ClassDecl.dopeakAnalysis(PrintWriter stream, PeakAnalysisFormatter formatter) {
+        getAnnotationList().dopeakAnalysis(stream, formatter, "");
+        if (getNumAnnotation() > 0) {
+            stream.println();
+            formatter.afterStmt();
+        }
+        stream.print("class ");
+        stream.print(getName());
+
+        if (getNumParam() > 0) {
+            stream.print("(");
+            getParams().dopeakAnalysis(stream, formatter, ",");
+            stream.print(")");
+        }
+
+        if (getNumImplementedInterfaceUse() > 0) {
+            stream.print(" implements ");
+            getImplementedInterfaceUseList().dopeakAnalysis(stream, formatter, ",");
+        }
+        formatter.beforeOpenBrace();
+        stream.println(" {");
+        formatter.afterOpenBrace();
+        formatter.afterStmt();
+
+        getFieldList().dopeakAnalysis(stream, formatter);
+
+        /*stream.println();
+        formatter.afterStmt();*/
+
+        if (hasInitBlock()) {
+            getInitBlock().dopeakAnalysis(stream, formatter);
+            stream.println();
+            formatter.afterStmt();
+        }
+
+        stream.println();
+        formatter.afterStmt();
+
+        if (hasRecoverBranch()) {
+            stream.print("recover ");
+            formatter.beforeOpenBrace();
+            stream.print("{");
+            formatter.afterOpenBrace();
+            stream.println();
+            for (CaseBranchStmt b : getRecoverBranchs()) {
+                formatter.afterStmt();
+                b.getLeft().dopeakAnalysis(stream, formatter);
+                stream.print(" => ");
+                b.getRight().dopeakAnalysis(stream, formatter);
+                stream.println();
+            }
+            formatter.beforeCloseBrace();
+            formatter.afterStmt();
+            stream.print("}");
+            formatter.afterCloseBrace();
+            stream.println();
+            formatter.afterStmt();
+        }
+
+        List<MethodImpl> methods = getMethodList();
+        if (methods.getNumChild() > 0) {
+            methods.dopeakAnalysis(stream, formatter);        
+            stream.println();
+            formatter.afterStmt();
+        }
+
+        formatter.beforeCloseBrace();
+        stream.print("}");
+        formatter.afterCloseBrace();
+    }
+
+    public void ClassDecl1.dopeakAnalysis(PrintWriter stream, PeakAnalysisFormatter formatter) {
+            getAnnotationList().dopeakAnalysis(stream, formatter, "");
+            if (getNumAnnotation() > 0) {
+                stream.println();
+                formatter.afterStmt();
+            }
+            stream.print("class ");
+            stream.print(getName());
+
+            if (getNumParam() > 0) {
+                stream.print("(");
+                getParams().dopeakAnalysis(stream, formatter, ",");
+                stream.print(")");
+            }
+
+            if (getNumImplementedInterfaceUse() > 0) {
+                stream.print(" implements ");
+                getImplementedInterfaceUseList().dopeakAnalysis(stream, formatter, ",");
+            }
+            formatter.beforeOpenBrace();
+            stream.println(" {");
+            formatter.afterOpenBrace();
+            formatter.afterStmt();
+
+            getFieldList().dopeakAnalysis(stream, formatter);
+
+            /*stream.println();
+            formatter.afterStmt();*/
+
+            if (hasInitBlock()) {
+                getInitBlock().dopeakAnalysis(stream, formatter);
+                stream.println();
+                formatter.afterStmt();
+            }
+
+            stream.println();
+            formatter.afterStmt();
+
+            if (hasRecoverBranch()) {
+                stream.print("recover ");
+                formatter.beforeOpenBrace();
+                stream.print("{");
+                formatter.afterOpenBrace();
+                stream.println();
+                for (CaseBranchStmt b : getRecoverBranchs()) {
+                    formatter.afterStmt();
+                    b.getLeft().dopeakAnalysis(stream, formatter);
+                    stream.print(" => ");
+                    b.getRight().dopeakAnalysis(stream, formatter);
+                    stream.println();
+                }
+                formatter.beforeCloseBrace();
+                formatter.afterStmt();
+                stream.print("}");
+                formatter.afterCloseBrace();
+                stream.println();
+                formatter.afterStmt();
+            }
+
+            List<MethodImpl1> methods = getMethodList();
+            if (methods.getNumChild() > 0) {
+                methods.dopeakAnalysis(stream, formatter);
+                stream.println();
+                formatter.afterStmt();
+            }
+
+            formatter.beforeCloseBrace();
+            stream.print("}");
+            formatter.afterCloseBrace();
+        }
+
+    public void FieldDecl.dopeakAnalysis(PrintWriter stream, PeakAnalysisFormatter formatter) {
+        getTypeUse().dopeakAnalysis(stream, formatter);
+        stream.print(" ");
+        stream.print(getName());
+        if (hasInitExp()) {
+            stream.print(" = ");
+            getInitExp().dopeakAnalysis(stream, formatter);
+        }
+        stream.print(";");
+    }
+
+    public void MethodImpl.dopeakAnalysis(PrintWriter stream, PeakAnalysisFormatter formatter) {
+        getMethodSig().dopeakAnalysis(stream, formatter);
+        if(hasReturnStmt()) {
+            String m = getMethodSig().getName().replaceAll("\\$", "");
+            getBlock().dopeakAnalysis(stream, formatter, m);
+        }
+        else{
+            getBlock().dopeakAnalysis(stream, formatter);
+        }
+        //getBlock().dopeakAnalysis(stream, formatter);
+    }
+
+    public void MethodImpl1.dopeakAnalysis(PrintWriter stream, PeakAnalysisFormatter formatter) {
+        getMethodSig1().dopeakAnalysis(stream, formatter);
+        getBlock().dopeakAnalysis(stream, formatter);
+    }
+
+    public void TypeParameterDecl.dopeakAnalysis(PrintWriter stream, PeakAnalysisFormatter formatter) {
+        stream.print(getName());
+    }
+
+    public void DataTypeDecl.dopeakAnalysis(PrintWriter stream, PeakAnalysisFormatter formatter) {
+        stream.print("data ");
+        stream.print(getName());
+        dopeakAnalysisTypeParam(stream, formatter);
+        if (getNumDataConstructor() > 0) {
+            stream.print(" = ");
+            getDataConstructorList().dopeakAnalysis(stream, formatter, "|");
+        }
+        stream.print(";");
+    }
+
+    public void AddDataTypeModifier.dopeakAnalysis(PrintWriter stream, PeakAnalysisFormatter formatter)
+    {
+        stream.print("adds "); 
+        getDataTypeDecl().dopeakAnalysis(stream, formatter);
+        stream.println();
+    }
+
+    public void ModifyInterfaceModifier.dopeakAnalysis(PrintWriter stream, PeakAnalysisFormatter formatter) {
+        stream.print("modifies interface ");
+        stream.print(getName());
+
+        formatter.beforeOpenBrace();
+        stream.println("{");
+        formatter.afterOpenBrace();
+
+        getMethodSigModifierList().dopeakAnalysis(stream, formatter);
+
+        formatter.beforeCloseBrace();
+        stream.print("}");
+        formatter.afterCloseBrace();
+    }
+
+    public void AddMethodSigModifier.dopeakAnalysis(PrintWriter stream, PeakAnalysisFormatter formatter) {
+        stream.print("adds ");
+        getMethodSig().dopeakAnalysis(stream, formatter);
+        stream.print(";");
+    }
+
+    public void RemoveMethodSigModifier.dopeakAnalysis(PrintWriter stream, PeakAnalysisFormatter formatter) {
+        stream.print("removes ");
+        getMethodSig().dopeakAnalysis(stream, formatter);
+        stream.print(";");
+    }
+
+    public void DataTypeDecl.dopeakAnalysisTypeParam(PrintWriter stream, PeakAnalysisFormatter formatter) { }
+
+    public void ParametricDataTypeDecl.dopeakAnalysisTypeParam(PrintWriter stream, PeakAnalysisFormatter formatter) { 
+        if (getNumTypeParameter() > 0) {
+            stream.print("<");
+            getTypeParameterList().dopeakAnalysis(stream, formatter, ",");
+            stream.print(">");
+        }
+    }
+
+    public void DataConstructor.dopeakAnalysis(PrintWriter stream, PeakAnalysisFormatter formatter) {
+        stream.print(getName());
+        if (getNumConstructorArg() > 0) {
+            stream.print("(");
+            getConstructorArgList().dopeakAnalysis(stream, formatter, ",");
+            stream.print(")");
+        }
+    }
+
+    public void ConstructorArg.dopeakAnalysis(PrintWriter stream, PeakAnalysisFormatter formatter) {
+        getTypeUse().dopeakAnalysis(stream, formatter);
+        if (hasSelectorName()) {
+            stream.print(" ");
+            stream.print(getSelectorName());
+        }
+    }
+
+    public void UnresolvedTypeUse.dopeakAnalysis(PrintWriter stream, PeakAnalysisFormatter formatter) {
+        // TODO: getAnnotationList().dopeakAnalysis(stream, formatter, "");
+        stream.print(getName());    
+    }
+
+    public void DataTypeUse.dopeakAnalysis(PrintWriter stream, PeakAnalysisFormatter formatter) {
+        getAnnotationList().dopeakAnalysis(stream, formatter, "");
+        stream.print(getName());
+        dopeakAnalysisTypeParam(stream, formatter);
+    }
+
+    public void DataTypeUse.dopeakAnalysisTypeParam(PrintWriter stream, PeakAnalysisFormatter formatter) { }
+
+    public void ParametricDataTypeUse.dopeakAnalysisTypeParam(PrintWriter stream, PeakAnalysisFormatter formatter) { 
+        if (getNumParam() > 0) {
+            stream.print("<");
+            getParamList().dopeakAnalysis(stream, formatter, ",");
+            stream.print(">");
+        }
+    }
+
+    public void TypedAnnotation.dopeakAnalysis(PrintWriter stream, PeakAnalysisFormatter formatter) {
+        stream.print("[");
+        getTypeIdUse().dopeakAnalysis(stream, formatter);
+        stream.print(" : ");
+        getValue().dopeakAnalysis(stream, formatter);
+        stream.print("]");
+    }
+
+    public void Annotation.dopeakAnalysis(PrintWriter stream, PeakAnalysisFormatter formatter) {
+        stream.print("[");
+        getValue().dopeakAnalysis(stream, formatter);
+        stream.print("]");
+    }
+
+    public void TypeParameterUse.dopeakAnalysis(PrintWriter stream, PeakAnalysisFormatter formatter) {
+        stream.print(getName());
+    }
+
+    public void InterfaceTypeUse.dopeakAnalysis(PrintWriter stream, PeakAnalysisFormatter formatter) {
+        stream.print(getName());
+    }
+
+    public void FieldUse.dopeakAnalysis(PrintWriter stream, PeakAnalysisFormatter formatter) {
+        stream.print("this." + getName());
+    }
+
+    public void VarUse.dopeakAnalysis(PrintWriter stream, PeakAnalysisFormatter formatter) {
+        stream.print(getName());
+    }
+
+    public void Binary.dopeakAnalysis(PrintWriter stream, PeakAnalysisFormatter formatter) {
+        formatter.beforeOpenBrace();
+        stream.print("( ");
+        formatter.afterOpenBrace();
+        getLeft().dopeakAnalysis(stream, formatter);
+        stream.print(" ");
+        dopeakAnalysisOperator(stream, formatter);
+        stream.print(" ");
+        getRight().dopeakAnalysis(stream, formatter);
+        formatter.beforeCloseBrace();
+        stream.print(" )");
+        formatter.afterCloseBrace();
+    }
+
+    public void ConBinary.dopeakAnalysis(PrintWriter stream, PeakAnalysisFormatter formatter) {
+            formatter.beforeOpenBrace();
+            //stream.print("( ");
+            //formatter.afterOpenBrace();
+            getLeft().dopeakAnalysis(stream, formatter);
+            stream.print("?;");
+            stream.println();
+            formatter.afterStmt();
+            stream.print("await ");
+            //dopeakAnalysisOperator(stream, formatter);
+            //stream.print(" ");
+            getRight().dopeakAnalysis(stream, formatter);
+            //stream.print("?;");
+            //stream.println();
+            //caformatter.beforeCloseBrace();
+            //stream.print(" )");
+            formatter.afterCloseBrace();
+        }
+
+    abstract public void Binary.dopeakAnalysisOperator(PrintWriter stream, PeakAnalysisFormatter formatter);
+
+    abstract public void ConBinary.dopeakAnalysisOperator(PrintWriter stream, PeakAnalysisFormatter formatter);
+
+    public void AddAddExp.dopeakAnalysisOperator(PrintWriter stream, PeakAnalysisFormatter formatter) {
+        stream.print("+");
+    }
+
+    public void SubAddExp.dopeakAnalysisOperator(PrintWriter stream, PeakAnalysisFormatter formatter) {
+        stream.print("-");
+    }
+
+    public void DivMultExp.dopeakAnalysisOperator(PrintWriter stream, PeakAnalysisFormatter formatter) {
+        stream.print("/");
+    }
+
+    public void ModMultExp.dopeakAnalysisOperator(PrintWriter stream, PeakAnalysisFormatter formatter) {
+        stream.print("%");
+    }
+
+    public void MultMultExp.dopeakAnalysisOperator(PrintWriter stream, PeakAnalysisFormatter formatter) {
+        stream.print("*");
+    }
+
+    public void AndBoolExp.dopeakAnalysisOperator(PrintWriter stream, PeakAnalysisFormatter formatter) {
+        stream.print("&&");
+    }
+
+    public void ConjunctionExp.dopeakAnalysisOperator(PrintWriter stream, PeakAnalysisFormatter formatter) {
+            stream.print("&");
+        }
+
+    public void OrBoolExp.dopeakAnalysisOperator(PrintWriter stream, PeakAnalysisFormatter formatter) {
+        stream.print("||");
+    }
+
+    public void EqExp.dopeakAnalysisOperator(PrintWriter stream, PeakAnalysisFormatter formatter) {
+        stream.print("==");
+    }
+
+    public void NotEqExp.dopeakAnalysisOperator(PrintWriter stream, PeakAnalysisFormatter formatter) {
+        stream.print("!=");
+    }
+
+    public void GTEQExp.dopeakAnalysisOperator(PrintWriter stream, PeakAnalysisFormatter formatter) {
+        stream.print(">=");
+    }
+
+    public void GTExp.dopeakAnalysisOperator(PrintWriter stream, PeakAnalysisFormatter formatter) {
+        stream.print(">");
+    }
+
+    public void LTEQExp.dopeakAnalysisOperator(PrintWriter stream, PeakAnalysisFormatter formatter) {
+        stream.print("<=");
+    }
+
+    public void LTExp.dopeakAnalysisOperator(PrintWriter stream, PeakAnalysisFormatter formatter) {
+        stream.print("<");
+    }
+
+    public void CaseExp.dopeakAnalysis(PrintWriter stream, PeakAnalysisFormatter formatter) {
+        stream.print("case ");
+        getExpr().dopeakAnalysis(stream, formatter);
+        formatter.beforeOpenBrace();
+        stream.println(" {");
+        formatter.afterOpenBrace();
+        for (CaseBranch b : getBranchList()) {
+            formatter.afterStmt();
+            b.getLeft().dopeakAnalysis(stream, formatter);
+            stream.print(" => ");
+            b.getRight().dopeakAnalysis(stream, formatter);
+            stream.println(";");
+        }
+        formatter.beforeCloseBrace();
+        formatter.afterStmt();
+        stream.print("}");
+        formatter.afterCloseBrace();
+    }
+
+    public void ConstructorPattern.dopeakAnalysis(PrintWriter stream, PeakAnalysisFormatter formatter) {
+        stream.print(getConstructor());
+        if (getNumParam() > 0) {
+            stream.print("( ");
+            getParamList().dopeakAnalysis(stream, formatter, ",");
+            stream.print(" )");
+        }
+    }
+
+    public void LiteralPattern.dopeakAnalysis(PrintWriter stream, PeakAnalysisFormatter formatter) {
+        getLiteral().dopeakAnalysis(stream, formatter);
+    }
+
+    public void PatternVar.dopeakAnalysis(PrintWriter stream, PeakAnalysisFormatter formatter) {
+        getVar().dopeakAnalysis(stream, formatter);
+    }
+
+    public void PatternVarDecl.dopeakAnalysis(PrintWriter stream, PeakAnalysisFormatter formatter) {
+        stream.print(getName());
+    }
+
+    public void PatternVarUse.dopeakAnalysis(PrintWriter stream, PeakAnalysisFormatter formatter) {
+        stream.print(getName());
+    }
+
+    public void UnderscorePattern.dopeakAnalysis(PrintWriter stream, PeakAnalysisFormatter formatter) {
+        stream.print("_");
+    }
+
+    public void DataConstructorExp.dopeakAnalysis(PrintWriter stream, PeakAnalysisFormatter formatter) {
+        stream.print(getConstructor());
+        if (getNumParam() > 0) {
+            stream.print("( ");
+            getParamList().dopeakAnalysis(stream, formatter, ",");
+            stream.print(" )");
+        }
+    }
+
+    public void FnApp.dopeakAnalysis(PrintWriter stream, PeakAnalysisFormatter formatter) {
+        // This is a gross special case in pretty printing that follows a
+        // gross special case in syntax.  Consider adding a "first-class" list
+        // literal that can be used outside of the special constructor call
+        // syntax?
+        boolean noParens = getNumParam() == 1 && getParam(0) instanceof ListLiteral;
+        stream.print(getName());
+        if (!noParens) stream.print("(");
+        getParamList().dopeakAnalysis(stream, formatter, ",");
+        if (!noParens) stream.print(")");
+    }
+
+    public void ParFnApp.dopeakAnalysis(PrintWriter stream, PeakAnalysisFormatter formatter) {
+        stream.print(getName());
+        stream.print("(");
+        getParamList().dopeakAnalysis(stream, formatter, ",");
+        stream.print(") (");
+        getFuncParamList().dopeakAnalysis(stream, formatter, ",");
+        stream.print(")");
+    }
+
+    public void IfExp.dopeakAnalysis(PrintWriter stream, PeakAnalysisFormatter formatter) {
+        stream.print("(when ");
+        getCondExp().dopeakAnalysis(stream, formatter);
+        stream.print(" then ");
+        getThenExp().dopeakAnalysis(stream, formatter);
+        stream.print(" else ");
+        getElseExp().dopeakAnalysis(stream, formatter);
+        stream.print(")");
+    }
+
+    public void LetExp.dopeakAnalysis(PrintWriter stream, PeakAnalysisFormatter formatter) {
+        stream.print("let ( ");
+        getVar().dopeakAnalysis(stream, formatter);
+        stream.print(" ) = ");
+        getVal().dopeakAnalysis(stream, formatter);
+        stream.print(" in ");
+        getExp().dopeakAnalysis(stream, formatter);
+    }
+
+    public void ParamDecl.dopeakAnalysis(PrintWriter stream, PeakAnalysisFormatter formatter) {
+        getAnnotationList().dopeakAnalysis(stream, formatter, "");
+        getTypeUse().dopeakAnalysis(stream, formatter);
+        stream.print(" ");
+        stream.print(getName());
+    }
+
+    public void IntLiteral.dopeakAnalysis(PrintWriter stream, PeakAnalysisFormatter formatter) {
+        stream.print(getContent());
+    }
+
+    public void StringLiteral.dopeakAnalysis(PrintWriter stream, PeakAnalysisFormatter formatter) {
+        stream.print("\"");
+        for (char c : getContent().toCharArray()) {
+            switch (c) {
+            case '\\': stream.print("\\\\");
+                break;
+            case '"': stream.print("\\\"");
+                break;
+            case '\t': stream.print("\\t");
+                break;
+            case '\n': stream.print("\\n");
+                break;
+            case '\r': stream.print("\\r");
+                break;
+            default: stream.print(c);
+            }
+        }
+        stream.print("\"");
+    }
+
+    public void FloatLiteral.dopeakAnalysis(PrintWriter stream, PeakAnalysisFormatter formatter) {
+        stream.print(getContent());
+    }
+
+    public void ListLiteral.dopeakAnalysis(PrintWriter stream, PeakAnalysisFormatter formatter) {
+        stream.print("[");
+        String interp = "";
+        for (PureExp e : getPureExps()) {
+            stream.print(interp);
+            interp = ", ";
+            e.dopeakAnalysis(stream, formatter);
+        }
+        stream.print("]");
+    }
+
+    public void NullExp.dopeakAnalysis(PrintWriter stream, PeakAnalysisFormatter formatter) {
+        stream.print("null");
+    }
+
+    public void ThisExp.dopeakAnalysis(PrintWriter stream, PeakAnalysisFormatter formatter) {
+        stream.print("this");
+    }
+
+    public void DestinyExp.dopeakAnalysis(PrintWriter stream, PeakAnalysisFormatter formatter) {
+        stream.print("destiny");
+    }
+
+    public void MinusExp.dopeakAnalysis(PrintWriter stream, PeakAnalysisFormatter formatter) {
+        stream.print("- ");
+        getOperand().dopeakAnalysis(stream, formatter);
+    }
+
+    public void NegExp.dopeakAnalysis(PrintWriter stream, PeakAnalysisFormatter formatter) {
+        stream.print("! ");
+        getOperand().dopeakAnalysis(stream, formatter);
+    }
+
+    public void TraitDecl.dopeakAnalysis(PrintWriter stream, PeakAnalysisFormatter formatter) {
+
+    }
+    public void TraitUse.dopeakAnalysis(PrintWriter stream, PeakAnalysisFormatter formatter) {
+
+    }
+}

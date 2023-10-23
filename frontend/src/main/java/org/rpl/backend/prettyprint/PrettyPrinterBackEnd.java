@@ -122,7 +122,7 @@ public class PrettyPrinterBackEnd extends Main {
         /*PrintWriter writer = new PrintWriter(new OutputStreamWriter(stream), true);
         // Set line separator back to default value
         System.setProperty("line.separator", System.lineSeparator());
-        RplToABSFormatter formatter = new DefaultABSFormatter(writer);
+        PeakAnalysisFormatter formatter = new DefaultPeakAnalysisForamatter(writer);
         model.doPrettyPrint(writer, formatter);*/
 
         File file = new File("RABS.abs");

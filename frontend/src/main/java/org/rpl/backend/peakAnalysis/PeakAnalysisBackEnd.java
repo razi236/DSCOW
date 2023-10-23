@@ -2,7 +2,7 @@
  * Copyright (c) 2009-2011, The HATS Consortium. All rights reserved.
  * This file is licensed under the terms of the Modified BSD License.
  */
-package org.rpl.backend.abs;
+package org.rpl.backend.peakAnalysis;
 
 import org.rpl.RPLc;
 import org.rpl.frontend.ast.Model;
@@ -11,10 +11,10 @@ import org.rpl.frontend.parser.Main;
 import java.io.*;
 import java.sql.*;
 
-public class RplToABSBackEnd extends Main {
+public class PeakAnalysisBackEnd extends Main {
 
     public static int doMain(RPLc args) {
-        RplToABSBackEnd backend = new RplToABSBackEnd();
+        PeakAnalysisBackEnd backend = new PeakAnalysisBackEnd();
         //backend.importCSV();
         backend.arguments = args;
         int result = 0;
@@ -121,7 +121,7 @@ public class RplToABSBackEnd extends Main {
         PeakAnalysisFormatter formatter = new DefaultPeakAnalysisForamatter(writer);
         model.doPrettyPrint(writer, formatter);*/
 
-        File file = new File("RplToStaticABS/RplToABS.abs");
+        File file = new File("PeakAnalysis/PeakAnalysis.abs");
         PrintWriter writer = new PrintWriter(file);
         /*
         writer.print("module ABS.ResourceManager;");
@@ -196,10 +196,11 @@ public class RplToABSBackEnd extends Main {
             br = new BufferedWriter(fr);
             writer = new PrintWriter(br);
             System.setProperty("line.separator", System.lineSeparator());
-            RplToABSFormatter formatter = new DefaultABSFormatter(writer);
-            model.doABSTranslationStdLib = false;
-            model.doABSTranslationResourceManager = false;
-            model.doABSTranslation(writer, formatter);
+            //PeakAnalysisFormatter formatter = new DefaultPeakAnalysisForamatter(writer);
+            PeakAnalysisFormatter formatter = new DefaultPeakAnalysisForamatter(writer);
+            model.dopeakAnalysisStdLib = false;
+            model.dopeakAnalysisResourceManager = false;
+            model.dopeakAnalysis(writer,formatter);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } finally {

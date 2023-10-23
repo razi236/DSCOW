@@ -30,7 +30,7 @@ public class PardefModellingException extends RuntimeException {
         return new SemanticError(node, message, toString(args)).getHelpMessage();
         /* StringWriter stringWriter = new StringWriter();
         try (PrintWriter printWriter = new PrintWriter(stringWriter)) {
-            node.doPrettyPrint(printWriter, new DefaultABSFormatter(printWriter));
+            node.doPrettyPrint(printWriter, new DefaultPeakAnalysisForamatter(printWriter));
         }
         return error.getMsgWithHint(stringWriter.toString());*/
     }

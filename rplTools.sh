@@ -4,7 +4,8 @@ echo "*          Welcome to RplTools         *"
 echo "****************************************"
 echo "Press 1 for Simulation"
 echo "Press 2 for Cost Analysis"
-echo "Press 3 for RPL to ABS translation"
+echo "Press 3 for RPL to ABS translation for Time Analysis"
+echo "Press 4 for RPL to ABS translation for Resource Peak Analysis"
 read option
 if [[ "$OSTYPE" == "darwin"* ]]; then
     {
@@ -52,6 +53,16 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
       end=`echo $(($(gdate +%s%N)/1000000))`
       echo Execution time was `expr $end - $start` mili seconds.
     }
+    elif [ $option = "4" ]
+        then
+        {
+          echo "Please enter the filename:"
+          read file
+          start=`echo $(($(gdate +%s%N)/1000000))`
+          frontend/bin/absc -r ./examples/$file
+          end=`echo $(($(gdate +%s%N)/1000000))`
+          echo Execution time was `expr $end - $start` mili seconds.
+        }
     else
     {
         echo "Wrong selection"
@@ -98,6 +109,16 @@ else
         end=`date +%s`
         echo Translation time was `expr $end - $start` seconds.
     }
+    elif [ $option = "3" ]
+        then
+        {
+          echo "Please enter the filename:"
+          read file
+          start=`echo $(($(gdate +%s%N)/1000000))`
+          frontend/bin/absc -r ./examples/$file
+          end=`echo $(($(gdate +%s%N)/1000000))`
+          echo Execution time was `expr $end - $start` mili seconds.
+        }
     else
     {
         echo "Wrong selection"

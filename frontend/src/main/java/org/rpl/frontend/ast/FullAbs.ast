@@ -6,7 +6,7 @@
 
 
 // Hook into CoreAbs.ast definitions
-Model : CoreModel ::= /Product*/ ;
+//Model : CoreModel ::= /Product*/ ;
 CompilationUnit : CoreCompilationUnit ::= DeltaDecl* [ProductLine] ProductDecl* FeatureDecl* FExt*;
 
 // Deltas

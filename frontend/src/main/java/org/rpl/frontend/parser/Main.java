@@ -22,6 +22,7 @@ import org.rpl.backend.abs.RplToABSBackEnd;
 import org.rpl.backend.common.InternalBackendException;
 import org.rpl.backend.cost.CostAnalysis;
 import org.rpl.backend.erlang.ErlangBackend;
+import org.rpl.backend.peakAnalysis.PeakAnalysisBackEnd;
 import org.rpl.backend.prettyprint.PrettyPrinterBackEnd;
 import org.rpl.common.Constants;
 import org.rpl.common.WrongProgramArgumentException;
@@ -87,6 +88,11 @@ public class Main {
 
                 if (arguments.backend.prettyprint) {
                     result = Math.max(result, PrettyPrinterBackEnd.doMain(arguments));
+                    done = true;
+                }
+
+                if (arguments.backend.peakAnalysis) {
+                    result = Math.max(result, PeakAnalysisBackEnd.doMain(arguments));
                     done = true;
                 }
 

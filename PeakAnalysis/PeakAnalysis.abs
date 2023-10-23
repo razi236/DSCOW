@@ -16,7 +16,6 @@ class ResourceCost implements ResourceCost {
   Int cst = 0;
   Int updateCost(Int c){
     Int fake = 0;
-    Fut<Int> fake_fut;
     this.cst = ( this.cst + c );
     
     Int method_end = 0;
@@ -24,7 +23,6 @@ class ResourceCost implements ResourceCost {
   }
   Int printCost(){
     Int fake = 0;
-    Fut<Int> fake_fut;
     println(( ( "%" + toString(this.cst) ) + "" ));
     
     Int method_end = 0;
@@ -49,18 +47,15 @@ class Police implements Police {
   Int rescueCost = 2500;
   Int alarm(ECC ecc, EOD eod, FB fb, Hospital h, List<Int> effPercentage, ResourceCost c){
     Int fake = 0;
-    Fut<Int> fake_fut;
     Int x = 0;
     
-    fake_fut = this!repEmgInfo(ecc, eod, fb, h, list[set[ResEfficiency( 10 ), Clerk]], 10, effPercentage, c);
-    await fake_fut?;
+    x = this.repEmgInfo(ecc, eod, fb, h, list[set[ResEfficiency( 10 ), Clerk]], 10, effPercentage, c);
     
     Int method_end = 0;
     return 0;
   }
   Int repEmgInfo(ECC ecc, EOD eod, FB fb, Hospital h, List<Set<Quality>> res, Int totalEfficiency, List<Int> effPercentage, ResourceCost c){
     Int fake = 0;
-    Fut<Int> fake_fut;
     Police p1 = new Police();
     Police p2 = new Police();
     Fut<Int> f1;
@@ -71,6 +66,7 @@ class Police implements Police {
     Int x = 0;
     List<Int> temp = list(Nil);
     Pair<List<Int>, Int> p = Pair(Nil,0);
+    [j == acquire(res) ] fake = 0;
     Int ef = nth(effPercentage, 1);
     Int t = truncate(( ( this.repEmgInfoCost / totalEfficiency ) * ( 100 / ef ) ));
     
@@ -80,19 +76,17 @@ class Police implements Police {
     
     await fc?;
     temp = fst(p);
-    
+    [j == release()] fake = 0;
     
     f1 = ecc!estEmgCtr();
     
-    fake_fut = this!rushToSite(list[set[ResEfficiency( 30 ), Ferry]], c);
-    await fake_fut?;
+    x = this.rushToSite(list[set[ResEfficiency( 30 ), Ferry]], c);
     
     f2 = p1!dealSituation(list[set[ResEfficiency( 25 ), PoliceMan], set[ResEfficiency( 25 ), PoliceMan]], 50, nth(effPercentage, 0), c);
     
     f3 = p2!evacuation(list[set[ResEfficiency( 25 ), PoliceMan], set[ResEfficiency( 25 ), PoliceMan]], 50, nth(effPercentage, 0), c);
     
-    fake_fut = this!rescue(list[set[ResEfficiency( 25 ), PoliceMan], set[ResEfficiency( 25 ), PoliceMan]], 50, nth(effPercentage, 0), c);
-    await fake_fut?;
+    x = this.rescue(list[set[ResEfficiency( 25 ), PoliceMan], set[ResEfficiency( 25 ), PoliceMan]], 50, nth(effPercentage, 0), c);
     
     await f1? & f2? & f3?;
     
@@ -105,9 +99,9 @@ class Police implements Police {
   }
   Int rushToSite(List<Set<Quality>> res, ResourceCost c){
     Int fake = 0;
-    Fut<Int> fake_fut;
     List<Int> temp = list(Nil);
     Pair<List<Int>, Int> p = Pair(Nil,0);
+    [j == acquire(res) ] fake = 0;
     temp = fst(p);
     
     [wait(this.rushToSiteCost)] fake = 0;
@@ -116,16 +110,16 @@ class Police implements Police {
     fc = c!updateCost(( snd(p) * this.rushToSiteCost ));
     
     await fc?;
-    
+    [j == release()] fake = 0;
     
     Int method_end = 0;
     return 0;
   }
   Int dealSituation(List<Set<Quality>> res, Int totalEfficiency, Int effPercentage, ResourceCost c){
     Int fake = 0;
-    Fut<Int> fake_fut;
     List<Int> temp = list(Nil);
     Pair<List<Int>, Int> p = Pair(Nil,0);
+    [j == acquire(res) ] fake = 0;
     temp = fst(p);
     Fut<Int> fc;
     Int t = truncate(( ( this.dealSituationCost / totalEfficiency ) * ( 100 / effPercentage ) ));
@@ -135,16 +129,16 @@ class Police implements Police {
     await fc?;
     
     [wait(t)] fake = 0;
-    
+    [j == release()] fake = 0;
     
     Int method_end = 0;
     return 0;
   }
   Int evacuation(List<Set<Quality>> res, Int totalEfficiency, Int effPercentage, ResourceCost c){
     Int fake = 0;
-    Fut<Int> fake_fut;
     List<Int> temp = list(Nil);
     Pair<List<Int>, Int> p = Pair(Nil,0);
+    [j == acquire(res) ] fake = 0;
     temp = fst(p);
     Int t = truncate(( ( this.evacuationCost / totalEfficiency ) * ( 100 / effPercentage ) ));
     Fut<Int> fc;
@@ -154,16 +148,16 @@ class Police implements Police {
     await fc?;
     
     [wait(t)] fake = 0;
-    
+    [j == release()] fake = 0;
     
     Int method_end = 0;
     return 0;
   }
   Int rescue(List<Set<Quality>> res, Int totalEfficiency, Int effPercentage, ResourceCost c){
     Int fake = 0;
-    Fut<Int> fake_fut;
     List<Int> temp = list(Nil);
     Pair<List<Int>, Int> p = Pair(Nil,0);
+    [j == acquire(res) ] fake = 0;
     temp = fst(p);
     Int t = truncate(( ( this.rescueCost / totalEfficiency ) * ( 100 / effPercentage ) ));
     Fut<Int> fc;
@@ -173,7 +167,7 @@ class Police implements Police {
     await fc?;
     
     [wait(t)] fake = 0;
-    
+    [j == release()] fake = 0;
     
     Int method_end = 0;
     return 0;
@@ -191,7 +185,6 @@ class ECC implements ECC {
   Int doMediaCoverageCost = 10;
   Int estEmgCtr(){
     Int fake = 0;
-    Fut<Int> fake_fut;
     
     [wait(this.estEmgCtrCost)] fake = 0;
     
@@ -200,7 +193,6 @@ class ECC implements ECC {
   }
   Int makeEmgPlan(EOD eod, FB fb, Hospital h, List<Int> effPercentage, ResourceCost c){
     Int fake = 0;
-    Fut<Int> fake_fut;
     Int x = 0;
     Fut<Int> f1;
     Fut<Int> f2;
@@ -214,15 +206,13 @@ class ECC implements ECC {
     
     await f1? & f2? & f3?;
     
-    fake_fut = this!doMediaCoverage();
-    await fake_fut?;
+    x = this.doMediaCoverage();
     
     Int method_end = 0;
     return 0;
   }
   Int doMediaCoverage(){
     Int fake = 0;
-    Fut<Int> fake_fut;
     
     [wait(this.doMediaCoverageCost)] fake = 0;
     
@@ -244,26 +234,22 @@ class EOD implements EOD {
   Int reportEODCost = 100;
   Int start(List<Int> effPercentage, ResourceCost c){
     Int fake = 0;
-    Fut<Int> fake_fut;
     Int x = 0;
     
-    fake_fut = this!rushToSite(list[set[ResEfficiency( 30 ), Ferry]], c);
-    await fake_fut?;
+    x = this.rushToSite(list[set[ResEfficiency( 30 ), Ferry]], c);
     
-    fake_fut = this!searchEOD(list[set[ResEfficiency( 25 ), EODTech]], 25, nth(effPercentage, 2), c);
-    await fake_fut?;
+    x = this.searchEOD(list[set[ResEfficiency( 25 ), EODTech]], 25, nth(effPercentage, 2), c);
     
-    fake_fut = this!reportEOD(list[set[ResEfficiency( 10 ), Clerk]], 10, nth(effPercentage, 1), c);
-    await fake_fut?;
+    x = this.reportEOD(list[set[ResEfficiency( 10 ), Clerk]], 10, nth(effPercentage, 1), c);
     
     Int method_end = 0;
     return 0;
   }
   Int rushToSite(List<Set<Quality>> res, ResourceCost c){
     Int fake = 0;
-    Fut<Int> fake_fut;
     List<Int> temp = list(Nil);
     Pair<List<Int>, Int> p = Pair(Nil,0);
+    [j == acquire(res) ] fake = 0;
     temp = fst(p);
     Fut<Int> fc;
     
@@ -272,16 +258,16 @@ class EOD implements EOD {
     await fc?;
     
     [wait(this.rushToSiteCost)] fake = 0;
-    
+    [j == release()] fake = 0;
     
     Int method_end = 0;
     return 0;
   }
   Int searchEOD(List<Set<Quality>> res, Int totalEfficiency, Int effPercentage, ResourceCost c){
     Int fake = 0;
-    Fut<Int> fake_fut;
     List<Int> temp = Nil;
     Pair<List<Int>, Int> p = Pair(Nil,0);
+    [j == acquire(res) ] fake = 0;
     temp = fst(p);
     Fut<Int> fc;
     Int t = truncate(( ( this.searchEODCost / totalEfficiency ) * ( 100 / effPercentage ) ));
@@ -291,16 +277,16 @@ class EOD implements EOD {
     await fc?;
     
     [wait(t)] fake = 0;
-    
+    [j == release()] fake = 0;
     
     Int method_end = 0;
     return 0;
   }
   Int reportEOD(List<Set<Quality>> res, Int totalEfficiency, Int effPercentage, ResourceCost c){
     Int fake = 0;
-    Fut<Int> fake_fut;
     List<Int> temp = list(Nil);
     Pair<List<Int>, Int> p = Pair(Nil,0);
+    [j == acquire(res) ] fake = 0;
     temp = fst(p);
     Fut<Int> fc;
     Int t = truncate(( ( this.reportEODCost / totalEfficiency ) * ( 100 / effPercentage ) ));
@@ -310,7 +296,7 @@ class EOD implements EOD {
     await fc?;
     
     [wait(t)] fake = 0;
-    
+    [j == release()] fake = 0;
     
     Int method_end = 0;
     return 0;
@@ -334,35 +320,30 @@ class FB implements FB {
   Int reportFireRescueCost = 100;
   Int start(List<Int> effPercentage, ResourceCost c){
     Int fake = 0;
-    Fut<Int> fake_fut;
     Int x = 0;
     FB fb1 = new FB();
     Fut<Int> f1;
     
-    fake_fut = this!rushToSite(list[set[ResEfficiency( 30 ), Ferry]], c);
-    await fake_fut?;
+    x = this.rushToSite(list[set[ResEfficiency( 30 ), Ferry]], c);
     
-    fake_fut = this!fightFire(list[set[ResEfficiency( 25 ), FireFighter], set[ResEfficiency( 25 ), FireFighter]], 50, nth(effPercentage, 3), c);
-    await fake_fut?;
+    x = this.fightFire(list[set[ResEfficiency( 25 ), FireFighter], set[ResEfficiency( 25 ), FireFighter]], 50, nth(effPercentage, 3), c);
     
     f1 = fb1!mitigate(list[set[ResEfficiency( 25 ), FireFighter], set[ResEfficiency( 25 ), FireFighter]], 50, nth(effPercentage, 3), c);
     
-    fake_fut = this!recoverSite(list[set[ResEfficiency( 25 ), FireFighter], set[ResEfficiency( 25 ), FireFighter]], 50, nth(effPercentage, 3), c);
-    await fake_fut?;
+    x = this.recoverSite(list[set[ResEfficiency( 25 ), FireFighter], set[ResEfficiency( 25 ), FireFighter]], 50, nth(effPercentage, 3), c);
     
     await f1?;
     
-    fake_fut = this!reportFireRescue(list[set[ResEfficiency( 10 ), Clerk]], 10, nth(effPercentage, 1), c);
-    await fake_fut?;
+    x = this.reportFireRescue(list[set[ResEfficiency( 10 ), Clerk]], 10, nth(effPercentage, 1), c);
     
     Int method_end = 0;
     return 0;
   }
   Int rushToSite(List<Set<Quality>> res, ResourceCost c){
     Int fake = 0;
-    Fut<Int> fake_fut;
     List<Int> temp = list(Nil);
     Pair<List<Int>, Int> p = Pair(Nil,0);
+    [j == acquire(res) ] fake = 0;
     temp = fst(p);
     Fut<Int> fc;
     
@@ -371,16 +352,16 @@ class FB implements FB {
     await fc?;
     
     [wait(this.rushToSiteCost)] fake = 0;
-    
+    [j == release()] fake = 0;
     
     Int method_end = 0;
     return 0;
   }
   Int fightFire(List<Set<Quality>> res, Int totalEfficiency, Int effPercentage, ResourceCost c){
     Int fake = 0;
-    Fut<Int> fake_fut;
     List<Int> temp = list(Nil);
     Pair<List<Int>, Int> p = Pair(Nil,0);
+    [j == acquire(res) ] fake = 0;
     temp = fst(p);
     Fut<Int> fc;
     Int t = truncate(( ( this.fightFireCost / totalEfficiency ) * ( 100 / effPercentage ) ));
@@ -390,16 +371,16 @@ class FB implements FB {
     await fc?;
     
     [wait(t)] fake = 0;
-    
+    [j == release()] fake = 0;
     
     Int method_end = 0;
     return 0;
   }
   Int mitigate(List<Set<Quality>> res, Int totalEfficiency, Int effPercentage, ResourceCost c){
     Int fake = 0;
-    Fut<Int> fake_fut;
     List<Int> temp = list(Nil);
     Pair<List<Int>, Int> p = Pair(Nil,0);
+    [j == acquire(res) ] fake = 0;
     temp = fst(p);
     Int t = truncate(( ( this.mitigateCost / totalEfficiency ) * ( 100 / effPercentage ) ));
     Fut<Int> fc;
@@ -409,16 +390,16 @@ class FB implements FB {
     await fc?;
     
     [wait(t)] fake = 0;
-    
+    [j == release()] fake = 0;
     
     Int method_end = 0;
     return 0;
   }
   Int recoverSite(List<Set<Quality>> res, Int totalEfficiency, Int effPercentage, ResourceCost c){
     Int fake = 0;
-    Fut<Int> fake_fut;
     List<Int> temp = list(Nil);
     Pair<List<Int>, Int> p = Pair(Nil,0);
+    [j == acquire(res) ] fake = 0;
     temp = fst(p);
     Int t = truncate(( ( this.recoverSiteCost / totalEfficiency ) * ( 100 / effPercentage ) ));
     Fut<Int> fc;
@@ -428,16 +409,16 @@ class FB implements FB {
     await fc?;
     
     [wait(t)] fake = 0;
-    
+    [j == release()] fake = 0;
     
     Int method_end = 0;
     return 0;
   }
   Int reportFireRescue(List<Set<Quality>> res, Int totalEfficiency, Int effPercentage, ResourceCost c){
     Int fake = 0;
-    Fut<Int> fake_fut;
     List<Int> temp = list(Nil);
     Pair<List<Int>, Int> p = Pair(Nil,0);
+    [j == acquire(res) ] fake = 0;
     temp = fst(p);
     Int t = truncate(( ( this.reportFireRescueCost / totalEfficiency ) * ( 100 / effPercentage ) ));
     Fut<Int> fc;
@@ -447,7 +428,7 @@ class FB implements FB {
     await fc?;
     
     [wait(t)] fake = 0;
-    
+    [j == release()] fake = 0;
     
     Int method_end = 0;
     return 0;
@@ -471,35 +452,30 @@ class Hospital implements Hospital {
   Int reportMedRescueCost = 100;
   Int start(List<Int> effPercentage, ResourceCost c){
     Int fake = 0;
-    Fut<Int> fake_fut;
     Int x = 0;
     Hospital h1 = new Hospital();
     Fut<Int> f1;
     
-    fake_fut = this!rushToSite(list[set[ResEfficiency( 30 ), Ferry]], c);
-    await fake_fut?;
+    x = this.rushToSite(list[set[ResEfficiency( 30 ), Ferry]], c);
     
-    fake_fut = this!shuntWounded(list[set[ResEfficiency( 10 ), Doctor], set[ResEfficiency( 10 ), Doctor], set[ResEfficiency( 10 ), Doctor]], 30, nth(effPercentage, 4), c);
-    await fake_fut?;
+    x = this.shuntWounded(list[set[ResEfficiency( 10 ), Doctor], set[ResEfficiency( 10 ), Doctor], set[ResEfficiency( 10 ), Doctor]], 30, nth(effPercentage, 4), c);
     
     f1 = h1!treatSliInj(list[set[ResEfficiency( 10 ), Doctor], set[ResEfficiency( 10 ), Doctor], set[ResEfficiency( 10 ), Doctor]], 30, nth(effPercentage, 4), c);
     
-    fake_fut = this!treatSevInj(list[set[ResEfficiency( 10 ), Doctor], set[ResEfficiency( 10 ), Doctor], set[ResEfficiency( 10 ), Doctor], set[ResEfficiency( 10 ), Doctor], set[ResEfficiency( 10 ), Doctor]], 50, nth(effPercentage, 4), c);
-    await fake_fut?;
+    x = this.treatSevInj(list[set[ResEfficiency( 10 ), Doctor], set[ResEfficiency( 10 ), Doctor], set[ResEfficiency( 10 ), Doctor], set[ResEfficiency( 10 ), Doctor], set[ResEfficiency( 10 ), Doctor]], 50, nth(effPercentage, 4), c);
     
     await f1?;
     
-    fake_fut = this!reportMedRescue(list[set[ResEfficiency( 10 ), Clerk]], 10, nth(effPercentage, 1), c);
-    await fake_fut?;
+    x = this.reportMedRescue(list[set[ResEfficiency( 10 ), Clerk]], 10, nth(effPercentage, 1), c);
     
     Int method_end = 0;
     return 0;
   }
   Int rushToSite(List<Set<Quality>> res, ResourceCost c){
     Int fake = 0;
-    Fut<Int> fake_fut;
     List<Int> temp = list(Nil);
     Pair<List<Int>, Int> p = Pair(Nil,0);
+    [j == acquire(res) ] fake = 0;
     temp = fst(p);
     Fut<Int> fc;
     
@@ -508,16 +484,16 @@ class Hospital implements Hospital {
     await fc?;
     
     [wait(this.rushToSiteCost)] fake = 0;
-    
+    [j == release()] fake = 0;
     
     Int method_end = 0;
     return 0;
   }
   Int shuntWounded(List<Set<Quality>> res, Int totalEfficiency, Int effPercentage, ResourceCost c){
     Int fake = 0;
-    Fut<Int> fake_fut;
     List<Int> temp = list(Nil);
     Pair<List<Int>, Int> p = Pair(Nil,0);
+    [j == acquire(res) ] fake = 0;
     temp = fst(p);
     Int t = truncate(( ( this.shuntWoundedCost / totalEfficiency ) * ( 100 / effPercentage ) ));
     Fut<Int> fc;
@@ -527,16 +503,16 @@ class Hospital implements Hospital {
     await fc?;
     
     [wait(t)] fake = 0;
-    
+    [j == release()] fake = 0;
     
     Int method_end = 0;
     return 0;
   }
   Int treatSliInj(List<Set<Quality>> res, Int totalEfficiency, Int effPercentage, ResourceCost c){
     Int fake = 0;
-    Fut<Int> fake_fut;
     List<Int> temp = list(Nil);
     Pair<List<Int>, Int> p = Pair(Nil,0);
+    [j == acquire(res) ] fake = 0;
     temp = fst(p);
     Int t = truncate(( ( this.treatSliInjCost / totalEfficiency ) * ( 100 / effPercentage ) ));
     Fut<Int> fc;
@@ -546,16 +522,16 @@ class Hospital implements Hospital {
     await fc?;
     
     [wait(t)] fake = 0;
-    
+    [j == release()] fake = 0;
     
     Int method_end = 0;
     return 0;
   }
   Int treatSevInj(List<Set<Quality>> res, Int totalEfficiency, Int effPercentage, ResourceCost c){
     Int fake = 0;
-    Fut<Int> fake_fut;
     List<Int> temp = list(Nil);
     Pair<List<Int>, Int> p = Pair(Nil,0);
+    [j == acquire(res) ] fake = 0;
     temp = fst(p);
     Fut<Int> fc;
     Int t = truncate(( ( this.treatSevInjCost / totalEfficiency ) * ( 100 / effPercentage ) ));
@@ -565,16 +541,16 @@ class Hospital implements Hospital {
     await fc?;
     
     [wait(t)] fake = 0;
-    
+    [j == release()] fake = 0;
     
     Int method_end = 0;
     return 0;
   }
   Int reportMedRescue(List<Set<Quality>> res, Int totalEfficiency, Int effPercentage, ResourceCost c){
     Int fake = 0;
-    Fut<Int> fake_fut;
     List<Int> temp = list(Nil);
     Pair<List<Int>, Int> p = Pair(Nil,0);
+    [j == acquire(res) ] fake = 0;
     temp = fst(p);
     Int t = truncate(( ( this.reportMedRescueCost / totalEfficiency ) * ( 100 / effPercentage ) ));
     Fut<Int> fc;
@@ -584,7 +560,7 @@ class Hospital implements Hospital {
     await fc?;
     
     [wait(t)] fake = 0;
-    
+    [j == release()] fake = 0;
     
     Int method_end = 0;
     return 0;
@@ -602,7 +578,6 @@ Unit main( );
 class IMain implements Main{
 Unit main( ){
   Int fake = 0;
-  Fut<Int> fake_fut;
   Int count = 0;
   List<Fut<Int>> fl = Nil;
   ResourceCost c = new ResourceCost();
