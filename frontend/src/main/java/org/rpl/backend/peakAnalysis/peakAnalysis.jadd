@@ -683,7 +683,7 @@ aspect dopeakAnalysis {
              stream.print("Pair(Nil,0);");
              stream.println();
              formatter.afterStmt();
-             stream.print("[j == acquire(");
+             stream.print("[fake == acquire(");
              getParamList().dopeakAnalysis(stream, formatter, ",");
              stream.print(") ] fake = 0");
 
@@ -692,7 +692,7 @@ aspect dopeakAnalysis {
     public void ReleaseResStmt.dopeakAnalysis(PrintWriter stream, PeakAnalysisFormatter formatter) {
                 //stream.print("await rm!releaseRes(");
                 //getRes().dopeakAnalysis(stream, formatter);
-                stream.print("[j == release()] fake = 0;");
+                stream.print("[fake == release()] fake = 0;");
     }
 
 
