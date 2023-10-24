@@ -54,14 +54,14 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
       echo Execution time was `expr $end - $start` mili seconds.
     }
     elif [ $option = "4" ]
-        then
+    then
         {
-          echo "Please enter the filename:"
-          read file
-          start=`echo $(($(gdate +%s%N)/1000000))`
-          frontend/bin/absc -r ./examples/$file
-          end=`echo $(($(gdate +%s%N)/1000000))`
-          echo Execution time was `expr $end - $start` mili seconds.
+            echo "Please enter the filename:"
+            read file
+            start=`echo $(($(gdate +%s%N)/1000000))`
+            frontend/bin/absc -r ./examples/$file
+            end=`echo $(($(gdate +%s%N)/1000000))`
+            echo Execution time was `expr $end - $start` mili seconds.
         }
     else
     {
@@ -109,14 +109,14 @@ else
         end=`date +%s`
         echo Translation time was `expr $end - $start` seconds.
     }
-    elif [ $option = "3" ]
+    elif [ $option = "4" ]
         then
         {
           echo "Please enter the filename:"
           read file
-          start=`echo $(($(gdate +%s%N)/1000000))`
+          start=`date +%s`
           frontend/bin/absc -r ./examples/$file
-          end=`echo $(($(gdate +%s%N)/1000000))`
+          end=`date +%s`
           echo Execution time was `expr $end - $start` mili seconds.
         }
     else
