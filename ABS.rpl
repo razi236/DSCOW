@@ -74,7 +74,7 @@ class ResourceManager implements ResourceManager {
             }
             if (length(result) != length(wantedResources)) {
                 // we did not find all needed resources
-                println(`hold retrying: Resources = $this.resources$ We want $wantedResources$`);
+               // println(`hold retrying: Resources = $this.resources$ We want $wantedResources$`);
                 result = Nil;
                 lr = this.resources;
                 await this.resources != lr;
@@ -157,340 +157,18 @@ data RC = RC(Int rc);
 
 data Quality = ResEfficiency(Int)| Int| ResCost(Int cst)| ResCapacity(Int)| Ferry| Doctor| SmokeMask| PoliceMan| Clerk| EODTech| FireFighter| FireExt| FirstAidBox;
 
-interface ResourceCost {
-  Unit updateCost(ResourceManager rm,Int c);
-  Unit printCost(ResourceManager rm);}
+interface DL {
+  Int check(ResourceManager rm);}
 
-class ResourceCost implements ResourceCost {
-  Int cst = 0;
-  Unit updateCost(ResourceManager rm,Int c){
-    this.cst = ( this.cst + c );
-  }
-  Unit printCost(ResourceManager rm){
-    println(( ( "%" + toString(this.cst) ) + "" ));
-  }
-  }
-
-interface Police {
-  Int alarm(ResourceManager rm,ECC ecc, EOD eod, FB fb, Hospital h, Int effPercentage, ResourceCost c);
-  Int repEmgInfo(ResourceManager rm,ECC ecc, EOD eod, FB fb, Hospital h, List<Set<Quality>> res, Int totalEfficiency, Int effPercentage, ResourceCost c);
-  Int rushToSite(ResourceManager rm,List<Set<Quality>> res, ResourceCost c);
-  Int dealSituation(ResourceManager rm,List<Set<Quality>> res, Int totalEfficiency, Int effPercentage, ResourceCost c);
-  Int evacuation(ResourceManager rm,List<Set<Quality>> res, Int totalEfficiency, Int effPercentage, ResourceCost c);
-  Int rescue(ResourceManager rm,List<Set<Quality>> res, Int totalEfficiency, Int effPercentage, ResourceCost c);}
-
-class Police implements Police {
-  List<Pair<Int, Int>> rid = Nil;
-  Int repEmgInfoCost = 100;
-  Int rushToSiteCost = 30;
-  Int dealSituationCost = 2500;
-  Int evacuationCost = 2500;
-  Int rescueCost = 2500;
-  Int alarm(ResourceManager rm,ECC ecc, EOD eod, FB fb, Hospital h, Int effPercentage, ResourceCost c){
-    Int x = 0;[Deadline: Duration(400)]    x = this.repEmgInfo(rm,ecc, eod, fb, h, list[set[ResEfficiency( 10 ), Clerk]], 10, effPercentage, c);try {
+class DLD implements DL {
+  
+  Int check(ResourceManager rm){
+    Int i = 0;duration(599, 599);try {
     Duration d = deadline();
     Rat r = durationValue(d);
     assert r > 0;
     } catch {
-    AssertionFailException => println(`The method "alarm" have missed the deadline.`);
-    }
-    return 0;
-  }
-  Int repEmgInfo(ResourceManager rm,ECC ecc, EOD eod, FB fb, Hospital h, List<Set<Quality>> res, Int totalEfficiency, Int effPercentage, ResourceCost c){
-    Police p1 = new Police();Police p2 = new Police();Fut<Int> f1;Fut<Int> f2;Fut<Int> f3;Fut<Int> f4;Fut<Unit> fc;Int x = 0;List<Int> temp = list(Nil);Pair<List<Int>, Int> p = await rm!holdRes(res);Int t = truncate(( ( this.repEmgInfoCost / totalEfficiency ) * ( 100 / effPercentage ) ));duration(t, t);[Deadline: Duration(10)]    fc = c!updateCost(rm,( snd(p) * t ));await fc?;await rm!releaseRes(temp);[Deadline: Duration(20)]    f1 = ecc!estEmgCtr(rm);[Deadline: Duration(50)]    x = this.rushToSite(rm,list[set[ResEfficiency( 30 ), Ferry]], c);[Deadline: Duration(80)]    f2 = p1!dealSituation(rm,list[set[ResEfficiency( 25 ), PoliceMan], set[ResEfficiency( 25 ), PoliceMan]], 50, effPercentage, c);[Deadline: Duration(80)]    f3 = p2!evacuation(rm,list[set[ResEfficiency( 25 ), PoliceMan], set[ResEfficiency( 25 ), PoliceMan]], 50, effPercentage, c);[Deadline: Duration(80)]    x = this.rescue(rm,list[set[ResEfficiency( 25 ), PoliceMan], set[ResEfficiency( 25 ), PoliceMan]], 50, effPercentage, c);await f1? & f2? & f3?;[Deadline: Duration(250)]    f4 = ecc!makeEmgPlan(rm,eod, fb, h, effPercentage, c);await f4?;try {
-    Duration d = deadline();
-    Rat r = durationValue(d);
-    assert r > 0;
-    } catch {
-    AssertionFailException => println(`The method "repEmgInfo" have missed the deadline.`);
-    }
-    return 0;
-  }
-  Int rushToSite(ResourceManager rm,List<Set<Quality>> res, ResourceCost c){
-    List<Int> temp = list(Nil);Pair<List<Int>, Int> p = await rm!holdRes(res);temp = fst(p);duration(this.rushToSiteCost, this.rushToSiteCost);Fut<Unit> fc;[Deadline: Duration(10)]    fc = c!updateCost(rm,( snd(p) * this.rushToSiteCost ));await fc?;await rm!releaseRes(temp);try {
-    Duration d = deadline();
-    Rat r = durationValue(d);
-    assert r > 0;
-    } catch {
-    AssertionFailException => println(`The method "rushToSite" have missed the deadline.`);
-    }
-    return 0;
-  }
-  Int dealSituation(ResourceManager rm,List<Set<Quality>> res, Int totalEfficiency, Int effPercentage, ResourceCost c){
-    List<Int> temp = list(Nil);Pair<List<Int>, Int> p = await rm!holdRes(res);temp = fst(p);Fut<Unit> fc;Int t = truncate(( ( this.dealSituationCost / totalEfficiency ) * ( 100 / effPercentage ) ));[Deadline: Duration(10)]    fc = c!updateCost(rm,( snd(p) * t ));await fc?;duration(t, t);await rm!releaseRes(temp);try {
-    Duration d = deadline();
-    Rat r = durationValue(d);
-    assert r > 0;
-    } catch {
-    AssertionFailException => println(`The method "dealSituation" have missed the deadline.`);
-    }
-    return 0;
-  }
-  Int evacuation(ResourceManager rm,List<Set<Quality>> res, Int totalEfficiency, Int effPercentage, ResourceCost c){
-    List<Int> temp = list(Nil);Pair<List<Int>, Int> p = await rm!holdRes(res);temp = fst(p);Int t = truncate(( ( this.evacuationCost / totalEfficiency ) * ( 100 / effPercentage ) ));Fut<Unit> fc;[Deadline: Duration(10)]    fc = c!updateCost(rm,( snd(p) * t ));await fc?;duration(t, t);await rm!releaseRes(temp);try {
-    Duration d = deadline();
-    Rat r = durationValue(d);
-    assert r > 0;
-    } catch {
-    AssertionFailException => println(`The method "evacuation" have missed the deadline.`);
-    }
-    return 0;
-  }
-  Int rescue(ResourceManager rm,List<Set<Quality>> res, Int totalEfficiency, Int effPercentage, ResourceCost c){
-    List<Int> temp = list(Nil);Pair<List<Int>, Int> p = await rm!holdRes(res);temp = fst(p);Int t = truncate(( ( this.rescueCost / totalEfficiency ) * ( 100 / effPercentage ) ));Fut<Unit> fc;[Deadline: Duration(10)]    fc = c!updateCost(rm,( snd(p) * t ));await fc?;duration(t, t);await rm!releaseRes(temp);try {
-    Duration d = deadline();
-    Rat r = durationValue(d);
-    assert r > 0;
-    } catch {
-    AssertionFailException => println(`The method "rescue" have missed the deadline.`);
-    }
-    return 0;
-  }
-  }
-
-interface ECC {
-  Int estEmgCtr(ResourceManager rm);
-  Int makeEmgPlan(ResourceManager rm,EOD eod, FB fb, Hospital h, Int effPercentage, ResourceCost c);
-  Int doMediaCoverage(ResourceManager rm);}
-
-class ECC implements ECC {
-  List<Pair<Int, Int>> rid = Nil;
-  Int estEmgCtrCost = 10;
-  Int doMediaCoverageCost = 10;
-  Int estEmgCtr(ResourceManager rm){
-    duration(this.estEmgCtrCost, this.estEmgCtrCost);try {
-    Duration d = deadline();
-    Rat r = durationValue(d);
-    assert r > 0;
-    } catch {
-    AssertionFailException => println(`The method "estEmgCtr" have missed the deadline.`);
-    }
-    return 0;
-  }
-  Int makeEmgPlan(ResourceManager rm,EOD eod, FB fb, Hospital h, Int effPercentage, ResourceCost c){
-    Int x = 0;Fut<Int> f1;Fut<Int> f2;Fut<Int> f3;[Deadline: Duration(100)]    f1 = eod!start(rm,effPercentage, c);[Deadline: Duration(240)]    f2 = fb!start(rm,effPercentage, c);[Deadline: Duration(180)]    f3 = h!start(rm,effPercentage, c);await f1? & f2? & f3?;[Deadline: Duration(20)]    x = this.doMediaCoverage(rm);try {
-    Duration d = deadline();
-    Rat r = durationValue(d);
-    assert r > 0;
-    } catch {
-    AssertionFailException => println(`The method "makeEmgPlan" have missed the deadline.`);
-    }
-    return 0;
-  }
-  Int doMediaCoverage(ResourceManager rm){
-    duration(this.doMediaCoverageCost, this.doMediaCoverageCost);try {
-    Duration d = deadline();
-    Rat r = durationValue(d);
-    assert r > 0;
-    } catch {
-    AssertionFailException => println(`The method "doMediaCoverage" have missed the deadline.`);
-    }
-    return 0;
-  }
-  }
-
-interface EOD {
-  Int start(ResourceManager rm,Int effPercentage, ResourceCost c);
-  Int rushToSite(ResourceManager rm,List<Set<Quality>> res, ResourceCost c);
-  Int searchEOD(ResourceManager rm,List<Set<Quality>> res, Int totalEfficiency, Int effPercentage, ResourceCost c);
-  Int reportEOD(ResourceManager rm,List<Set<Quality>> res, Int totalEfficiency, Int effPercentage, ResourceCost c);}
-
-class EOD implements EOD {
-  List<Pair<Int, Int>> rid = Nil;
-  Int rushToSiteCost = 30;
-  Int searchEODCost = 250;
-  Int reportEODCost = 100;
-  Int start(ResourceManager rm,Int effPercentage, ResourceCost c){
-    Int x = 0;[Deadline: Duration(50)]    x = this.rushToSite(rm,list[set[ResEfficiency( 30 ), Ferry]], c);[Deadline: Duration(20)]    x = this.searchEOD(rm,list[set[ResEfficiency( 25 ), EODTech]], 25, effPercentage, c);[Deadline: Duration(20)]    x = this.reportEOD(rm,list[set[ResEfficiency( 10 ), Clerk]], 10, effPercentage, c);try {
-    Duration d = deadline();
-    Rat r = durationValue(d);
-    assert r > 0;
-    } catch {
-    AssertionFailException => println(`The method "start" have missed the deadline.`);
-    }
-    return 0;
-  }
-  Int rushToSite(ResourceManager rm,List<Set<Quality>> res, ResourceCost c){
-    List<Int> temp = list(Nil);Pair<List<Int>, Int> p = await rm!holdRes(res);temp = fst(p);Fut<Unit> fc;[Deadline: Duration(10)]    fc = c!updateCost(rm,( snd(p) * this.rushToSiteCost ));await fc?;duration(this.rushToSiteCost, this.rushToSiteCost);await rm!releaseRes(temp);try {
-    Duration d = deadline();
-    Rat r = durationValue(d);
-    assert r > 0;
-    } catch {
-    AssertionFailException => println(`The method "rushToSite" have missed the deadline.`);
-    }
-    return 0;
-  }
-  Int searchEOD(ResourceManager rm,List<Set<Quality>> res, Int totalEfficiency, Int effPercentage, ResourceCost c){
-    List<Int> temp = Nil;Pair<List<Int>, Int> p = await rm!holdRes(res);temp = fst(p);Fut<Unit> fc;Int t = truncate(( ( this.searchEODCost / totalEfficiency ) * ( 100 / effPercentage ) ));[Deadline: Duration(10)]    fc = c!updateCost(rm,( snd(p) * t ));await fc?;duration(t, t);try {
-    Duration d = deadline();
-    Rat r = durationValue(d);
-    assert r > 0;
-    } catch {
-    AssertionFailException => println(`The method "searchEOD" have missed the deadline.`);
-    }
-    return 0;
-  }
-  Int reportEOD(ResourceManager rm,List<Set<Quality>> res, Int totalEfficiency, Int effPercentage, ResourceCost c){
-    List<Int> temp = list(Nil);Pair<List<Int>, Int> p = await rm!holdRes(res);temp = fst(p);Fut<Unit> fc;Int t = truncate(( ( this.reportEODCost / totalEfficiency ) * ( 100 / effPercentage ) ));[Deadline: Duration(10)]    fc = c!updateCost(rm,( snd(p) * t ));await fc?;duration(t, t);await rm!releaseRes(temp);try {
-    Duration d = deadline();
-    Rat r = durationValue(d);
-    assert r > 0;
-    } catch {
-    AssertionFailException => println(`The method "reportEOD" have missed the deadline.`);
-    }
-    return 0;
-  }
-  }
-
-interface FB {
-  Int start(ResourceManager rm,Int effPercentage, ResourceCost c);
-  Int rushToSite(ResourceManager rm,List<Set<Quality>> res, ResourceCost c);
-  Int fightFire(ResourceManager rm,List<Set<Quality>> res, Int totalEfficiency, Int effPercentage, ResourceCost c);
-  Int mitigate(ResourceManager rm,List<Set<Quality>> res, Int totalEfficiency, Int effPercentage, ResourceCost c);
-  Int recoverSite(ResourceManager rm,List<Set<Quality>> res, Int totalEfficiency, Int effPercentage, ResourceCost c);
-  Int reportFireRescue(ResourceManager rm,List<Set<Quality>> res, Int totalEfficiency, Int effPercentage, ResourceCost c);}
-
-class FB implements FB {
-  List<Pair<Int, Int>> rid = list(Nil);
-  Int rushToSiteCost = 30;
-  Int fightFireCost = 2500;
-  Int mitigateCost = 2500;
-  Int recoverSiteCost = 2500;
-  Int reportFireRescueCost = 100;
-  Int start(ResourceManager rm,Int effPercentage, ResourceCost c){
-    Int x = 0;FB fb1 = new FB();Fut<Int> f1;[Deadline: Duration(50)]    x = this.rushToSite(rm,list[set[ResEfficiency( 30 ), Ferry]], c);[Deadline: Duration(70)]    x = this.fightFire(rm,list[set[ResEfficiency( 25 ), FireFighter], set[ResEfficiency( 25 ), FireFighter]], 50, effPercentage, c);[Deadline: Duration(70)]    f1 = fb1!mitigate(rm,list[set[ResEfficiency( 25 ), FireFighter], set[ResEfficiency( 25 ), FireFighter]], 50, effPercentage, c);[Deadline: Duration(50)]    x = this.recoverSite(rm,list[set[ResEfficiency( 25 ), FireFighter], set[ResEfficiency( 25 ), FireFighter]], 50, effPercentage, c);await f1?;[Deadline: Duration(50)]    x = this.reportFireRescue(rm,list[set[ResEfficiency( 10 ), Clerk]], 10, effPercentage, c);try {
-    Duration d = deadline();
-    Rat r = durationValue(d);
-    assert r > 0;
-    } catch {
-    AssertionFailException => println(`The method "start" have missed the deadline.`);
-    }
-    return 0;
-  }
-  Int rushToSite(ResourceManager rm,List<Set<Quality>> res, ResourceCost c){
-    List<Int> temp = list(Nil);Pair<List<Int>, Int> p = await rm!holdRes(res);temp = fst(p);Fut<Unit> fc;[Deadline: Duration(10)]    fc = c!updateCost(rm,( snd(p) * this.rushToSiteCost ));await fc?;duration(this.rushToSiteCost, this.rushToSiteCost);await rm!releaseRes(temp);try {
-    Duration d = deadline();
-    Rat r = durationValue(d);
-    assert r > 0;
-    } catch {
-    AssertionFailException => println(`The method "rushToSite" have missed the deadline.`);
-    }
-    return 0;
-  }
-  Int fightFire(ResourceManager rm,List<Set<Quality>> res, Int totalEfficiency, Int effPercentage, ResourceCost c){
-    List<Int> temp = list(Nil);Pair<List<Int>, Int> p = await rm!holdRes(res);temp = fst(p);Fut<Unit> fc;Int t = truncate(( ( this.fightFireCost / totalEfficiency ) * ( 100 / effPercentage ) ));[Deadline: Duration(10)]    fc = c!updateCost(rm,( snd(p) * t ));await fc?;duration(t, t);await rm!releaseRes(temp);try {
-    Duration d = deadline();
-    Rat r = durationValue(d);
-    assert r > 0;
-    } catch {
-    AssertionFailException => println(`The method "fightFire" have missed the deadline.`);
-    }
-    return 0;
-  }
-  Int mitigate(ResourceManager rm,List<Set<Quality>> res, Int totalEfficiency, Int effPercentage, ResourceCost c){
-    List<Int> temp = list(Nil);Pair<List<Int>, Int> p = await rm!holdRes(res);temp = fst(p);Int t = truncate(( ( this.mitigateCost / totalEfficiency ) * ( 100 / effPercentage ) ));Fut<Unit> fc;[Deadline: Duration(10)]    fc = c!updateCost(rm,( snd(p) * t ));await fc?;duration(t, t);await rm!releaseRes(temp);try {
-    Duration d = deadline();
-    Rat r = durationValue(d);
-    assert r > 0;
-    } catch {
-    AssertionFailException => println(`The method "mitigate" have missed the deadline.`);
-    }
-    return 0;
-  }
-  Int recoverSite(ResourceManager rm,List<Set<Quality>> res, Int totalEfficiency, Int effPercentage, ResourceCost c){
-    List<Int> temp = list(Nil);Pair<List<Int>, Int> p = await rm!holdRes(res);temp = fst(p);Int t = truncate(( ( this.recoverSiteCost / totalEfficiency ) * ( 100 / effPercentage ) ));Fut<Unit> fc;[Deadline: Duration(10)]    fc = c!updateCost(rm,( snd(p) * t ));await fc?;duration(t, t);await rm!releaseRes(temp);try {
-    Duration d = deadline();
-    Rat r = durationValue(d);
-    assert r > 0;
-    } catch {
-    AssertionFailException => println(`The method "recoverSite" have missed the deadline.`);
-    }
-    return 0;
-  }
-  Int reportFireRescue(ResourceManager rm,List<Set<Quality>> res, Int totalEfficiency, Int effPercentage, ResourceCost c){
-    List<Int> temp = list(Nil);Pair<List<Int>, Int> p = await rm!holdRes(res);temp = fst(p);Int t = truncate(( ( this.reportFireRescueCost / totalEfficiency ) * ( 100 / effPercentage ) ));Fut<Unit> fc;[Deadline: Duration(10)]    fc = c!updateCost(rm,( snd(p) * t ));await fc?;duration(t, t);await rm!releaseRes(temp);try {
-    Duration d = deadline();
-    Rat r = durationValue(d);
-    assert r > 0;
-    } catch {
-    AssertionFailException => println(`The method "reportFireRescue" have missed the deadline.`);
-    }
-    return 0;
-  }
-  }
-
-interface Hospital {
-  Int start(ResourceManager rm,Int effPercentage, ResourceCost c);
-  Int rushToSite(ResourceManager rm,List<Set<Quality>> res, ResourceCost c);
-  Int shuntWounded(ResourceManager rm,List<Set<Quality>> res, Int totalEfficiency, Int effPercentage, ResourceCost c);
-  Int treatSliInj(ResourceManager rm,List<Set<Quality>> res, Int totalEfficiency, Int effPercentage, ResourceCost c);
-  Int treatSevInj(ResourceManager rm,List<Set<Quality>> res, Int totalEfficiency, Int effPercentage, ResourceCost c);
-  Int reportMedRescue(ResourceManager rm,List<Set<Quality>> res, Int totalEfficiency, Int effPercentage, ResourceCost c);}
-
-class Hospital implements Hospital {
-  List<Pair<Int, Int>> rid = list(Nil);
-  Int rushToSiteCost = 30;
-  Int shuntWoundedCost = 900;
-  Int treatSliInjCost = 900;
-  Int treatSevInjCost = 2500;
-  Int reportMedRescueCost = 100;
-  Int start(ResourceManager rm,Int effPercentage, ResourceCost c){
-    Int x = 0;Hospital h1 = new Hospital();Fut<Int> f1;[Deadline: Duration(50)]    x = this.rushToSite(rm,list[set[ResEfficiency( 30 ), Ferry]], c);[Deadline: Duration(50)]    x = this.shuntWounded(rm,list[set[ResEfficiency( 10 ), Doctor], set[ResEfficiency( 10 ), Doctor], set[ResEfficiency( 10 ), Doctor]], 30, effPercentage, c);[Deadline: Duration(50)]    f1 = h1!treatSliInj(rm,list[set[ResEfficiency( 10 ), Doctor], set[ResEfficiency( 10 ), Doctor], set[ResEfficiency( 10 ), Doctor]], 30, effPercentage, c);[Deadline: Duration(70)]    x = this.treatSevInj(rm,list[set[ResEfficiency( 10 ), Doctor], set[ResEfficiency( 10 ), Doctor], set[ResEfficiency( 10 ), Doctor], set[ResEfficiency( 10 ), Doctor], set[ResEfficiency( 10 ), Doctor]], 50, effPercentage, c);await f1?;[Deadline: Duration(20)]    x = this.reportMedRescue(rm,list[set[ResEfficiency( 10 ), Clerk]], 10, effPercentage, c);try {
-    Duration d = deadline();
-    Rat r = durationValue(d);
-    assert r > 0;
-    } catch {
-    AssertionFailException => println(`The method "start" have missed the deadline.`);
-    }
-    return 0;
-  }
-  Int rushToSite(ResourceManager rm,List<Set<Quality>> res, ResourceCost c){
-    List<Int> temp = list(Nil);Pair<List<Int>, Int> p = await rm!holdRes(res);temp = fst(p);Fut<Unit> fc;[Deadline: Duration(10)]    fc = c!updateCost(rm,( snd(p) * this.rushToSiteCost ));await fc?;duration(this.rushToSiteCost, this.rushToSiteCost);await rm!releaseRes(temp);try {
-    Duration d = deadline();
-    Rat r = durationValue(d);
-    assert r > 0;
-    } catch {
-    AssertionFailException => println(`The method "rushToSite" have missed the deadline.`);
-    }
-    return 0;
-  }
-  Int shuntWounded(ResourceManager rm,List<Set<Quality>> res, Int totalEfficiency, Int effPercentage, ResourceCost c){
-    List<Int> temp = list(Nil);Pair<List<Int>, Int> p = await rm!holdRes(res);temp = fst(p);Int t = truncate(( ( this.shuntWoundedCost / totalEfficiency ) * ( 100 / effPercentage ) ));Fut<Unit> fc;[Deadline: Duration(10)]    fc = c!updateCost(rm,( snd(p) * t ));await fc?;duration(t, t);await rm!releaseRes(temp);try {
-    Duration d = deadline();
-    Rat r = durationValue(d);
-    assert r > 0;
-    } catch {
-    AssertionFailException => println(`The method "shuntWounded" have missed the deadline.`);
-    }
-    return 0;
-  }
-  Int treatSliInj(ResourceManager rm,List<Set<Quality>> res, Int totalEfficiency, Int effPercentage, ResourceCost c){
-    List<Int> temp = list(Nil);Pair<List<Int>, Int> p = await rm!holdRes(res);temp = fst(p);Int t = truncate(( ( this.treatSliInjCost / totalEfficiency ) * ( 100 / effPercentage ) ));Fut<Unit> fc;[Deadline: Duration(10)]    fc = c!updateCost(rm,( snd(p) * t ));await fc?;duration(t, t);await rm!releaseRes(temp);try {
-    Duration d = deadline();
-    Rat r = durationValue(d);
-    assert r > 0;
-    } catch {
-    AssertionFailException => println(`The method "treatSliInj" have missed the deadline.`);
-    }
-    return 0;
-  }
-  Int treatSevInj(ResourceManager rm,List<Set<Quality>> res, Int totalEfficiency, Int effPercentage, ResourceCost c){
-    List<Int> temp = list(Nil);Pair<List<Int>, Int> p = await rm!holdRes(res);temp = fst(p);Fut<Unit> fc;Int t = truncate(( ( this.treatSevInjCost / totalEfficiency ) * ( 100 / effPercentage ) ));[Deadline: Duration(10)]    fc = c!updateCost(rm,( snd(p) * t ));await fc?;duration(t, t);await rm!releaseRes(temp);try {
-    Duration d = deadline();
-    Rat r = durationValue(d);
-    assert r > 0;
-    } catch {
-    AssertionFailException => println(`The method "treatSevInj" have missed the deadline.`);
-    }
-    return 0;
-  }
-  Int reportMedRescue(ResourceManager rm,List<Set<Quality>> res, Int totalEfficiency, Int effPercentage, ResourceCost c){
-    List<Int> temp = list(Nil);Pair<List<Int>, Int> p = await rm!holdRes(res);temp = fst(p);Int t = truncate(( ( this.reportMedRescueCost / totalEfficiency ) * ( 100 / effPercentage ) ));Fut<Unit> fc;[Deadline: Duration(10)]    fc = c!updateCost(rm,( snd(p) * t ));await fc?;duration(t, t);await rm!releaseRes(temp);try {
-    Duration d = deadline();
-    Rat r = durationValue(d);
-    assert r > 0;
-    } catch {
-    AssertionFailException => println(`The method "reportMedRescue" have missed the deadline.`);
+    AssertionFailException => println(`The method "check" have missed the deadline.`);
     }
     return 0;
   }
@@ -503,33 +181,15 @@ class Hospital implements Hospital {
 
 {
   ResourceManager rm = new ResourceManager();
-  await rm!addRes(list[set[Doctor, ResEfficiency(10), ResCost(500), ResCapacity(1)], set[Doctor, ResEfficiency(10), ResCost(500) , ResCapacity(1)], set[Doctor, ResEfficiency(10), ResCost(500) , ResCapacity(1)], set[Doctor, ResEfficiency(10), ResCost(500) , ResCapacity(1)], set[Doctor, ResEfficiency(10), ResCost(500) , ResCapacity(1)], set[Doctor, ResEfficiency(10), ResCost(500) , ResCapacity(1)], set[Doctor, ResEfficiency(10), ResCost(500) , ResCapacity(1)], set[EODTech, ResEfficiency(25), ResCost(700) , ResCapacity(1)], set[FireFighter, ResEfficiency(25), ResCost(500) , ResCapacity(1)], set[FireFighter, ResEfficiency(25), ResCost(500) , ResCapacity(1)], set[FireFighter, ResEfficiency(25), ResCost(500) , ResCapacity(1)], set[FireFighter, ResEfficiency(25), ResCost(500) , ResCapacity(1)], set[FireFighter, ResEfficiency(25), ResCost(500) , ResCapacity(1)], set[Ferry, ResEfficiency(30), ResCost(1000) , ResCapacity(1)], set[Ferry, ResEfficiency(30), ResCost(1000) , ResCapacity(1)], set[Ferry, ResEfficiency(30), ResCost(1000) , ResCapacity(1)], set[Clerk, ResEfficiency(10), ResCost(500) , ResCapacity(1)], set[Clerk, ResEfficiency(10), ResCost(500) , ResCapacity(1)], set[Clerk, ResEfficiency(10), ResCost(500) , ResCapacity(1)], set[PoliceMan, ResEfficiency(25), ResCost(500) , ResCapacity(1)], set[PoliceMan, ResEfficiency(25), ResCost(500) , ResCapacity(1)], set[PoliceMan, ResEfficiency(25), ResCost(500) , ResCapacity(1)], set[PoliceMan, ResEfficiency(25), ResCost(500) , ResCapacity(1)], set[Doctor, ResEfficiency(10), ResCost(500) , ResCapacity(1)], set[FireFighter, ResEfficiency(25), ResCost(500) , ResCapacity(1)], set[PoliceMan, ResEfficiency(25), ResCost(500) , ResCapacity(1)], set[PoliceMan, ResEfficiency(25), ResCost(500) , ResCapacity(1)], set[Clerk, ResEfficiency(10), ResCost(500) , ResCapacity(1)], set[Clerk, ResEfficiency(10), ResCost(500) , ResCapacity(1)], set[Clerk, ResEfficiency(10), ResCost(500) , ResCapacity(1)], set[Doctor, ResEfficiency(10), ResCost(500) , ResCapacity(1)], set[Doctor, ResEfficiency(10), ResCost(500) , ResCapacity(1)], set[Doctor, ResEfficiency(10), ResCost(500) , ResCapacity(1)], set[Doctor, ResEfficiency(10), ResCost(500) , ResCapacity(1)], set[Doctor, ResEfficiency(10), ResCost(500) , ResCapacity(1)], set[Doctor, ResEfficiency(10), ResCost(500) , ResCapacity(1)], set[Doctor, ResEfficiency(10), ResCost(500) , ResCapacity(1)], set[Doctor, ResEfficiency(10), ResCost(500) , ResCapacity(1)], set[EODTech, ResEfficiency(25), ResCost(700) , ResCapacity(1)], set[Ferry, ResEfficiency(30), ResCost(1000) , ResCapacity(1)], set[Ferry, ResEfficiency(30), ResCost(1000) , ResCapacity(1)], set[Ferry, ResEfficiency(30), ResCost(1000) , ResCapacity(1)], set[FireFighter, ResEfficiency(25), ResCost(500) , ResCapacity(1)], set[FireFighter, ResEfficiency(25), ResCost(500) , ResCapacity(1)], set[FireFighter, ResEfficiency(25), ResCost(500) , ResCapacity(1)], set[FireFighter, ResEfficiency(25), ResCost(500) , ResCapacity(1)], set[FireFighter, ResEfficiency(25), ResCost(500) , ResCapacity(1)], set[FireFighter, ResEfficiency(25), ResCost(500) , ResCapacity(1)], set[PoliceMan, ResEfficiency(25), ResCost(500) , ResCapacity(1)], set[PoliceMan, ResEfficiency(25), ResCost(500) , ResCapacity(1)], set[PoliceMan, ResEfficiency(25), ResCost(500) , ResCapacity(1)], set[PoliceMan, ResEfficiency(25), ResCost(500) , ResCapacity(1)], set[PoliceMan, ResEfficiency(25), ResCost(500) , ResCapacity(1)], set[PoliceMan, ResEfficiency(25), ResCost(500) , ResCapacity(1)], set[Clerk, ResEfficiency(10), ResCost(500) , ResCapacity(1)], set[Clerk, ResEfficiency(10), ResCost(500) , ResCapacity(1)], set[Clerk, ResEfficiency(10), ResCost(500) , ResCapacity(1)], set[Doctor, ResEfficiency(10), ResCost(500) , ResCapacity(1)], set[Doctor, ResEfficiency(10), ResCost(500) , ResCapacity(1)], set[Doctor, ResEfficiency(10), ResCost(500) , ResCapacity(1)], set[Doctor, ResEfficiency(10), ResCost(500) , ResCapacity(1)], set[Doctor, ResEfficiency(10), ResCost(500) , ResCapacity(1)], set[Doctor, ResEfficiency(10), ResCost(500) , ResCapacity(1)], set[Doctor, ResEfficiency(10), ResCost(500) , ResCapacity(1)], set[Doctor, ResEfficiency(10), ResCost(500) , ResCapacity(1)], set[EODTech, ResEfficiency(25), ResCost(700) , ResCapacity(1)], set[Ferry, ResEfficiency(30), ResCost(1000) , ResCapacity(1)], set[Ferry, ResEfficiency(30), ResCost(1000) , ResCapacity(1)], set[Ferry, ResEfficiency(30), ResCost(1000) , ResCapacity(1)], set[FireFighter, ResEfficiency(25), ResCost(500) , ResCapacity(1)], set[FireFighter, ResEfficiency(25), ResCost(500) , ResCapacity(1)], set[FireFighter, ResEfficiency(25), ResCost(500) , ResCapacity(1)], set[FireFighter, ResEfficiency(25), ResCost(500) , ResCapacity(1)], set[FireFighter, ResEfficiency(25), ResCost(500) , ResCapacity(1)], set[FireFighter, ResEfficiency(25), ResCost(500) , ResCapacity(1)], set[PoliceMan, ResEfficiency(25), ResCost(500) , ResCapacity(1)], set[PoliceMan, ResEfficiency(25), ResCost(500) , ResCapacity(1)], set[PoliceMan, ResEfficiency(25), ResCost(500) , ResCapacity(1)], set[PoliceMan, ResEfficiency(25), ResCost(500) , ResCapacity(1)], set[PoliceMan, ResEfficiency(25), ResCost(500) , ResCapacity(1)], set[PoliceMan, ResEfficiency(25), ResCost(500) , ResCapacity(1)], set[Clerk, ResEfficiency(10), ResCost(500) , ResCapacity(1)], set[Clerk, ResEfficiency(10), ResCost(500) , ResCapacity(1)], set[Clerk, ResEfficiency(10), ResCost(500) , ResCapacity(1)], set[Doctor, ResEfficiency(10), ResCost(500) , ResCapacity(1)], set[Doctor, ResEfficiency(10), ResCost(500) , ResCapacity(1)], set[Doctor, ResEfficiency(10), ResCost(500) , ResCapacity(1)], set[Doctor, ResEfficiency(10), ResCost(500) , ResCapacity(1)], set[Doctor, ResEfficiency(10), ResCost(500) , ResCapacity(1)], set[Doctor, ResEfficiency(10), ResCost(500) , ResCapacity(1)], set[Doctor, ResEfficiency(10), ResCost(500) , ResCapacity(1)], set[Doctor, ResEfficiency(10), ResCost(500) , ResCapacity(1)], set[EODTech, ResEfficiency(25), ResCost(700) , ResCapacity(1)], set[Ferry, ResEfficiency(30), ResCost(1000) , ResCapacity(1)], set[Ferry, ResEfficiency(30), ResCost(1000) , ResCapacity(1)], set[Ferry, ResEfficiency(30), ResCost(1000) , ResCapacity(1)], set[FireFighter, ResEfficiency(25), ResCost(500) , ResCapacity(1)], set[FireFighter, ResEfficiency(25), ResCost(500) , ResCapacity(1)], set[FireFighter, ResEfficiency(25), ResCost(500) , ResCapacity(1)], set[FireFighter, ResEfficiency(25), ResCost(500) , ResCapacity(1)], set[FireFighter, ResEfficiency(25), ResCost(500) , ResCapacity(1)], set[FireFighter, ResEfficiency(25), ResCost(500) , ResCapacity(1)], set[PoliceMan, ResEfficiency(25), ResCost(500) , ResCapacity(1)], set[PoliceMan, ResEfficiency(25), ResCost(500) , ResCapacity(1)], set[PoliceMan, ResEfficiency(25), ResCost(500) , ResCapacity(1)], set[PoliceMan, ResEfficiency(25), ResCost(500) , ResCapacity(1)], set[PoliceMan, ResEfficiency(25), ResCost(500) , ResCapacity(1)], set[PoliceMan, ResEfficiency(25), ResCost(500) , ResCapacity(1)], set[Clerk, ResEfficiency(10), ResCost(500) , ResCapacity(1)], set[Clerk, ResEfficiency(10), ResCost(500) , ResCapacity(1)], set[Clerk, ResEfficiency(10), ResCost(500) , ResCapacity(1)], set[Doctor, ResEfficiency(10), ResCost(500) , ResCapacity(1)], set[Doctor, ResEfficiency(10), ResCost(500) , ResCapacity(1)], set[Doctor, ResEfficiency(10), ResCost(500) , ResCapacity(1)], set[Doctor, ResEfficiency(10), ResCost(500) , ResCapacity(1)], set[Doctor, ResEfficiency(10), ResCost(500) , ResCapacity(1)], set[Doctor, ResEfficiency(10), ResCost(500) , ResCapacity(1)], set[Doctor, ResEfficiency(10), ResCost(500) , ResCapacity(1)], set[Doctor, ResEfficiency(10), ResCost(500) , ResCapacity(1)], set[EODTech, ResEfficiency(25), ResCost(700) , ResCapacity(1)], set[Ferry, ResEfficiency(30), ResCost(1000) , ResCapacity(1)], set[Ferry, ResEfficiency(30), ResCost(1000) , ResCapacity(1)], set[Ferry, ResEfficiency(30), ResCost(1000) , ResCapacity(1)], set[FireFighter, ResEfficiency(25), ResCost(500) , ResCapacity(1)], set[FireFighter, ResEfficiency(25), ResCost(500) , ResCapacity(1)], set[FireFighter, ResEfficiency(25), ResCost(500) , ResCapacity(1)], set[FireFighter, ResEfficiency(25), ResCost(500) , ResCapacity(1)], set[FireFighter, ResEfficiency(25), ResCost(500) , ResCapacity(1)], set[FireFighter, ResEfficiency(25), ResCost(500) , ResCapacity(1)], set[PoliceMan, ResEfficiency(25), ResCost(500) , ResCapacity(1)], set[PoliceMan, ResEfficiency(25), ResCost(500) , ResCapacity(1)], set[PoliceMan, ResEfficiency(25), ResCost(500) , ResCapacity(1)], set[PoliceMan, ResEfficiency(25), ResCost(500) , ResCapacity(1)], set[PoliceMan, ResEfficiency(25), ResCost(500) , ResCapacity(1)], set[PoliceMan, ResEfficiency(25), ResCost(500) , ResCapacity(1)], set[EODTech, ResEfficiency(25), ResCost(700) , ResCapacity(1)]]);
-  Int count = 0;
-  List<Fut<Int>> fl = Nil;
-  ResourceCost c = new ResourceCost();
-  while (( count < 1 )) {
-    Police p = new Police();
-    Police p1 = new Police();
-    Police p2 = new Police();
-    ECC ecc = new ECC();
-    EOD eod = new EOD();
-    FB fb = new FB();
-    Hospital h = new Hospital();
-    Fut<Int> f;
-    [Deadline: Duration(400)]    f = p!alarm(rm,ecc, eod, fb, h, 100, c);
-    fl = appendright(fl, f);
-    count = ( count + 1 );
-  }
-  while (! isEmpty(fl)) {
-    Fut<Int> f3 = head(fl);
-    await f3?;
-    fl = tail(fl);
-  }
-  Rat t = timeValue(now());
-  Int t1 = truncate(t);
-  print(( ( "%" + toString(t1) ) + "" ));
-  Fut<Unit> fc;
-  [Deadline: Duration(5)]  fc = c!printCost(rm);
-  await fc?;
+  await rm!addRes(list[set[Doctor, ResEfficiency(10), ResCost(500), ResCapacity(1)], set[Doctor, ResEfficiency(10), ResCost(500) , ResCapacity(1)], set[Doctor, ResEfficiency(10), ResCost(500) , ResCapacity(1)], set[Doctor, ResEfficiency(10), ResCost(500) , ResCapacity(1)], set[Doctor, ResEfficiency(10), ResCost(500) , ResCapacity(1)], set[EODTech, ResEfficiency(25), ResCost(700) , ResCapacity(1)], set[FireFighter, ResEfficiency(25), ResCost(500) , ResCapacity(1)], set[FireFighter, ResEfficiency(25), ResCost(500) , ResCapacity(1)], set[FireFighter, ResEfficiency(25), ResCost(500) , ResCapacity(1)], set[Ferry, ResEfficiency(30), ResCost(1000) , ResCapacity(1)], set[Clerk, ResEfficiency(10), ResCost(500) , ResCapacity(1)], set[Clerk, ResEfficiency(10), ResCost(500) , ResCapacity(1)], set[PoliceMan, ResEfficiency(25), ResCost(500) , ResCapacity(1)], set[PoliceMan, ResEfficiency(25), ResCost(500) , ResCapacity(1)], set[PoliceMan, ResEfficiency(25), ResCost(500) , ResCapacity(1)]]);
+  DL o = new DLD();
+  Fut<Int> f;
+  Fut<Int> f1;
+  Fut<Int> f2;
+  [Deadline: Duration(21)]  f = o!check(rm);
+  [Deadline: Duration(21)]  f1 = o!check(rm);
+  [Deadline: Duration(21)]  f2 = o!check(rm);
+  await f? & f1? & f2?;
+  println("RplTools");
   await rm!print();
 }

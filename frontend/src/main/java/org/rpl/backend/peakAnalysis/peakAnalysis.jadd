@@ -202,6 +202,7 @@ aspect dopeakAnalysis {
     public void ASTNode.dopeakAnalysis(PrintWriter stream, PeakAnalysisFormatter formatter) {
         throw new NotImplementedYetException(this);
     }
+
     public void ASTNode.dopeakAnalysis(PrintWriter stream, PeakAnalysisFormatter formatter, VarOrFieldUse v ) {
         throw new NotImplementedYetException(this);
     }
@@ -521,7 +522,12 @@ aspect dopeakAnalysis {
             formatter.afterStmt();
         }
 
-        else if (getValue() instanceof Call1Exp)
+        if (getValue() instanceof Call1Exp)
+        {
+            VarOrFieldUse v = getVar();
+            getValue().dopeakAnalysis(stream, formatter,v);
+        }
+        else if (getValue() instanceof ResHoldExp)
         {
             VarOrFieldUse v = getVar();
             getValue().dopeakAnalysis(stream, formatter,v);
@@ -683,16 +689,41 @@ aspect dopeakAnalysis {
              stream.print("Pair(Nil,0);");
              stream.println();
              formatter.afterStmt();
-             stream.print("[fake == acquire(");
+             stream.print("[x == acquire(");
+             getParamList().dopeakAnalysis(stream, formatter, ",");
+             stream.print(") ] fake = 0");
+    }
+    public void HoldExp.dopeakAnalysis(PrintWriter stream, PeakAnalysisFormatter formatter, String n) {
+          //stream.print(n);
+          //stream.print(" = ");
+          stream.print("Pair(Nil,0);");
+          stream.println();
+          formatter.afterStmt();
+          stream.print("[");
+          stream.print(n);
+          stream.print(" == acquire(");
+          getParamList().dopeakAnalysis(stream, formatter, ",");
+          stream.print(") ] fake = 0");
+    }
+    public void HoldExp.dopeakAnalysis(PrintWriter stream, PeakAnalysisFormatter formatter,VarOrFieldUse v) {
+             v.dopeakAnalysis(stream, formatter);
+             stream.print(" = ");
+             stream.print("Pair(Nil,0);");
+             stream.println();
+             formatter.afterStmt();
+             stream.print("[");
+             v.dopeakAnalysis(stream, formatter);
+             stream.print(" == acquire(");
              getParamList().dopeakAnalysis(stream, formatter, ",");
              stream.print(") ] fake = 0");
 
     }
-
     public void ReleaseResStmt.dopeakAnalysis(PrintWriter stream, PeakAnalysisFormatter formatter) {
                 //stream.print("await rm!releaseRes(");
                 //getRes().dopeakAnalysis(stream, formatter);
-                stream.print("[fake == release()] fake = 0;");
+                stream.print("[");
+                getRes().dopeakAnalysis(stream, formatter);
+                stream.print(" == release()] fake = 0;");
     }
 
 
@@ -851,7 +882,20 @@ aspect dopeakAnalysis {
         stream.print(getName());
         if (hasInitExp()) {
             stream.print(" = ");
-            getInitExp().dopeakAnalysis(stream, formatter);
+            String name = getName();
+            if(getInitExp() instanceof ResHoldExp)
+            {
+                getInitExp().dopeakAnalysis(stream,formatter,getName());
+            }
+            else
+            {
+                stream.print(" = ");
+                getInitExp().dopeakAnalysis(stream, formatter);
+            }
+        }
+        else
+        {
+            stream.print(";");
         }
     }
 

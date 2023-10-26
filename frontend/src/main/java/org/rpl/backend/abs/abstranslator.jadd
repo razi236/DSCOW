@@ -199,9 +199,12 @@ aspect doABSTranslator {
         }
     }
 
+
+
     public void ASTNode.doABSTranslation(PrintWriter stream, RplToABSFormatter formatter) {
         throw new NotImplementedYetException(this);
     }
+
     public void ASTNode.doABSTranslation(PrintWriter stream, RplToABSFormatter formatter, VarOrFieldUse v ) {
         throw new NotImplementedYetException(this);
     }
@@ -341,13 +344,13 @@ aspect doABSTranslator {
     }
 
     public abstract void AppCond.doABSTranslation(PrintWriter stream, RplToABSFormatter formatter);
-    
+
     public void AppCondAnd.doABSTranslation(PrintWriter stream, RplToABSFormatter formatter) {
         getLeft().doABSTranslation(stream, formatter);
         stream.print(" && ");
         getRight().doABSTranslation(stream, formatter);
     }
-    
+
     public void AppCondOr.doABSTranslation(PrintWriter stream, RplToABSFormatter formatter) {
         getLeft().doABSTranslation(stream, formatter);
         stream.print(" || ");
@@ -358,11 +361,11 @@ aspect doABSTranslator {
         stream.print("~");
         getAppCond().doABSTranslation(stream, formatter);
     }
-    
+
     public void AppCondFeature.doABSTranslation(PrintWriter stream, RplToABSFormatter formatter) {
         stream.print(getName());
     }
-    
+
     public void Deltaspec.doABSTranslation(PrintWriter stream, RplToABSFormatter formatter) {
         stream.print(getDeltaID());
         if (getNumDeltaparam() > 0) {
@@ -1006,13 +1009,13 @@ aspect doABSTranslator {
         stream.print(getModuleName());
         stream.print(";");
     }
-    
+
     /*protected boolean FunctionDecl.isSelector() {
     	for (Annotation a : getAnnotationList()) {
             if (! (a.getValue() instanceof StringLiteral)) {
                 continue;
             }
-              
+
             StringLiteral sl = (StringLiteral) a.getValue();
             if (ASTPreProcessor.FUNCTIONSELECTOR.equals(sl.getContent())) {
                 return true;
@@ -1020,13 +1023,13 @@ aspect doABSTranslator {
         }
         return false;
     }*/
-    
+
     public void FunctionDecl.doABSTranslation(PrintWriter stream, RplToABSFormatter formatter) {
         if (isSelector()) {
         	//skip selector
         	return;
         }
-    
+
         getAnnotationList().doABSTranslation(stream, formatter, "");
         if (getNumAnnotation() > 0) {
             stream.println();
@@ -1090,12 +1093,12 @@ aspect doABSTranslator {
 
     public void FunctionDecl.doABSTranslationTypeParam(PrintWriter stream, RplToABSFormatter formatter) { }
 
-    public void ParametricFunctionDecl.doABSTranslationTypeParam(PrintWriter stream, RplToABSFormatter formatter) { 
+    public void ParametricFunctionDecl.doABSTranslationTypeParam(PrintWriter stream, RplToABSFormatter formatter) {
         if (getNumTypeParameter() > 0) {
             stream.print("<");
             getTypeParameterList().doABSTranslation(stream, formatter, ",");
             stream.print(">");
-        }	
+        }
     }
 
     public void PartialFunctionDecl.doABSTranslationTypeParam(PrintWriter stream, RplToABSFormatter formatter) {}
@@ -1149,7 +1152,7 @@ aspect doABSTranslator {
         //        List<ClassOrIfaceModifier> cms = getClassOrIfaceModifierList();
         //        if (cms.getNumChild() > 0 && mcount == 0) {
         //            formatter.afterStmt();
-        //        } 
+        //        }
         //        cms.doABSTranslation(stream, formatter);
 
         stream.println();
@@ -1423,7 +1426,7 @@ aspect doABSTranslator {
 
         List<MethodImpl> methods = getMethodList();
         if (methods.getNumChild() > 0) {
-            methods.doABSTranslation(stream, formatter);        
+            methods.doABSTranslation(stream, formatter);
             stream.println();
             formatter.afterStmt();
         }
@@ -1457,6 +1460,7 @@ aspect doABSTranslator {
             formatter.afterOpenBrace();
             formatter.afterStmt();
 
+            List<FieldDecl> fieldList = getFieldList();
             getFieldList().doABSTranslation(stream, formatter);
 
             /*stream.println();
@@ -1532,6 +1536,7 @@ aspect doABSTranslator {
         getBlock().doABSTranslation(stream, formatter);
     }
 
+
     public void TypeParameterDecl.doABSTranslation(PrintWriter stream, RplToABSFormatter formatter) {
         stream.print(getName());
     }
@@ -1549,7 +1554,7 @@ aspect doABSTranslator {
 
     public void AddDataTypeModifier.doABSTranslation(PrintWriter stream, RplToABSFormatter formatter)
     {
-        stream.print("adds "); 
+        stream.print("adds ");
         getDataTypeDecl().doABSTranslation(stream, formatter);
         stream.println();
     }
@@ -1583,7 +1588,7 @@ aspect doABSTranslator {
 
     public void DataTypeDecl.doABSTranslationTypeParam(PrintWriter stream, RplToABSFormatter formatter) { }
 
-    public void ParametricDataTypeDecl.doABSTranslationTypeParam(PrintWriter stream, RplToABSFormatter formatter) { 
+    public void ParametricDataTypeDecl.doABSTranslationTypeParam(PrintWriter stream, RplToABSFormatter formatter) {
         if (getNumTypeParameter() > 0) {
             stream.print("<");
             getTypeParameterList().doABSTranslation(stream, formatter, ",");
@@ -1610,7 +1615,7 @@ aspect doABSTranslator {
 
     public void UnresolvedTypeUse.doABSTranslation(PrintWriter stream, RplToABSFormatter formatter) {
         // TODO: getAnnotationList().doABSTranslation(stream, formatter, "");
-        stream.print(getName());    
+        stream.print(getName());
     }
 
     public void DataTypeUse.doABSTranslation(PrintWriter stream, RplToABSFormatter formatter) {
@@ -1621,7 +1626,7 @@ aspect doABSTranslator {
 
     public void DataTypeUse.doABSTranslationTypeParam(PrintWriter stream, RplToABSFormatter formatter) { }
 
-    public void ParametricDataTypeUse.doABSTranslationTypeParam(PrintWriter stream, RplToABSFormatter formatter) { 
+    public void ParametricDataTypeUse.doABSTranslationTypeParam(PrintWriter stream, RplToABSFormatter formatter) {
         if (getNumParam() > 0) {
             stream.print("<");
             getParamList().doABSTranslation(stream, formatter, ",");

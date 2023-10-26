@@ -6,16 +6,25 @@ data Quality = ResEfficiency(Int) | Int | ResCost(Int cst) | ResCapacity(Int) | 
 interface DL
 {
     Int check();
+    Int check1();
 }
 class DLD implements DL
 {
+    Int x = 20;
+    Int y = 10;
     Int check()
     {
         Int i=0;
-        cost(599); // consume 10 times unit
-        i = check(this) after dl 21;
+        cost(x); // consume 10 times unit
+        Pair<List<Int>,Int> p = hold(set[ResEfficiency(10),Clerk]);
+        rel(p);
         return 0;
-
+    }
+    Int check1()
+    {
+        Int i=0;
+        cost(y); // consume 10 times unit
+        return 0;
     }
 }
 
@@ -26,7 +35,7 @@ class DLD implements DL
     Int x = 0;
     Int y = 0;
     x = check(o) after dl 21;
-    f2 = !check(o) after f1 dl 21;
+    f2 = !check1(o) after f1 dl 21;
     await f1?;
     y = f2.get;
     println("RplTools");
