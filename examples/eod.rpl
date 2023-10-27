@@ -3,6 +3,7 @@ export Quality;
 export *;
 data RC = RC(Int rc);
 data Quality = ResEfficiency(Int) | Int | ResCost(Int cst) | ResCapacity(Int) | Ferry | Doctor | SmokeMask | PoliceMan | Clerk | EODTech | FireFighter | FireExt | FirstAidBox;
+data Resource = Res(Quality,Quality);
 interface ResourceCost {
     Int updateCost(Int c);
     Int printCost();
@@ -23,9 +24,9 @@ class ResourceCost implements ResourceCost {
 interface EOD
 {
   Int start(List<Int> effPercentage,ResourceCost c);
-  Int rushToSite(List<Set<Quality>> res,ResourceCost c);
-  Int searchEOD(List<Set<Quality>> res,Int totalEfficiency, Int effPercentage,ResourceCost c);
-  Int reportEOD(List<Set<Quality>> res,Int totalEfficiency, Int effPercentage,ResourceCost c);
+  Int rushToSite(ResourceCost c);
+  Int searchEOD(Int totalEfficiency, Int effPercentage,ResourceCost c);
+  Int reportEOD(Int totalEfficiency, Int effPercentage,ResourceCost c);
 }
 class EOD implements EOD {
   List<Pair<Int,Int>> rid = Nil;
@@ -34,14 +35,14 @@ class EOD implements EOD {
   Int reportEODCost = 100;
   Int start(List<Int> effPercentage,ResourceCost c){
     Int x = 0;
-    x = rushToSite(this,list[set[ResEfficiency(30),Ferry]],c) after dl 50;
-    x = searchEOD(this,list[set[ResEfficiency(25),EODTech]],25,nth(effPercentage,2),c) after dl 20;
-    x = reportEOD(this,list[set[ResEfficiency(10),Clerk]],10,nth(effPercentage,1),c) after dl 20;
+    x = rushToSite(this,c) after dl 50;
+    x = searchEOD(this,25,nth(effPercentage,2),c) after dl 20;
+    x = reportEOD(this,10,nth(effPercentage,1),c) after dl 20;
     return 0;
   }
-  Int rushToSite(List<Set<Quality>> res,ResourceCost c){
+  Int rushToSite(ResourceCost c){
     List<Int> temp = list(Nil);
-    Pair<List<Int>,Int> p = hold(res);
+    Pair<List<Int>,Int> p = hold(set[Res(ResEfficiency(30),Ferry)]);
     temp = fst(p);
     Fut<Int> fc;
     fc = !updateCost(c,(snd(p)*rushToSiteCost)) after dl 10;
@@ -50,9 +51,9 @@ class EOD implements EOD {
     rel(temp);
     return 0;
   }
-  Int searchEOD(List<Set<Quality>> res,Int totalEfficiency, Int effPercentage,ResourceCost c){
+  Int searchEOD(Int totalEfficiency, Int effPercentage,ResourceCost c){
     List<Int> temp = Nil;
-    Pair<List<Int>,Int> p = hold(res);
+    Pair<List<Int>,Int> p = hold(set[Res(ResEfficiency(25),EODTech),Res(ResEfficiency(25),EODTech)]);
     temp = fst(p);
     Fut<Int> fc;
     Int t = truncate((searchEODCost/totalEfficiency)*(100/effPercentage));
@@ -62,9 +63,9 @@ class EOD implements EOD {
     rel(temp);
     return 0;
   }
-  Int reportEOD(List<Set<Quality>> res,Int totalEfficiency,Int effPercentage,ResourceCost c){
+  Int reportEOD(Int totalEfficiency,Int effPercentage,ResourceCost c){
     List<Int> temp = list(Nil);
-    Pair<List<Int>,Int> p = hold(res);
+    Pair<List<Int>,Int> p = hold(set[Res(ResEfficiency(10),Clerk),Res(ResEfficiency(20),EODTech)]);
     temp = fst(p);
     Fut<Int> fc;
     Int t = truncate((reportEODCost/totalEfficiency)*(100/effPercentage));
@@ -83,3 +84,5 @@ class EOD implements EOD {
   f = !start(eod,list[100,100,100,100,100], c) after dl 400;
   await f?;
 }
+
+// Here in this example I have made a new data type "Resource", a tuple of resource qualities, to check if it works well with Resource Peak Analysis, if worked, I will update the Resource Manager Library, otherwise will discard this change :)

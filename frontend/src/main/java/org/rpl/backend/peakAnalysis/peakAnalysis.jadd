@@ -889,13 +889,13 @@ aspect dopeakAnalysis {
             }
             else
             {
-                stream.print(" = ");
+                //stream.print(" = ");
                 getInitExp().dopeakAnalysis(stream, formatter);
             }
         }
         else
         {
-            stream.print(";");
+            //stream.print(";");
         }
     }
 
