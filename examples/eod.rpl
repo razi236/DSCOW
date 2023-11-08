@@ -41,38 +41,32 @@ class EOD implements EOD {
     return 0;
   }
   Int rushToSite(ResourceCost c){
-    List<Int> temp = list(Nil);
     Pair<List<Int>,Int> p = hold(list[set[ResEfficiency(30),Ferry]]);
-    temp = fst(p);
     Fut<Int> fc;
     fc = !updateCost(c,(snd(p)*rushToSiteCost)) after dl 10;
     await fc?;
     cost(rushToSiteCost);
-    rel(temp);
+    rel(p);
     return 0;
   }
   Int searchEOD(Int totalEfficiency, Int effPercentage,ResourceCost c){
-    List<Int> temp = Nil;
     Pair<List<Int>,Int> p = hold(list[set[ResEfficiency(25),EODTech],set[ResEfficiency(25),EODTech]]);
-    temp = fst(p);
     Fut<Int> fc;
     Int t = truncate((searchEODCost/totalEfficiency)*(100/effPercentage));
     fc = !updateCost(c,(snd(p)*t)) after dl 10;
     await fc?;
     cost(t);
-    rel(temp);
+    rel(p);
     return 0;
   }
   Int reportEOD(Int totalEfficiency,Int effPercentage,ResourceCost c){
-    List<Int> temp = list(Nil);
     Pair<List<Int>,Int> p = hold(list[set[ResEfficiency(10),Clerk],set[ResEfficiency(20),EODTech]]);
-    temp = fst(p);
     Fut<Int> fc;
     Int t = truncate((reportEODCost/totalEfficiency)*(100/effPercentage));
     fc = !updateCost(c,(snd(p)*t)) after dl 10;
     await fc?;
     cost(t);
-    rel(temp);
+    rel(p);
     return 0;
   }
 }
