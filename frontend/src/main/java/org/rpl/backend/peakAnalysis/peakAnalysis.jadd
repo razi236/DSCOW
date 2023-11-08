@@ -690,7 +690,18 @@ aspect dopeakAnalysis {
              stream.println();
              formatter.afterStmt();
              stream.print("[x == acquire(");
-             getParamList().dopeakAnalysis(stream, formatter, ",");
+             List<PureExp> l = getParamList();
+             PureExp ps = l.getChild(0);
+             String myStr = ps.toString();
+             myStr = myStr.replace('[', '(');
+             myStr = myStr.replace(')', '\u0000');
+             myStr = myStr.replace("ResEfficiency(", "");
+             myStr = myStr.replace(']', ')');
+             myStr = myStr.replace("set","res");
+             myStr = myStr.replace("list","set");
+             myStr = myStr.toLowerCase();
+             stream.print(myStr);
+             //getParamList().dopeakAnalysis(stream, formatter, ",");
              stream.print(") ] fake = 0");
     }
     public void HoldExp.dopeakAnalysis(PrintWriter stream, PeakAnalysisFormatter formatter, String n) {
@@ -702,8 +713,20 @@ aspect dopeakAnalysis {
           stream.print("[");
           stream.print(n);
           stream.print(" == acquire(");
-          getParamList().dopeakAnalysis(stream, formatter, ",");
-          stream.print(") ] fake = 0");
+          List<PureExp> l = getParamList();
+           PureExp ps = l.getChild(0);
+           String myStr = ps.toString();
+           myStr = myStr.replace("FnApp(ListLiteral(ResEfficiency", "res(");
+           myStr = myStr.replace("FnApp(ListLiteral", "");
+           myStr = myStr.replace("IntLiteral", "");
+           myStr = myStr.replace("()", ")");
+           myStr = myStr.replace("((", "");
+           myStr = myStr.replace("))", "");
+           myStr = "set"+myStr+")";
+           myStr = myStr.toLowerCase();
+           stream.print(myStr);
+          //getParamList().dopeakAnalysis(stream, formatter, ",");
+          stream.print(")] fake = 0");
     }
     public void HoldExp.dopeakAnalysis(PrintWriter stream, PeakAnalysisFormatter formatter,VarOrFieldUse v) {
              v.dopeakAnalysis(stream, formatter);

@@ -16,7 +16,7 @@ class DLD implements DL
     {
         Int i=0;
         cost(x); // consume 10 times unit
-        Pair<List<Int>,Int> p = hold(set[ResEfficiency(10),Clerk]);
+        Pair<List<Int>,Int> p = hold(list[set[ResEfficiency(25),FireFighter],set[ResEfficiency(25),FireFighter],set[ResEfficiency(25),FireFighter],set[ResEfficiency(25),FireFighter]]);
         rel(p);
         return 0;
     }
