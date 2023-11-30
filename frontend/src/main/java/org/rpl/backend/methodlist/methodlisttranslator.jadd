@@ -1,0 +1,720 @@
+// -*- mode: java; tab-width: 4; -*-
+import java.io.PrintWriter;
+import org.rpl.backend.methodlist.*;
+import java.util.stream.Collectors;
+import com.google.common.collect.Streams;
+import java.sql.DriverManager;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+
+aspect doABSTranslator {
+    public boolean Model.doMethodListTranslationStdLib = false;
+    public boolean Model.doMethodListTranslationResourceManager = false;
+    public void List.doMethodListTranslation(PrintWriter stream, RplToMethodListFormatter formatter) {
+        if (getNumChild() > 0) {
+            getChild(0).doMethodListTranslation(stream, formatter);
+            for (int i = 1; i < getNumChild(); i++) {
+                //stream.println();
+                //formatter.afterStmt();
+                getChild(i).doMethodListTranslation(stream, formatter);
+            }
+
+        }
+    }
+    public void ASTNode.doMethodListTranslation(PrintWriter stream, RplToMethodListFormatter formatter) {
+        throw new NotImplementedYetException(this);
+    }
+    public void ASTNode.doMethodListTranslation(PrintWriter stream, RplToMethodListFormatter formatter, VarOrFieldUse v ) {
+        throw new NotImplementedYetException(this);
+    }
+    public void ASTNode.doMethodListTranslation(PrintWriter stream, RplToMethodListFormatter formatter, String m ) {
+        throw new NotImplementedYetException(this);
+    }
+    public void Model.doMethodListTranslation(PrintWriter stream, RplToMethodListFormatter formatter) {
+        for (ModuleDecl d : getModuleDecls()) {
+            if (doMethodListTranslationStdLib || doMethodListTranslationResourceManager || (! Constants.BUILT_IN_LIBS.contains(d.getName()))) {
+                d.doMethodListTranslation(stream, formatter);
+            }
+        }
+        for (DeltaDecl d : getDeltaDecls()) {
+            d.doMethodListTranslation(stream, formatter);
+        }
+        if (hasProductLine()) {
+            getProductLine().doMethodListTranslation(stream, formatter);
+        }
+    }
+    public void ModuleDecl.doMethodListTranslation(PrintWriter stream, RplToMethodListFormatter formatter) {
+        //stream.println("module " + getName() + ";");
+        //stream.println("import * from ABS.ResourceManager;");
+        //stream.println("export *;");
+
+        for (Decl decl : getDecls()) {
+            decl.doMethodListTranslation(stream, formatter);
+        }
+        if (hasBlock()) {
+            getBlock().doMethodListTranslation(stream, formatter);
+        }
+        stream.flush();
+    }
+    public void InterfaceDecl.doMethodListTranslation(PrintWriter stream, RplToMethodListFormatter formatter) {
+        List<MethodSig> ms = getBodys();
+        if (ms.getNumChild() > 0) {
+            stream.print(getName());
+            stream.print(".");
+            stream.print(ms.getChild(0).getName());
+            for (int i = 1; i < ms.getNumChild(); i++) {
+                stream.println();
+                stream.print(getName());
+                stream.print(".");
+                stream.print(ms.getChild(i).getName());
+            }
+            stream.println();
+        }
+    }
+    public void InterfaceDecl1.doMethodListTranslation(PrintWriter stream, RplToMethodListFormatter formatter) {
+          List<MethodSig1> ms = getBodys();
+          if (ms.getNumChild() > 0) {
+                stream.print(getName());
+                stream.print(".");
+                stream.print(ms.getChild(0).getName());
+                for (int i = 1; i < ms.getNumChild(); i++) {
+                    stream.println();
+                    stream.print(getName());
+                    stream.print(".");
+                    stream.print(ms.getChild(i).getName());
+                }
+                 stream.println();
+          }
+
+    }
+    public void ProductDecl.doMethodListTranslation(PrintWriter stream, RplToMethodListFormatter formatter) {
+
+        }
+
+        public void Feature.doMethodListTranslation(PrintWriter stream, RplToMethodListFormatter formatter) {
+
+        }
+
+        public void AttrAssignment.doMethodListTranslation(PrintWriter stream, RplToMethodListFormatter formatter) {
+
+        }
+
+        public void ProductLine.doMethodListTranslation(PrintWriter stream, RplToMethodListFormatter formatter) {
+
+        }
+
+        public void DeltaClause.doMethodListTranslation(PrintWriter stream, RplToMethodListFormatter formatter) {
+
+        }
+
+        public abstract void AppCond.doMethodListTranslation(PrintWriter stream, RplToMethodListFormatter formatter);
+
+        public void AppCondAnd.doMethodListTranslation(PrintWriter stream, RplToMethodListFormatter formatter) {
+
+        }
+
+        public void AppCondOr.doMethodListTranslation(PrintWriter stream, RplToMethodListFormatter formatter) {
+
+        }
+
+        public void AppCondNot.doMethodListTranslation(PrintWriter stream, RplToMethodListFormatter formatter) {
+
+        }
+
+        public void AppCondFeature.doMethodListTranslation(PrintWriter stream, RplToMethodListFormatter formatter) {
+
+        }
+
+        public void Deltaspec.doMethodListTranslation(PrintWriter stream, RplToMethodListFormatter formatter) {
+
+        }
+
+        public void Deltaparam.doMethodListTranslation(PrintWriter stream, RplToMethodListFormatter formatter) {
+
+        }
+
+        public void DeltaID.doMethodListTranslation(PrintWriter stream, RplToMethodListFormatter formatter) {
+
+        }
+
+        public void Block.doMethodListTranslation(PrintWriter stream, RplToMethodListFormatter formatter) {
+
+        }
+
+        public void Block.doMethodListTranslation(PrintWriter stream, RplToMethodListFormatter formatter, String m) {
+
+        }
+
+        public void MainBlock.doMethodListTranslation(PrintWriter stream, RplToMethodListFormatter formatter) {
+               stream.println("IMain.main");
+               stream.println("main");
+        }
+
+        public void AssertStmt.doMethodListTranslation(PrintWriter stream, RplToMethodListFormatter formatter) {
+
+        }
+
+        public void ThrowStmt.doMethodListTranslation(PrintWriter stream, RplToMethodListFormatter formatter) {
+
+        }
+
+        public void AssignStmt.doMethodListTranslation(PrintWriter stream, RplToMethodListFormatter formatter) {
+
+        }
+
+        public void Call.doMethodListTranslation(PrintWriter stream, RplToMethodListFormatter formatter) {
+
+        }
+
+        public void Call1Exp.doMethodListTranslation(PrintWriter stream, RplToMethodListFormatter formatter) {
+
+        }
+        public void Call1Exp.doMethodListTranslation(PrintWriter stream, RplToMethodListFormatter formatter, VarOrFieldUse v) {
+
+        }
+        abstract public void Call.doMethodListTranslationCallType(PrintWriter stream, RplToMethodListFormatter formatter);
+
+        abstract public void Call.doMethodListTranslationCallPrefix(PrintWriter stream, RplToMethodListFormatter formatter);
+
+        abstract public void Call1Exp.doMethodListTranslationCallType(PrintWriter stream, RplToMethodListFormatter formatter);
+
+        abstract public void Call1Exp.doMethodListTranslationCallPrefix(PrintWriter stream, RplToMethodListFormatter formatter);
+
+        public void AsyncCall.doMethodListTranslationCallType(PrintWriter stream, RplToMethodListFormatter formatter) {
+
+        }
+
+        public void AwaitAsyncCall.doMethodListTranslationCallType(PrintWriter stream, RplToMethodListFormatter formatter) {
+
+        }
+
+        public void SyncCall.doMethodListTranslationCallType(PrintWriter stream, RplToMethodListFormatter formatter) {
+
+        }
+
+        public void AsyncCall.doMethodListTranslationCallPrefix(PrintWriter stream, RplToMethodListFormatter formatter) {
+        }
+
+        public void AwaitAsyncCall.doMethodListTranslationCallPrefix(PrintWriter stream, RplToMethodListFormatter formatter) {
+
+        }
+
+        public void SyncCall.doMethodListTranslationCallPrefix(PrintWriter stream, RplToMethodListFormatter formatter) {
+        }
+
+        public void AsyncCall1Exp.doMethodListTranslationCallType(PrintWriter stream, RplToMethodListFormatter formatter) {
+
+        }
+
+        public void SyncCall1Exp.doMethodListTranslationCallType(PrintWriter stream, RplToMethodListFormatter formatter) {
+
+        }
+
+        public void AsyncCall1Exp.doMethodListTranslationCallPrefix(PrintWriter stream, RplToMethodListFormatter formatter) {
+        }
+
+        public void SyncCall1Exp.doMethodListTranslationCallPrefix(PrintWriter stream, RplToMethodListFormatter formatter) {
+        }
+
+        public void GetExp.doMethodListTranslation(PrintWriter stream, RplToMethodListFormatter formatter) {
+
+        }
+
+        public void AddResStmt.doMethodListTranslation(PrintWriter stream, RplToMethodListFormatter formatter) {
+
+        }
+
+        public void HoldExp.doMethodListTranslation(PrintWriter stream, RplToMethodListFormatter formatter) {
+
+        }
+
+        public void ReleaseResStmt.doMethodListTranslation(PrintWriter stream, RplToMethodListFormatter formatter) {
+
+        }
+        public void NewExp.doMethodListTranslation(PrintWriter stream, RplToMethodListFormatter formatter) {
+
+        }
+
+        public void OriginalCall.doMethodListTranslation(PrintWriter stream, RplToMethodListFormatter formatter) {
+
+        }
+
+        public void AwaitStmt.doMethodListTranslation(PrintWriter stream, RplToMethodListFormatter formatter) {
+
+        }
+
+        public void AndGuard.doMethodListTranslation(PrintWriter stream, RplToMethodListFormatter formatter) {
+
+        }
+
+        public void ClaimGuard.doMethodListTranslation(PrintWriter stream, RplToMethodListFormatter formatter) {
+
+        }
+
+        public void DurationGuard.doMethodListTranslation(PrintWriter stream, RplToMethodListFormatter formatter) {
+
+        }
+
+        public void ExpGuard.doMethodListTranslation(PrintWriter stream, RplToMethodListFormatter formatter) {
+
+        }
+
+        public void CostStmt.doMethodListTranslation(PrintWriter stream, RplToMethodListFormatter formatter) {
+
+        }
+
+        public void ExpressionStmt.doMethodListTranslation(PrintWriter stream, RplToMethodListFormatter formatter) {
+
+        }
+
+        public void IfStmt.doMethodListTranslation(PrintWriter stream, RplToMethodListFormatter formatter) {
+
+        }
+
+        public void ReturnStmt.doMethodListTranslation(PrintWriter stream, RplToMethodListFormatter formatter) {
+        }
+
+        public void ReturnStmt.doMethodListTranslation(PrintWriter stream, RplToMethodListFormatter formatter, String m) {
+
+        }
+
+        public void SkipStmt.doMethodListTranslation(PrintWriter stream, RplToMethodListFormatter formatter) {
+
+        }
+
+        public void SuspendStmt.doMethodListTranslation(PrintWriter stream, RplToMethodListFormatter formatter) {
+
+        }
+
+        public void VarDeclStmt.doMethodListTranslation(PrintWriter stream, RplToMethodListFormatter formatter) {
+
+        }
+
+        public void VarDecl.doMethodListTranslation(PrintWriter stream, RplToMethodListFormatter formatter) {
+
+        }
+
+        public void WhileStmt.doMethodListTranslation(PrintWriter stream, RplToMethodListFormatter formatter) {
+
+        }
+
+        public void ForeachStmt.doMethodListTranslation(PrintWriter stream, RplToMethodListFormatter formatter) {
+
+        }
+
+        public void CaseStmt.doMethodListTranslation(PrintWriter stream, RplToMethodListFormatter formatter) {
+
+        }
+
+        public void TryCatchFinallyStmt.doMethodListTranslation(PrintWriter stream, RplToMethodListFormatter formatter) {
+
+        }
+
+        abstract public void Export.doMethodListTranslation(PrintWriter stream, RplToMethodListFormatter formatter);
+
+        public void NamedExport.doMethodListTranslation(PrintWriter stream, RplToMethodListFormatter formatter) {
+
+        }
+
+        public void Name.doMethodListTranslation(PrintWriter stream, RplToMethodListFormatter formatter) {
+
+        }
+
+        public void StarExport.doMethodListTranslation(PrintWriter stream, RplToMethodListFormatter formatter) {
+
+        }
+
+        public void FromExport.doMethodListTranslation(PrintWriter stream, RplToMethodListFormatter formatter) {
+
+        }
+
+        public void NamedImport.doMethodListTranslation(PrintWriter stream, RplToMethodListFormatter formatter) {
+
+
+        }
+
+        public void StarImport.doMethodListTranslation(PrintWriter stream, RplToMethodListFormatter formatter) {
+
+        }
+
+        public void FromImport.doMethodListTranslation(PrintWriter stream, RplToMethodListFormatter formatter) {
+
+        }
+
+
+
+        public void FunctionDecl.doMethodListTranslation(PrintWriter stream, RplToMethodListFormatter formatter) {
+
+        }
+
+        public void PartialFunctionDecl.doMethodListTranslation(PrintWriter stream, RplToMethodListFormatter formatter) {
+
+        }
+
+        public void FunctionParamDecl.doMethodListTranslation(PrintWriter stream, RplToMethodListFormatter formatter) {
+
+        }
+
+        public void PartialFunctionDef.doMethodListTranslation(PrintWriter stream, RplToMethodListFormatter formatter) {
+
+        }
+
+        public void NamedParFnAppParam.doMethodListTranslation(PrintWriter stream, RplToMethodListFormatter formatter) {
+
+        }
+
+        public void AnonymousFunctionDecl.doMethodListTranslation(PrintWriter stream, RplToMethodListFormatter formatter) {
+
+        }
+
+        public void FunctionDecl.doMethodListTranslationTypeParam(PrintWriter stream, RplToMethodListFormatter formatter) { }
+
+        public void ParametricFunctionDecl.doMethodListTranslationTypeParam(PrintWriter stream, RplToMethodListFormatter formatter) {
+
+        }
+
+        public void PartialFunctionDecl.doMethodListTranslationTypeParam(PrintWriter stream, RplToMethodListFormatter formatter) {}
+
+        public void ParametricPartialFunctionDecl.doMethodListTranslationTypeParam(PrintWriter stream, RplToMethodListFormatter formatter) {
+
+        }
+
+        public void BuiltinFunctionDef.doMethodListTranslation(PrintWriter stream, RplToMethodListFormatter formatter) {
+
+        }
+
+        public void ExpFunctionDef.doMethodListTranslation(PrintWriter stream, RplToMethodListFormatter formatter) {
+
+        }
+
+        public void DeltaDecl.doMethodListTranslation(PrintWriter stream, RplToMethodListFormatter formatter) {
+
+        }
+
+        public void DeltaAccess.doMethodListTranslation(PrintWriter stream, RplToMethodListFormatter formatter) {
+
+        }
+
+        public void AddImportModifier.doMethodListTranslation(PrintWriter stream, RplToMethodListFormatter formatter) {
+
+        }
+
+        public void AddExportModifier.doMethodListTranslation(PrintWriter stream, RplToMethodListFormatter formatter) {
+
+        }
+
+        public void RemoveClassModifier.doMethodListTranslation(PrintWriter stream, RplToMethodListFormatter formatter) {
+
+        }
+
+        public void ModifyClassModifier.doMethodListTranslation(PrintWriter stream, RplToMethodListFormatter formatter) {
+
+        }
+
+        public void AddFieldModifier.doMethodListTranslation(PrintWriter stream, RplToMethodListFormatter formatter) {
+
+        }
+
+        public void RemoveFieldModifier.doMethodListTranslation(PrintWriter stream, RplToMethodListFormatter formatter) {
+
+        }
+
+        public void AddInterfaceModifier.doMethodListTranslation(PrintWriter stream, RplToMethodListFormatter formatter) {
+
+        }
+
+        public void AddClassModifier.doMethodListTranslation(PrintWriter stream, RplToMethodListFormatter formatter) {
+
+        }
+
+        public void DeltaFieldParam.doMethodListTranslation(PrintWriter stream, RplToMethodListFormatter formatter) {
+
+        }
+
+        public void DeltaClassParam.doMethodListTranslation(PrintWriter stream, RplToMethodListFormatter formatter) {
+
+        }
+
+        public void HasField.doMethodListTranslation(PrintWriter stream, RplToMethodListFormatter formatter) {
+
+        }
+
+        public void HasInterface.doMethodListTranslation(PrintWriter stream, RplToMethodListFormatter formatter) {
+
+        }
+
+        public void HasMethod.doMethodListTranslation(PrintWriter stream, RplToMethodListFormatter formatter) {
+
+        }
+
+        public void MethodSig.doMethodListTranslation(PrintWriter stream, RplToMethodListFormatter formatter) {
+
+        }
+
+        public void MethodSig1.doMethodListTranslation(PrintWriter stream, RplToMethodListFormatter formatter) {
+
+        }
+
+        public void ClassDecl.doMethodListTranslation(PrintWriter stream, RplToMethodListFormatter formatter) {
+
+        }
+
+        public void ClassDecl1.doMethodListTranslation(PrintWriter stream, RplToMethodListFormatter formatter) {
+
+            }
+
+        public void FieldDecl.doMethodListTranslation(PrintWriter stream, RplToMethodListFormatter formatter) {
+
+        }
+
+        public void MethodImpl.doMethodListTranslation(PrintWriter stream, RplToMethodListFormatter formatter) {
+
+        }
+
+        public void MethodImpl1.doMethodListTranslation(PrintWriter stream, RplToMethodListFormatter formatter) {
+
+        }
+
+        public void TypeParameterDecl.doMethodListTranslation(PrintWriter stream, RplToMethodListFormatter formatter) {
+
+        }
+
+        public void DataTypeDecl.doMethodListTranslation(PrintWriter stream, RplToMethodListFormatter formatter) {
+
+        }
+
+        public void AddDataTypeModifier.doMethodListTranslation(PrintWriter stream, RplToMethodListFormatter formatter)
+        {
+
+        }
+
+        public void ModifyInterfaceModifier.doMethodListTranslation(PrintWriter stream, RplToMethodListFormatter formatter) {
+
+        }
+
+        public void AddMethodSigModifier.doMethodListTranslation(PrintWriter stream, RplToMethodListFormatter formatter) {
+
+        }
+
+        public void RemoveMethodSigModifier.doMethodListTranslation(PrintWriter stream, RplToMethodListFormatter formatter) {
+
+        }
+
+        public void DataTypeDecl.doMethodListTranslationTypeParam(PrintWriter stream, RplToMethodListFormatter formatter) { }
+
+        public void ParametricDataTypeDecl.doMethodListTranslationTypeParam(PrintWriter stream, RplToMethodListFormatter formatter) {
+
+        }
+
+        public void DataConstructor.doMethodListTranslation(PrintWriter stream, RplToMethodListFormatter formatter) {
+
+        }
+
+        public void ConstructorArg.doMethodListTranslation(PrintWriter stream, RplToMethodListFormatter formatter) {
+
+        }
+
+        public void UnresolvedTypeUse.doMethodListTranslation(PrintWriter stream, RplToMethodListFormatter formatter) {
+
+        }
+
+        public void DataTypeUse.doMethodListTranslation(PrintWriter stream, RplToMethodListFormatter formatter) {
+        }
+
+        public void DataTypeUse.doMethodListTranslationTypeParam(PrintWriter stream, RplToMethodListFormatter formatter) { }
+
+        public void ParametricDataTypeUse.doMethodListTranslationTypeParam(PrintWriter stream, RplToMethodListFormatter formatter) {
+
+        }
+
+        public void TypedAnnotation.doMethodListTranslation(PrintWriter stream, RplToMethodListFormatter formatter) {
+
+        }
+
+        public void Annotation.doMethodListTranslation(PrintWriter stream, RplToMethodListFormatter formatter) {
+
+        }
+
+        public void TypeParameterUse.doMethodListTranslation(PrintWriter stream, RplToMethodListFormatter formatter) {
+
+        }
+
+        public void InterfaceTypeUse.doMethodListTranslation(PrintWriter stream, RplToMethodListFormatter formatter) {
+
+        }
+
+        public void FieldUse.doMethodListTranslation(PrintWriter stream, RplToMethodListFormatter formatter) {
+
+        }
+
+        public void VarUse.doMethodListTranslation(PrintWriter stream, RplToMethodListFormatter formatter) {
+
+        }
+
+        public void Binary.doMethodListTranslation(PrintWriter stream, RplToMethodListFormatter formatter) {
+
+        }
+
+        public void ConBinary.doMethodListTranslation(PrintWriter stream, RplToMethodListFormatter formatter) {
+
+            }
+
+        abstract public void Binary.doMethodListTranslationOperator(PrintWriter stream, RplToMethodListFormatter formatter);
+
+        abstract public void ConBinary.doMethodListTranslationOperator(PrintWriter stream, RplToMethodListFormatter formatter);
+
+        public void AddAddExp.doMethodListTranslationOperator(PrintWriter stream, RplToMethodListFormatter formatter) {
+
+        }
+
+        public void SubAddExp.doMethodListTranslationOperator(PrintWriter stream, RplToMethodListFormatter formatter) {
+
+        }
+
+        public void DivMultExp.doMethodListTranslationOperator(PrintWriter stream, RplToMethodListFormatter formatter) {
+
+        }
+
+        public void ModMultExp.doMethodListTranslationOperator(PrintWriter stream, RplToMethodListFormatter formatter) {
+
+        }
+
+        public void MultMultExp.doMethodListTranslationOperator(PrintWriter stream, RplToMethodListFormatter formatter) {
+
+        }
+
+        public void AndBoolExp.doMethodListTranslationOperator(PrintWriter stream, RplToMethodListFormatter formatter) {
+
+        }
+
+        public void ConjunctionExp.doMethodListTranslationOperator(PrintWriter stream, RplToMethodListFormatter formatter) {
+
+        }
+
+        public void OrBoolExp.doMethodListTranslationOperator(PrintWriter stream, RplToMethodListFormatter formatter) {
+
+        }
+
+        public void EqExp.doMethodListTranslationOperator(PrintWriter stream, RplToMethodListFormatter formatter) {
+
+        }
+
+        public void NotEqExp.doMethodListTranslationOperator(PrintWriter stream, RplToMethodListFormatter formatter) {
+
+        }
+
+        public void GTEQExp.doMethodListTranslationOperator(PrintWriter stream, RplToMethodListFormatter formatter) {
+
+        }
+
+        public void GTExp.doMethodListTranslationOperator(PrintWriter stream, RplToMethodListFormatter formatter) {
+
+        }
+
+        public void LTEQExp.doMethodListTranslationOperator(PrintWriter stream, RplToMethodListFormatter formatter) {
+
+        }
+
+        public void LTExp.doMethodListTranslationOperator(PrintWriter stream, RplToMethodListFormatter formatter) {
+
+        }
+
+        public void CaseExp.doMethodListTranslation(PrintWriter stream, RplToMethodListFormatter formatter) {
+
+        }
+
+        public void ConstructorPattern.doMethodListTranslation(PrintWriter stream, RplToMethodListFormatter formatter) {
+
+        }
+
+        public void LiteralPattern.doMethodListTranslation(PrintWriter stream, RplToMethodListFormatter formatter) {
+
+        }
+
+        public void PatternVar.doMethodListTranslation(PrintWriter stream, RplToMethodListFormatter formatter) {
+
+        }
+
+        public void PatternVarDecl.doMethodListTranslation(PrintWriter stream, RplToMethodListFormatter formatter) {
+
+        }
+
+        public void PatternVarUse.doMethodListTranslation(PrintWriter stream, RplToMethodListFormatter formatter) {
+
+        }
+
+        public void UnderscorePattern.doMethodListTranslation(PrintWriter stream, RplToMethodListFormatter formatter) {
+
+        }
+
+        public void DataConstructorExp.doMethodListTranslation(PrintWriter stream, RplToMethodListFormatter formatter) {
+
+        }
+
+        public void FnApp.doMethodListTranslation(PrintWriter stream, RplToMethodListFormatter formatter) {
+
+        }
+
+        public void ParFnApp.doMethodListTranslation(PrintWriter stream, RplToMethodListFormatter formatter) {
+        }
+
+        public void IfExp.doMethodListTranslation(PrintWriter stream, RplToMethodListFormatter formatter) {
+
+        }
+
+        public void LetExp.doMethodListTranslation(PrintWriter stream, RplToMethodListFormatter formatter) {
+
+        }
+
+        public void ParamDecl.doMethodListTranslation(PrintWriter stream, RplToMethodListFormatter formatter) {
+
+        }
+
+        public void IntLiteral.doMethodListTranslation(PrintWriter stream, RplToMethodListFormatter formatter) {
+
+        }
+
+        public void StringLiteral.doMethodListTranslation(PrintWriter stream, RplToMethodListFormatter formatter) {
+
+        }
+
+        public void FloatLiteral.doMethodListTranslation(PrintWriter stream, RplToMethodListFormatter formatter) {
+
+        }
+
+        public void ListLiteral.doMethodListTranslation(PrintWriter stream, RplToMethodListFormatter formatter) {
+
+        }
+
+        public void NullExp.doMethodListTranslation(PrintWriter stream, RplToMethodListFormatter formatter) {
+
+        }
+
+        public void ThisExp.doMethodListTranslation(PrintWriter stream, RplToMethodListFormatter formatter) {
+
+        }
+
+        public void DestinyExp.doMethodListTranslation(PrintWriter stream, RplToMethodListFormatter formatter) {
+
+        }
+
+        public void MinusExp.doMethodListTranslation(PrintWriter stream, RplToMethodListFormatter formatter) {
+
+        }
+
+        public void NegExp.doMethodListTranslation(PrintWriter stream, RplToMethodListFormatter formatter) {
+
+        }
+
+        public void TraitDecl.doMethodListTranslation(PrintWriter stream, RplToMethodListFormatter formatter) {
+
+        }
+        public void TraitUse.doMethodListTranslation(PrintWriter stream, RplToMethodListFormatter formatter) {
+
+        }
+    }
+
+
+

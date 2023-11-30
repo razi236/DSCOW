@@ -82,6 +82,10 @@ public class RPLc implements Callable<Integer> {
             description = "@|bold Rpl to Peak Analysis ABS:|@ translate Rpl into ABS and exit")
         public boolean peakAnalysis = false;
 
+        @Option(names = { "-l" }, required = true,
+            description = "@|bold Rpl to list of classes and methods:|@ translate Rpl into list of classes and methods and exit")
+        public boolean methodlist = false;
+
         @Option(names = { "-c" }, required = true,
             description = "@|bold Cost Analysis:|@ compute cost and exit")
         public boolean cost = false;

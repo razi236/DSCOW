@@ -6,6 +6,7 @@ echo "Press 1 for Simulation"
 echo "Press 2 for Cost Analysis"
 echo "Press 3 for RPL to ABS translation for Time Analysis"
 echo "Press 4 for RPL to ABS translation for Resource Peak Analysis"
+echo "Press 5 for RPL to List of Method translation for Easy Insterface"
 read option
 if [[ "$OSTYPE" == "darwin"* ]]; then
     {
@@ -60,6 +61,16 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
             read file
             start=`echo $(($(gdate +%s%N)/1000000))`
             frontend/bin/absc -r ./examples/$file
+            end=`echo $(($(gdate +%s%N)/1000000))`
+            echo Execution time was `expr $end - $start` mili seconds.
+        }
+    elif [ $option = "5" ]
+    then
+        {
+            echo "Please enter the filename:"
+            read file
+            start=`echo $(($(gdate +%s%N)/1000000))`
+            frontend/bin/absc -l ./examples/$file
             end=`echo $(($(gdate +%s%N)/1000000))`
             echo Execution time was `expr $end - $start` mili seconds.
         }
@@ -119,6 +130,16 @@ else
           end=`date +%s`
           echo Execution time was `expr $end - $start` mili seconds.
         }
+    elif [ $option = "5" ]
+    then
+    {
+      echo "Please enter the filename:"
+      read file
+      start=`date +%s`
+      frontend/bin/absc -l ./examples/$file
+      end=`date +%s`
+      echo Execution time was `expr $end - $start` mili seconds.
+    }
     else
     {
         echo "Wrong selection"
