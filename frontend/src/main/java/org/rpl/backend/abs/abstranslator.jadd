@@ -18,8 +18,10 @@ aspect doABSTranslator {
 
     public void List.doABSTranslation(PrintWriter stream, RplToABSFormatter formatter, String separator) {
         if (getNumChild() > 0) {
+           // stream.println("// rplline(" + String.valueOf(getChild(0).getStartLine()) +")");
             getChild(0).doABSTranslation(stream, formatter);
             for (int i = 1; i < getNumChild(); i++) {
+                //stream.println("// rplline(" + String.valueOf(getChild(i).getStartLine()) +")");
                 stream.print(separator+" ");
                 getChild(i).doABSTranslation(stream, formatter);
             }
@@ -28,6 +30,7 @@ aspect doABSTranslator {
 
     public void List.doABSTranslation(PrintWriter stream, String method, RplToABSFormatter formatter) {
         if (getNumChild() > 0) {
+            stream.println("// rplline(" + String.valueOf(getChild(0).getStartLine()) +")");
             Stmt s = (Stmt) getChild(0);
             if (s instanceof ReturnStmt) {
                 s.doABSTranslation(stream,formatter,method);
@@ -39,6 +42,7 @@ aspect doABSTranslator {
             }
             //getChild(0).doABSTranslation(stream, formatter);
             for (int i = 1; i < getNumChild(); i++) {
+                stream.println("// rplline(" + String.valueOf(getChild(i).getStartLine()) +")");
                 Stmt s1 = (Stmt) getChild(i);
                 if (s1 instanceof ReturnStmt) {
                     s1.doABSTranslation(stream,formatter,method);
@@ -57,6 +61,7 @@ aspect doABSTranslator {
         if (getNumChild() > 0) {
             if(getNumChild() == 1)
             {
+                //stream.println("// rplline(" + String.valueOf(getChild(0).getStartLine()) +")");
                 stream.println();
                 formatter.afterStmt();
                 stream.print("await ");
@@ -67,6 +72,7 @@ aspect doABSTranslator {
             }
             else
             {
+                //stream.println("// rplline(" + String.valueOf(getChild(i).getStartLine()) +")");
                 stream.println();
                 formatter.afterStmt();
                 stream.println("Int rnd = random(" + String.valueOf(rnd) + ");");
@@ -190,9 +196,12 @@ aspect doABSTranslator {
     }
     public void List.doABSTranslation(PrintWriter stream, RplToABSFormatter formatter) {
         if (getNumChild() > 0) {
+             //int l = getModel().getEndLine();
+            stream.println("// rplline(" + String.valueOf(getChild(0).getStartLine()) +")");
             getChild(0).doABSTranslation(stream, formatter);
             for (int i = 1; i < getNumChild(); i++) {
                 stream.println();
+                stream.println("// rplline(" + String.valueOf(getChild(i).getStartLine()) +")");
                 formatter.afterStmt();
                 getChild(i).doABSTranslation(stream, formatter);
             }
@@ -723,6 +732,8 @@ aspect doABSTranslator {
              //stream.print("await rm!holdRes(");
              //getParamList().doABSTranslation(stream, formatter, ",");
              //stream.print(")");
+             //int l = getModel().getEndLine();
+             //stream.println("// Line in Rpl code = " + String.valueOf(l));
              stream.print("Pair(Nil,0)");
     }
 
