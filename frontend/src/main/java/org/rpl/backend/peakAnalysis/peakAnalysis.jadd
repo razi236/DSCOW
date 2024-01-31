@@ -28,6 +28,7 @@ aspect dopeakAnalysis {
 
     public void List.dopeakAnalysis(PrintWriter stream, String method, PeakAnalysisFormatter formatter) {
         if (getNumChild() > 0) {
+            stream.println("// rplline(" + String.valueOf(getChild(0).getStartLine()) +")");
             Stmt s = (Stmt) getChild(0);
             if (s instanceof ReturnStmt) {
                 s.dopeakAnalysis(stream,formatter,method);
@@ -39,6 +40,7 @@ aspect dopeakAnalysis {
             }
             //getChild(0).dopeakAnalysis(stream, formatter);
             for (int i = 1; i < getNumChild(); i++) {
+                stream.println("// rplline(" + String.valueOf(getChild(i).getStartLine()) +")");
                 Stmt s1 = (Stmt) getChild(i);
                 if (s1 instanceof ReturnStmt) {
                     s1.dopeakAnalysis(stream,formatter,method);
@@ -190,9 +192,11 @@ aspect dopeakAnalysis {
     }
     public void List.dopeakAnalysis(PrintWriter stream, PeakAnalysisFormatter formatter) {
         if (getNumChild() > 0) {
+            stream.println("// rplline(" + String.valueOf(getChild(0).getStartLine()) +")");
             getChild(0).dopeakAnalysis(stream, formatter);
             for (int i = 1; i < getNumChild(); i++) {
                 stream.println();
+                stream.println("// rplline(" + String.valueOf(getChild(i).getStartLine()) +")");
                 formatter.afterStmt();
                 getChild(i).dopeakAnalysis(stream, formatter);
             }
