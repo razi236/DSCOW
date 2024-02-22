@@ -698,6 +698,7 @@ aspect doPrettyPrinter {
     }
 
     public void ReturnStmt.doPrettyPrint(PrintWriter stream, ABSFormatter formatter, String m) {
+        /*
         stream.print("try {");
         stream.println();
         formatter.afterStmt();
@@ -721,6 +722,7 @@ aspect doPrettyPrinter {
         stream.print("}");
         stream.println();
         formatter.afterStmt();
+        */
         getAnnotationList().doPrettyPrint(stream, formatter, "");
         stream.print("return ");
         getRetExp().doPrettyPrint(stream, formatter);

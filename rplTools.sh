@@ -1,150 +1,163 @@
 #!/bin/bash
-echo "****************************************"
-echo "*          Welcome to RplTools         *"
-echo "****************************************"
-echo "Press 1 for Simulation"
-echo "Press 2 for Cost Analysis"
-echo "Press 3 for RPL to ABS translation for Time Analysis"
-echo "Press 4 for RPL to ABS translation for Resource Peak Analysis"
-echo "Press 5 for RPL to List of Method translation for Easy Insterface"
+echo "**************************************************************************"
+echo "*          Welcome to RplTool's Descision Support for Emergency Workflow          *"
+echo "**************************************************************************"
+echo "How many simulations would you like to run?"
+read sim
+echo "How many concurrent cases would you like to run?"
+read conc
+echo "Please indicate your preferred resource efficiency configuration"
+echo "Please select a number between 1 and 7."
 read option
-if [[ "$OSTYPE" == "darwin"* ]]; then
-    {
-    if [ $option = "1" ]
-    then
-    {
-      [ -f test.csv ] && rm test.csv
-      echo "Please enter the filename:"
-      read file
-      start=`echo $(($(gdate +%s%N)/1000000))`
-      frontend/bin/absc -s ./examples/$file
+if [ $option = "1" ]
+then
+{
+    cp ./examples/e1-c1.rpl temp.rpl
+    YOUR_FILE='temp.rpl'
+    TEXT="conc"
+    sed -i "" "s/$TEXT/$conc/" $YOUR_FILE
+  frontend/bin/absc -s temp.rpl
+  cp RABS.abs ABS.rpl
+  c=1
+  frontend/bin/absc -e ABS.rpl
+  while [ $c -le $sim ]
+  do
+      # timeout 25
+      echo "Simulation " $c " with " $conc "concurrent cases started"
+      echo ""
+      gen/erl/run
+      echo "Simulation " $c " with " $conc "concurrent cases finished"
+      (( c++ ))
+  done
+}
+# shellcheck disable=SC1073
+elif [ $option = "2" ]
+then
+{
+    cp ./examples/e1-c2.rpl temp.rpl
+        YOUR_FILE='temp.rpl'
+        TEXT="conc"
+        sed -i "" "s/$TEXT/$conc/" $YOUR_FILE
+      frontend/bin/absc -s temp.rpl
       cp RABS.abs ABS.rpl
-
       c=1
       frontend/bin/absc -e ABS.rpl
-      while [ $c -le 100 ]
+      while [ $c -le $sim ]
       do
           # timeout 25
-          gen/erl/run >> test.csv
+          echo "Simulation " $c " with " $conc "concurrent cases started"
+          gen/erl/run
+          echo "Simulation " $c " with " $conc "concurrent cases finished"
           (( c++ ))
       done
-      end=`echo $(($(gdate +%s%N)/1000000))`
-      echo Execution time was `expr $end - $start` mili seconds.
-    }
-    # shellcheck disable=SC1073
-    elif [ $option = "2" ]
-    then
-    {
-      echo "Please enter the filename:"
-      read file
-      start=`echo $(($(gdate +%s%N)/1000000))`
-      frontend/bin/absc -c ./examples/$file
-      end=`echo $(($(gdate +%s%N)/1000000))`
-      echo Execution time was `expr $end - $start` mili seconds.
-      grep -o '\bmax\b' CostEquations.txt | wc -l
-    }
-    # shellcheck disable=SC1131
-    elif [ $option = "3" ]
-    then
-    {
-      echo "Please enter the filename:"
-      read file
-      start=`echo $(($(gdate +%s%N)/1000000))`
-      frontend/bin/absc -t ./examples/$file
-      end=`echo $(($(gdate +%s%N)/1000000))`
-      echo Execution time was `expr $end - $start` mili seconds.
-    }
-    elif [ $option = "4" ]
-    then
-        {
-            echo "Please enter the filename:"
-            read file
-            start=`echo $(($(gdate +%s%N)/1000000))`
-            frontend/bin/absc -r ./examples/$file
-            end=`echo $(($(gdate +%s%N)/1000000))`
-            echo Execution time was `expr $end - $start` mili seconds.
-        }
-    elif [ $option = "5" ]
-    then
-        {
-            echo "Please enter the filename:"
-            read file
-            start=`echo $(($(gdate +%s%N)/1000000))`
-            frontend/bin/absc -l ./examples/$file
-            end=`echo $(($(gdate +%s%N)/1000000))`
-            echo Execution time was `expr $end - $start` mili seconds.
-        }
-    else
-    {
-        echo "Wrong selection"
-
-    }
-    fi
-    }
-else
-    {
-    if [ $option = "1" ]
-    then
-    {
-      echo "Please enter the filename:"
-      read file
-      start=`date +%s`
-      frontend/bin/absc -c ./examples/$file
-      end=`date +%s`
-      echo Analysis time was `expr $end - $start` seconds.
-    }
-    # shellcheck disable=SC1073
-    elif [ $option = "2" ]
-    then
-    {
-        echo "Please enter the filename:"
-        read file
-        start=`date +%s`
-        frontend/bin/absc -s ./examples/$file
+}
+# shellcheck disable=SC1131
+elif [ $option = "3" ]
+then
+{
+      cp ./examples/e1-c3.rpl temp.rpl
+          YOUR_FILE='temp.rpl'
+          TEXT="conc"
+          sed -i "" "s/$TEXT/$conc/" $YOUR_FILE
+        frontend/bin/absc -s temp.rpl
         cp RABS.abs ABS.rpl
+        c=1
         frontend/bin/absc -e ABS.rpl
-        gen/erl/run
-        end=`date +%s`
-        echo Execution time was `expr $end - $start` seconds.
-        grep -o '\bmax\b' CostEquations.txt | wc -l
-    }
-    # shellcheck disable=SC1131
-    elif [ $option = "3" ]
-    then
-    {
-        echo "Please enter the filename:"
-        read file
-        #start=`echo $($(date +%s))`
-        start=`date +%s`
-        frontend/bin/absc -t ./examples/$file
-        end=`date +%s`
-        echo Translation time was `expr $end - $start` seconds.
-    }
-    elif [ $option = "4" ]
-        then
-        {
-          echo "Please enter the filename:"
-          read file
-          start=`date +%s`
-          frontend/bin/absc -r ./examples/$file
-          end=`date +%s`
-          echo Execution time was `expr $end - $start` mili seconds.
-        }
-    elif [ $option = "5" ]
-    then
-    {
-      echo "Please enter the filename:"
-      read file
-      start=`date +%s`
-      frontend/bin/absc -l ./examples/$file
-      end=`date +%s`
-      echo Execution time was `expr $end - $start` mili seconds.
-    }
-    else
-    {
-        echo "Wrong selection"
+        while [ $c -le $sim ]
+        do
+            # timeout 25
+            echo "Simulation " $c " with " $conc "concurrent cases started"
+            gen/erl/run
+            echo "Simulation " $c " with " $conc "concurrent cases finished"
+            (( c++ ))
+        done
+}
+elif [ $option = "4" ]
+then
+{
+      cp ./examples/e1-c4.rpl temp.rpl
+          YOUR_FILE='temp.rpl'
+          TEXT="conc"
+          sed -i "" "s/$TEXT/$conc/" $YOUR_FILE
+        frontend/bin/absc -s temp.rpl
+        cp RABS.abs ABS.rpl
+        c=1
+        frontend/bin/absc -e ABS.rpl
+        while [ $c -le $sim ]
+        do
+            # timeout 25
+            echo "Simulation " $c " with " $conc "concurrent cases started"
+            gen/erl/run
+            echo "Simulation " $c " with " $conc "concurrent cases finished"
+            (( c++ ))
+        done
 
-    }
-    fi
-    }
+}
+elif [ $option = "5" ]
+then
+{
+      cp ./examples/e1-c5.rpl temp.rpl
+          YOUR_FILE='temp.rpl'
+          TEXT="conc"
+          sed -i "" "s/$TEXT/$conc/" $YOUR_FILE
+        frontend/bin/absc -s temp.rpl
+        cp RABS.abs ABS.rpl
+        c=1
+        frontend/bin/absc -e ABS.rpl
+        while [ $c -le $sim ]
+        do
+            # timeout 25
+            echo "Simulation " $c " with " $conc "concurrent cases started"
+            gen/erl/run
+            echo "Simulation " $c " with " $conc "concurrent cases finished"
+            (( c++ ))
+        done
+
+}
+elif [ $option = "6" ]
+then
+{
+      cp ./examples/e1-c6.rpl temp.rpl
+          YOUR_FILE='temp.rpl'
+          TEXT="conc"
+          sed -i "" "s/$TEXT/$conc/" $YOUR_FILE
+        frontend/bin/absc -s temp.rpl
+        cp RABS.abs ABS.rpl
+        c=1
+        frontend/bin/absc -e ABS.rpl
+        while [ $c -le $sim ]
+        do
+            # timeout 25
+            echo "Simulation " $c " with " $conc "concurrent cases started"
+            gen/erl/run
+            echo "Simulation " $c " with " $conc "concurrent cases finished"
+            (( c++ ))
+        done
+
+}
+elif [ $option = "7" ]
+then
+{
+      cp ./examples/e1-c7.rpl temp.rpl
+          YOUR_FILE='temp.rpl'
+          TEXT="conc"
+          sed -i "" "s/$TEXT/$conc/" $YOUR_FILE
+        frontend/bin/absc -s temp.rpl
+        cp RABS.abs ABS.rpl
+        c=1
+        frontend/bin/absc -e ABS.rpl
+        while [ $c -le $sim ]
+        do
+            # timeout 25
+            echo "Simulation " $c " with " $conc "concurrent cases started"
+            gen/erl/run
+            echo "Simulation " $c " with " $conc "concurrent cases finished"
+            (( c++ ))
+        done
+}
+else
+{
+    echo "Wrong selection"
+}
 fi
+

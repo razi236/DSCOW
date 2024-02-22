@@ -1,7 +1,0 @@
-updateCost/this
-printCost/this
-start/this,c/this,c/this,c/this,c
-rushToSite/this,c/c
-searchEOD/this,c/c
-reportEOD/this,c/c
-main/this/eod,c

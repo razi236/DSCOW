@@ -15,7 +15,7 @@ class ResourceCost implements ResourceCost {
         return 0;
     }
     Int printCost()
-    {make
+    {
         println(`Cost = $cst$`);
         return 0;
     }
@@ -404,7 +404,7 @@ class Hospital implements Hospital {
           // assuming each resource type has same efficiency level
           // list[PoliceMan,Clerk,EODTech,FireFighter,Doctor]
           // *****************************
-          f = !alarm(p,ecc, eod, fb, h, list[100,100,100,100,100], c) after dl 400*max;
+          f = !alarm(p,ecc, eod, fb, h, list[50,60,50,60,50], c) after dl 400*max;
           // *****************************
           // for randomly selected efficiency configuration
           //f = !alarm(p,ecc, eod, fb, h, list[r1,r2,r3,r4,r5], c) after dl 400*max;
@@ -422,7 +422,7 @@ class Hospital implements Hospital {
 
   Rat t = timeValue(now());
   Int t1 = truncate(t);
-  print(`Time = $t1$`);
+  println(`Time = $t1$`);
   Fut<Int> fc;
   fc = !printCost(c) after dl 5;
   await fc?;

@@ -4,18 +4,20 @@ export *;
 data RC = RC(Int rc);
 data Quality = ResEfficiency(Int) | Int | ResCost(Int cst) | ResCapacity(Int) | Ferry | Doctor | SmokeMask | PoliceMan | Clerk | EODTech | FireFighter | FireExt | FirstAidBox;
 interface ResourceCost {
-    Unit updateCost(Int c);
-    Unit printCost();
+    Int updateCost(Int c);
+    Int printCost();
 }
 class ResourceCost implements ResourceCost {
     Int cst = 0;
-    Unit updateCost(Int c)
+    Int updateCost(Int c)
     {
         cst = cst + c;
+        return 0;
     }
-    Unit printCost()
+    Int printCost()
     {
-        println(`%$cst$`);
+        println(`Financial cost = $cst$`);
+        return 0;
     }
 }
 interface Police {
@@ -47,7 +49,7 @@ class Police implements Police {
     Fut<Int> f2;
     Fut<Int> f3;
     Fut<Int> f4;
-    Fut<Unit> fc;
+    Fut<Int> fc;
     Int x = 0;
     List<Int> temp = list(Nil);
     Pair<List<Int>,Int> p = hold(res);
@@ -73,7 +75,7 @@ class Police implements Police {
     Pair<List<Int>,Int> p = hold(res);
     temp = fst(p);
     cost(rushToSiteCost);
-    Fut<Unit> fc;
+    Fut<Int> fc;
     fc = !updateCost(c,(snd(p)*rushToSiteCost)) after dl 10;
     await fc?;
     rel(temp);
@@ -83,7 +85,7 @@ class Police implements Police {
     List<Int> temp = list(Nil);
     Pair<List<Int>,Int> p = hold(res);
     temp = fst(p);
-    Fut<Unit> fc;
+    Fut<Int> fc;
     Int t = truncate((dealSituationCost/totalEfficiency)*(100/effPercentage));
     fc = !updateCost(c,(snd(p)*t)) after dl 10;
     await fc?;
@@ -96,7 +98,7 @@ class Police implements Police {
     Pair<List<Int>,Int> p = hold(res);
     temp = fst(p);
     Int t = truncate((evacuationCost/totalEfficiency)*(100/effPercentage));
-    Fut<Unit> fc;
+    Fut<Int> fc;
     fc = !updateCost(c,(snd(p)*t)) after dl 10;
     await fc?;
     cost(t);
@@ -108,7 +110,7 @@ class Police implements Police {
     Pair<List<Int>,Int> p = hold(res);
     temp = fst(p);
     Int t = truncate((rescueCost/totalEfficiency)*(100/effPercentage));
-    Fut<Unit> fc;
+    Fut<Int> fc;
     fc = !updateCost(c,(snd(p)*t)) after dl 10;
     await fc?;
     cost(t);
@@ -172,7 +174,7 @@ class EOD implements EOD {
     List<Int> temp = list(Nil);
     Pair<List<Int>,Int> p = hold(res);
     temp = fst(p);
-    Fut<Unit> fc;
+    Fut<Int> fc;
     fc = !updateCost(c,(snd(p)*rushToSiteCost)) after dl 10;
     await fc?;
     cost(rushToSiteCost);
@@ -183,7 +185,7 @@ class EOD implements EOD {
     List<Int> temp = Nil;
     Pair<List<Int>,Int> p = hold(res);
     temp = fst(p);
-    Fut<Unit> fc;
+    Fut<Int> fc;
     Int t = truncate((searchEODCost/totalEfficiency)*(100/effPercentage));
     fc = !updateCost(c,(snd(p)*t)) after dl 10;
     await fc?;
@@ -195,7 +197,7 @@ class EOD implements EOD {
     List<Int> temp = list(Nil);
     Pair<List<Int>,Int> p = hold(res);
     temp = fst(p);
-    Fut<Unit> fc;
+    Fut<Int> fc;
     Int t = truncate((reportEODCost/totalEfficiency)*(100/effPercentage));
     fc = !updateCost(c,(snd(p)*t)) after dl 10;
     await fc?;
@@ -233,7 +235,7 @@ class FB implements FB {
     List<Int> temp = list(Nil);
     Pair<List<Int>,Int> p = hold(res);
     temp = fst(p);
-    Fut<Unit> fc;
+    Fut<Int> fc;
     fc = !updateCost(c,(snd(p)*rushToSiteCost)) after dl 10;
     await fc?;
     cost(rushToSiteCost);
@@ -244,7 +246,7 @@ class FB implements FB {
     List<Int> temp = list(Nil);
     Pair<List<Int>,Int> p = hold(res);
     temp = fst(p);
-    Fut<Unit> fc;
+    Fut<Int> fc;
     Int t = truncate((fightFireCost/totalEfficiency)*(100/effPercentage));
     fc = !updateCost(c,(snd(p)*t)) after dl 10;
     await fc?;
@@ -257,7 +259,7 @@ class FB implements FB {
     Pair<List<Int>,Int> p = hold(res);
     temp = fst(p);
     Int t = truncate((mitigateCost/totalEfficiency)*(100/effPercentage));
-    Fut<Unit> fc;
+    Fut<Int> fc;
     fc = !updateCost(c,(snd(p)*t)) after dl 10;
     await fc?;
     cost(t);
@@ -269,7 +271,7 @@ class FB implements FB {
     Pair<List<Int>,Int> p = hold(res);
     temp = fst(p);
     Int t = truncate((recoverSiteCost/totalEfficiency)*(100/effPercentage));
-    Fut<Unit> fc;
+    Fut<Int> fc;
     fc = !updateCost(c,(snd(p)*t)) after dl 10;
     await fc?;
     cost(t);
@@ -281,7 +283,7 @@ class FB implements FB {
     Pair<List<Int>,Int> p = hold(res);
     temp = fst(p);
     Int t = truncate((reportFireRescueCost/totalEfficiency)*(100/effPercentage));
-    Fut<Unit> fc;
+    Fut<Int> fc;
     fc = !updateCost(c,(snd(p)*t)) after dl 10;
     await fc?;
     cost(t);
@@ -321,7 +323,7 @@ class Hospital implements Hospital {
     List<Int> temp = list(Nil);
     Pair<List<Int>,Int> p = hold(res);
     temp = fst(p);
-    Fut<Unit> fc;
+    Fut<Int> fc;
     fc = !updateCost(c,(snd(p)*rushToSiteCost)) after dl 10;
     await fc?;
     cost(rushToSiteCost);
@@ -333,7 +335,7 @@ class Hospital implements Hospital {
     Pair<List<Int>,Int> p = hold(res);
     temp = fst(p);
     Int t = truncate((shuntWoundedCost/totalEfficiency)*(100/effPercentage));
-    Fut<Unit> fc;
+    Fut<Int> fc;
     fc = !updateCost(c,(snd(p)*t)) after dl 10;
     await fc?;
     cost(t);
@@ -345,7 +347,7 @@ class Hospital implements Hospital {
     Pair<List<Int>,Int> p = hold(res);
     temp = fst(p);
     Int t = truncate((treatSliInjCost/totalEfficiency)*(100/effPercentage));
-    Fut<Unit> fc;
+    Fut<Int> fc;
     fc = !updateCost(c,(snd(p)*t)) after dl 10;
     await fc?;
     cost(t);
@@ -356,7 +358,7 @@ class Hospital implements Hospital {
     List<Int> temp = list(Nil);
     Pair<List<Int>,Int> p = hold(res);
     temp = fst(p);
-    Fut<Unit> fc;
+    Fut<Int> fc;
     Int t = truncate((treatSevInjCost/totalEfficiency)*(100/effPercentage));
     fc = !updateCost(c,(snd(p)*t)) after dl 10;
     await fc?;
@@ -369,7 +371,7 @@ class Hospital implements Hospital {
     Pair<List<Int>,Int> p = hold(res);
     temp = fst(p);
     Int t = truncate((reportMedRescueCost/totalEfficiency)*(100/effPercentage));
-    Fut<Unit> fc;
+    Fut<Int> fc;
     fc = !updateCost(c,(snd(p)*t)) after dl 10;
     await fc?;
     cost(t);
@@ -390,10 +392,22 @@ class Hospital implements Hospital {
       FB fb = new FB();
       Hospital h = new Hospital();
       Int counter = 1;
-      Int max = 5;
+      Int max = conc;
       while (counter <= max) {
           Fut<Int> f;
-          f = !alarm(p,ecc, eod, fb, h, list[80,100,80,50,50], c) after dl 400*max; // list[PoliceMan,Clerk,EODTech,FireFighter,Doctor]
+          Int r1 = random(50)+50;
+          Int r2 = random(50)+50;
+          Int r3 = random(50)+50;
+          Int r4 = random(50)+50;
+          Int r5 = random(50)+50;
+          // for efficiency configurstions C1 - C6 put hard coded value in the list for each resource type,
+          // assuming each resource type has same efficiency level
+          // list[PoliceMan,Clerk,EODTech,FireFighter,Doctor]
+          // *****************************
+          f = !alarm(p,ecc, eod, fb, h, list[100,100,100,100,100], c) after dl 400*max;
+          // *****************************
+          // for randomly selected efficiency configuration
+          //f = !alarm(p,ecc, eod, fb, h, list[r1,r2,r3,r4,r5], c) after dl 400*max;
           fl = appendright(fl,f);
           counter = counter + 1;
       }
@@ -408,25 +422,8 @@ class Hospital implements Hospital {
 
   Rat t = timeValue(now());
   Int t1 = truncate(t);
-  print(`%$t1$`);
-  Fut<Unit> fc;
+  println(`Execution time = $t1$`);
+  Fut<Int> fc;
   fc = !printCost(c) after dl 5;
   await fc?;
 }
-
-// [Done] Make it generic. (specially cost and hold statement arguments should be passed as a parameter on method invocation.)
-// [Done] Replace cost value (e.g, 2500) with a class field, so it can be changed easily.
-// [?] Cost in terms of budget (try to implement it).
-// Meeting with Håvard.. (Friday).
-
-
-// [] Write down paper then get feedback about material, motivation, why with Rpl?etc.
-// [] Connect program with original workflow models. How to guarantee correctness?
-
-// [] Try to implement with capacity.
-// Doctor-10-8
-// FireFighter - 25 - 6
-// EODTech - 25 - 1
-// Ferry - 30 - 3
-// Clerk - 10 - 3
-// PoliceMan -25- 4
