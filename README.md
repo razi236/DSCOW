@@ -30,7 +30,7 @@ On Windows, the Chocolatey package manager can be used to install the dependenci
 
 `choco install openjdk11 git erlang visualstudio2019buildtool`
 
-To compile the RplTool, make sure to run the command `./gradlew` build from a developer shell (Start -> Visual Studio 2019 -> Developer PowerShell for VS 2019).
+To compile the RplTool, make sure to run the command `./gradlew build` from a developer shell (Start -> Visual Studio 2019 -> Developer PowerShell for VS 2019).
 
 ### Installing dependencies on Linux
 
