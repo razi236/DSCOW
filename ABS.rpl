@@ -341,7 +341,7 @@ class Hospital implements Hospital {
     FB fb = new FB();
     Hospital h = new Hospital();
     Int counter = 1;
-    Int max = 1;
+    Int max = 90;
     while (( counter <= max )) {
       Fut<Int> f;
       Int r1 = ( random(50) + 50 );
@@ -349,7 +349,7 @@ class Hospital implements Hospital {
       Int r3 = ( random(50) + 50 );
       Int r4 = ( random(50) + 50 );
       Int r5 = ( random(50) + 50 );
-      [Deadline: Duration(( 400 * max ))]      f = p!alarm(rm,ecc, eod, fb, h, list[50, 60, 50, 60, 50], c);
+      [Deadline: Duration(( 400 * max ))]      f = p!alarm(rm,ecc, eod, fb, h, list[r1, r2, r3, r4, r5], c);
       fl = appendright(fl, f);
       counter = ( counter + 1 );
     }

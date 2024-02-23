@@ -12,6 +12,7 @@ read option
 if [ $option = "1" ]
 then
 {
+    start=`echo $(($(gdate +%s%N)/1000000))`
     cp ./examples/e1-c1.rpl temp.rpl
     YOUR_FILE='temp.rpl'
     TEXT="conc"
@@ -29,11 +30,14 @@ then
       echo "Simulation " $c " with " $conc "concurrent cases finished"
       (( c++ ))
   done
+  end=`echo $(($(gdate +%s%N)/1000000))`
+        echo Execution time was `expr $end - $start` mili seconds.
 }
 # shellcheck disable=SC1073
 elif [ $option = "2" ]
 then
 {
+    start=`echo $(($(gdate +%s%N)/1000000))`
     cp ./examples/e1-c2.rpl temp.rpl
         YOUR_FILE='temp.rpl'
         TEXT="conc"
@@ -50,11 +54,14 @@ then
           echo "Simulation " $c " with " $conc "concurrent cases finished"
           (( c++ ))
       done
+      end=`echo $(($(gdate +%s%N)/1000000))`
+            echo Execution time was `expr $end - $start` mili seconds.
 }
 # shellcheck disable=SC1131
 elif [ $option = "3" ]
 then
 {
+    start=`echo $(($(gdate +%s%N)/1000000))`
       cp ./examples/e1-c3.rpl temp.rpl
           YOUR_FILE='temp.rpl'
           TEXT="conc"
@@ -71,10 +78,13 @@ then
             echo "Simulation " $c " with " $conc "concurrent cases finished"
             (( c++ ))
         done
+        end=`echo $(($(gdate +%s%N)/1000000))`
+              echo Execution time was `expr $end - $start` mili seconds.
 }
 elif [ $option = "4" ]
 then
 {
+    start=`echo $(($(gdate +%s%N)/1000000))`
       cp ./examples/e1-c4.rpl temp.rpl
           YOUR_FILE='temp.rpl'
           TEXT="conc"
@@ -91,11 +101,14 @@ then
             echo "Simulation " $c " with " $conc "concurrent cases finished"
             (( c++ ))
         done
+        end=`echo $(($(gdate +%s%N)/1000000))`
+              echo Execution time was `expr $end - $start` mili seconds.
 
 }
 elif [ $option = "5" ]
 then
 {
+    start=`echo $(($(gdate +%s%N)/1000000))`
       cp ./examples/e1-c5.rpl temp.rpl
           YOUR_FILE='temp.rpl'
           TEXT="conc"
@@ -112,11 +125,14 @@ then
             echo "Simulation " $c " with " $conc "concurrent cases finished"
             (( c++ ))
         done
+        end=`echo $(($(gdate +%s%N)/1000000))`
+              echo Execution time was `expr $end - $start` mili seconds.
 
 }
 elif [ $option = "6" ]
 then
 {
+    start=`echo $(($(gdate +%s%N)/1000000))`
       cp ./examples/e1-c6.rpl temp.rpl
           YOUR_FILE='temp.rpl'
           TEXT="conc"
@@ -133,11 +149,14 @@ then
             echo "Simulation " $c " with " $conc "concurrent cases finished"
             (( c++ ))
         done
+        end=`echo $(($(gdate +%s%N)/1000000))`
+              echo Execution time was `expr $end - $start` mili seconds.
 
 }
 elif [ $option = "7" ]
 then
 {
+    start=`echo $(($(gdate +%s%N)/1000000))`
       cp ./examples/e1-c7.rpl temp.rpl
           YOUR_FILE='temp.rpl'
           TEXT="conc"
@@ -154,6 +173,8 @@ then
             echo "Simulation " $c " with " $conc "concurrent cases finished"
             (( c++ ))
         done
+        end=`echo $(($(gdate +%s%N)/1000000))`
+              echo Execution time was `expr $end - $start` mili seconds.
 }
 else
 {

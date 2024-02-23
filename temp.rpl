@@ -392,7 +392,7 @@ class Hospital implements Hospital {
       FB fb = new FB();
       Hospital h = new Hospital();
       Int counter = 1;
-      Int max = 1;
+      Int max = 90;
       while (counter <= max) {
           Fut<Int> f;
           Int r1 = random(50)+50;
@@ -404,10 +404,10 @@ class Hospital implements Hospital {
           // assuming each resource type has same efficiency level
           // list[PoliceMan,Clerk,EODTech,FireFighter,Doctor]
           // *****************************
-          f = !alarm(p,ecc, eod, fb, h, list[50,60,50,60,50], c) after dl 400*max;
+          //f = !alarm(p,ecc, eod, fb, h, list[100,100,100,100,100], c) after dl 400*max;
           // *****************************
           // for randomly selected efficiency configuration
-          //f = !alarm(p,ecc, eod, fb, h, list[r1,r2,r3,r4,r5], c) after dl 400*max;
+          f = !alarm(p,ecc, eod, fb, h, list[r1,r2,r3,r4,r5], c) after dl 400*max;
           fl = appendright(fl,f);
           counter = counter + 1;
       }

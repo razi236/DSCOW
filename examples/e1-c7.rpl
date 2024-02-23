@@ -392,7 +392,7 @@ class Hospital implements Hospital {
       FB fb = new FB();
       Hospital h = new Hospital();
       Int counter = 1;
-      Int max = 5;
+      Int max = conc;
       while (counter <= max) {
           Fut<Int> f;
           Int r1 = random(50)+50;
